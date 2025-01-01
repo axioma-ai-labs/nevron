@@ -787,7 +787,7 @@
 <h2 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h2>
 <p>The LLM integration is primarily handled through the <code>src/llm</code> directory, which provides:</p>
 <ul>
-<li>API interaction with OpenAI/Anthropic models</li>
+<li>API interaction with OpenAI/Anthropic/xAI models</li>
 <li>Embeddings generation for memory storage</li>
 <li>Context management</li>
 <li>Response processing &amp; generation</li>
@@ -797,7 +797,7 @@
 <p>For memory storage, the agent uses OpenAI's embedding models to generate vector representations of the memories. These vectors are then stored in a vector database for efficient retrieval and semantic search. To generate embeddings, the agent uses the <code>src/llm/embeddings.py</code> module.</p>
 <p>For embeddings generation we recommend using OpenAI's <a href="https://openai.com/index/new-embedding-models-and-api-updates/"><code>text-embedding-3-large</code></a> model.</p>
 <h3 id="2-response-processing-generation">2. Response Processing &amp; Generation<a class="headerlink" href="#2-response-processing-generation" title="Permanent link">&para;</a></h3>
-<p>The agent uses the LLM class to generate responses through different providers (currently supported: OpenAI or Anthropic). The <code>src/llm/llm.py</code> module provides:</p>
+<p>The agent uses the LLM class to generate responses through different providers. The <code>src/llm/llm.py</code> module provides:</p>
 <ul>
 <li>Unified interface for multiple LLM providers through the <code>LLM</code> class</li>
 <li>Automatic system message injection with agent personality and goals</li>
@@ -807,11 +807,11 @@
 </ul>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>Currently, the agent is configured to use OpenAI's <code>gpt-4o</code> model, but it can be easily configured to use other models (e.g. <code>gpt-4o-mini</code>, <code>gpt-4</code>, as well as Anthropic's models like <code>claude-3-5-sonnet</code> model).</p>
+<p>Currently, the agent is configured to use OpenAI's <code>gpt-4o</code> model, but it can be easily configured to use other models (e.g. <code>gpt-4o-mini</code>, <code>gpt-4</code>, Anthropic's models like <code>claude-3-5-sonnet</code> or xAI's <code>grok-2-latest</code> model).</p>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>To choose model of your choice, set the following environment variables:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OPENAI_API_KEY=your-api-key
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>OPENAI_MODEL=gpt-4  # or other supported models
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>OPENAI_MODEL=gpt-4  # or other supported models (e.g. gpt-4o-mini, gpt-4o, claude-3-5-sonnet, grok-2-latest)
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OPENAI_EMBEDDING_MODEL=text-embedding-3-large # or other supported embedding models
 </code></pre></div></p>
 <hr />
