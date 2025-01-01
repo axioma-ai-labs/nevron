@@ -6,7 +6,7 @@ Large Language Models are the backbone of the Autonomous Agent. They are the cor
 
 The LLM integration is primarily handled through the `src/llm` directory, which provides:
 
-- API interaction with OpenAI/Anthropic models
+- API interaction with OpenAI/Anthropic/xAI models
 - Embeddings generation for memory storage
 - Context management
 - Response processing & generation
@@ -21,7 +21,7 @@ For embeddings generation we recommend using OpenAI's [`text-embedding-3-large`]
 
 ### 2. Response Processing & Generation
 
-The agent uses the LLM class to generate responses through different providers (currently supported: OpenAI or Anthropic). The `src/llm/llm.py` module provides:
+The agent uses the LLM class to generate responses through different providers. The `src/llm/llm.py` module provides:
 
 - Unified interface for multiple LLM providers through the `LLM` class
 - Automatic system message injection with agent personality and goals
@@ -33,13 +33,13 @@ The agent uses the LLM class to generate responses through different providers (
 
 ## Configuration
 
-Currently, the agent is configured to use OpenAI's `gpt-4o` model, but it can be easily configured to use other models (e.g. `gpt-4o-mini`, `gpt-4`, as well as Anthropic's models like `claude-3-5-sonnet` model).
+Currently, the agent is configured to use OpenAI's `gpt-4o` model, but it can be easily configured to use other models (e.g. `gpt-4o-mini`, `gpt-4`, Anthropic's models like `claude-3-5-sonnet` or xAI's `grok-2-latest` model).
 
 ### Environment Variables
 To choose model of your choice, set the following environment variables:
 ```
 OPENAI_API_KEY=your-api-key
-OPENAI_MODEL=gpt-4  # or other supported models
+OPENAI_MODEL=gpt-4  # or other supported models (e.g. gpt-4o-mini, gpt-4o, claude-3-5-sonnet, grok-2-latest)
 OPENAI_EMBEDDING_MODEL=text-embedding-3-large # or other supported embedding models
 ```
 

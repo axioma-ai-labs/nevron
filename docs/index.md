@@ -26,7 +26,7 @@ This framework is built on top of:
 ## Core Features
 
 - **Autonomous Decision Making**: Nevron uses Q-learning algorithm for intelligent decision making
-- **LLM Integration**: Powered by OpenAI & Anthropic Large Language Models
+- **LLM Integration**: Powered by a wide range of Large Language Models (e.g., OpenAI, Anthropic, xAI, etc.)
 - **Modular Workflows**: Predefined autonomous agent task execution patterns
     - Analyze signal workflow
     - Research news workflow

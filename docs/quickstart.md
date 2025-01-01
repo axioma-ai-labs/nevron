@@ -39,6 +39,9 @@ Required environment variables:
 OPENAI_API_KEY=your_key_here    # Required for embeddings
 ENVIRONMENT=development         # Set environment (development or production)
 
+# xAI API   (optional)
+XAI_API_KEY=
+
 # Perplexity API   (optional)
 PERPLEXITY_API_KEY=
 
