@@ -8,6 +8,7 @@ from src.core.defs import LLMProviderType
 from src.core.exceptions import LLMError
 from src.llm.providers.anthropic import call_anthropic
 from src.llm.providers.oai import call_openai
+from src.llm.providers.xai import call_xai
 
 
 class LLM:
@@ -18,7 +19,7 @@ class LLM:
     def __init__(self):
         """
         Initialize the LLM class based on the selected provider from settings.
-        Supported providers: 'openai', 'anthropic'
+        Supported providers: 'openai', 'anthropic', 'xai'
         """
         self.provider = settings.LLM_PROVIDER
         logger.debug(f"Using LLM provider: {self.provider}")
@@ -46,6 +47,8 @@ class LLM:
             return await call_openai(messages, **kwargs)
         elif self.provider == LLMProviderType.ANTHROPIC:
             return await call_anthropic(messages, **kwargs)
+        elif self.provider == LLMProviderType.XAI:
+            return await call_xai(messages, **kwargs)
         else:
             raise LLMError(f"Unknown LLM provider: {self.provider}")
 

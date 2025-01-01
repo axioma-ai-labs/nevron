@@ -68,6 +68,10 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
+    #: xAI
+    XAI_API_KEY: str = ""
+    XAI_MODEL: str = "grok-2-latest"
+
     # ==========================
     # Agent settings
     # ==========================
