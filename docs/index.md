@@ -1,5 +1,7 @@
 # **Developer Documentation**
 
+[![CI](https://github.com/axioma-ai-labs/aa-core/actions/workflows/main.yml/badge.svg)](https://github.com/axioma-ai-labs/aa-core/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/axioma-ai-labs/nevron/branch/main/graph/badge.svg?token=krO46pgB7P)](https://codecov.io/gh/axioma-ai-labs/nevron)
 [![Docs](https://img.shields.io/badge/Nevron-Docs-blue)](https://axioma-ai-labs.github.io/nevron/)
 
 ![Nevron Header](assets/nevron_header.png)
