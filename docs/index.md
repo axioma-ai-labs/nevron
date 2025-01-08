@@ -13,6 +13,8 @@ This framework is designed to be a modular and extensible framework for building
 
 Follow this documentation to learn how to create your first Nevron, build your own tools & workflows, and integrate with external services.
 
+> **Note:** This documentation version is for the latest stable version of Nevron. If you are looking for the documentation for the development version, please refer to the github repository. and build the docs locally. More on that in the [Development Setup](development/setup.md) section.
+
 ## Overview
 
 Nevron is an open-source framework that support the development, deployment and management of autonomous AI agents.

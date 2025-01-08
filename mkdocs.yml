@@ -36,6 +36,10 @@ nav:
       - Memory: agent/memory.md
       - Planning: agent/planning.md
       - Feedback: agent/feedback.md
+  - Development:
+      - Setup: development/setup.md
+      - Workflow: development/workflow.md
+      - Contributing: development/contributing.md
   - Deployment: deployment.md
   - Source Code: https://github.com/axioma-ai-labs/nevron
   - Discussions: https://github.com/axioma-ai-labs/nevron/discussions
