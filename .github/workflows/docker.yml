@@ -1,0 +1,46 @@
+name: Build and Push Docker image
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/nevron
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      # Don't log in for now
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v3
+      #   if: github.event_name == 'push'  # Only log in on pushes to main
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false # disable push for now
+          tags: ${{ env.IMAGE_NAME }}:latest
+          labels: ${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64,linux/arm64
