@@ -867,7 +867,7 @@
 <h3 id="1-clone-install">1. Clone &amp; Install<a class="headerlink" href="#1-clone-install" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># clone the repository</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/axioma-ai-labs/nevron.git
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>aa-core
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>nevron
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># install dependencies</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>make<span class="w"> </span>deps
@@ -877,29 +877,10 @@
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cp<span class="w"> </span>.env.dev<span class="w"> </span>.env
 </code></pre></div>
 <p>Required environment variables:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_key_here<span class="w">    </span><span class="c1"># Required for embeddings</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">ENVIRONMENT</span><span class="o">=</span>development<span class="w">         </span><span class="c1"># Set environment (development or production)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># xAI API   (optional)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">XAI_API_KEY</span><span class="o">=</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Perplexity API   (optional)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nv">PERPLEXITY_API_KEY</span><span class="o">=</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Coinstats API   (optional)</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="nv">COINSTATS_API_KEY</span><span class="o">=</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># Telegram   (optional)</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="nv">TELEGRAM_BOT_TOKEN</span><span class="o">=</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="nv">TELEGRAM_CHAT_ID</span><span class="o">=</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="c1"># Twitter   (optional)</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="nv">TWITTER_BEARER_TOKEN</span><span class="o">=</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="nv">TWITTER_API_KEY</span><span class="o">=</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="nv">TWITTER_API_SECRET_KEY</span><span class="o">=</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="nv">TWITTER_ACCESS_TOKEN</span><span class="o">=</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="nv">TWITTER_ACCESS_TOKEN_SECRET</span><span class="o">=</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ENVIRONMENT</span><span class="o">=</span>development<span class="w">         </span><span class="c1"># Set environment (development or production)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_key_here<span class="w">    </span><span class="c1"># Required for embeddings</span>
 </code></pre></div></p>
+<p>Note, there're many more environment variables you can set! Please, explore the .env.dev file.</p>
 <h3 id="3-choose-memory-backend">3. Choose Memory Backend<a class="headerlink" href="#3-choose-memory-backend" title="Permanent link">&para;</a></h3>
 <h4 id="option-a-chroma-default">Option A: Chroma (Default)<a class="headerlink" href="#option-a-chroma-default" title="Permanent link">&para;</a></h4>
 <p>No additional setup required. Uses local file storage.</p>
