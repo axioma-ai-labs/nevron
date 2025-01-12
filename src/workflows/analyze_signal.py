@@ -3,7 +3,7 @@ from typing import Optional
 from loguru import logger
 
 from src.llm.llm import LLM
-from src.memory.memory_module import MemoryModule, get_memory_module
+from src.memory import MemoryModule, get_memory_module
 from src.tools.get_signal import fetch_signal
 from src.tools.twitter import post_twitter_thread
 

@@ -1,6 +1,6 @@
 import pytest
 
-from src.feedback.feedback_module import FeedbackModule
+from src.feedback import FeedbackModule
 
 
 @pytest.fixture

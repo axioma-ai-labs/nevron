@@ -27,6 +27,12 @@ class Settings(BaseSettings):
 
     # --- Planning settings ---
 
+    #: Planning API URL
+    PLANNING_API_URL: str = "http://localhost:11434/api/generate"
+
+    #: Planning model
+    PLANNING_MODEL: str = "llama3.2"
+
     #: Path to the persistent Q-table file
     PERSISTENT_Q_TABLE_PATH: str = "persistent_q_table.json"
 

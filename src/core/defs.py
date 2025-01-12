@@ -24,9 +24,25 @@ class AgentState(Enum):
 
     DEFAULT = "default"
     IDLE = "idle"
-    WAITING_FOR_NEWS = "waiting_for_news"
     JUST_ANALYZED_NEWS = "just_analyzed_news"
     JUST_ANALYZED_SIGNAL = "just_analyzed_signal"
+
+    @classmethod
+    def from_action(cls, action: AgentAction) -> "AgentState":
+        """Convert an AgentAction to the corresponding AgentState.
+
+        Args:
+            action: The AgentAction to convert
+
+        Returns:
+            The corresponding AgentState
+        """
+        action_to_state = {
+            AgentAction.IDLE: cls.IDLE,
+            AgentAction.ANALYZE_NEWS: cls.JUST_ANALYZED_NEWS,
+            AgentAction.CHECK_SIGNAL: cls.JUST_ANALYZED_SIGNAL,
+        }
+        return action_to_state.get(action, cls.DEFAULT)
 
 
 class MemoryBackendType(str, Enum):

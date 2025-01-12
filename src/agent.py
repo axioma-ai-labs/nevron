@@ -5,9 +5,10 @@ from loguru import logger
 
 from src.core.config import settings
 from src.core.defs import AgentAction, AgentState
-from src.feedback.feedback_module import FeedbackModule
-from src.memory.memory_module import get_memory_module
-from src.planning.planning_module import PlanningModule
+from src.execution import ExecutionModule
+from src.feedback import FeedbackModule
+from src.memory import get_memory_module
+from src.planning import PlanningModule
 from src.workflows.analyze_signal import analyze_signal
 from src.workflows.research_news import analyze_news_workflow
 
@@ -35,10 +36,10 @@ class Agent:
         self.memory_module = get_memory_module()
 
         #: Initialize Planning Module with persistent Q-table
-        self.planning_module = PlanningModule(
-            actions=list(AgentAction),
-            q_table_path=settings.PERSISTENT_Q_TABLE_PATH,  # Persistent Q-table file
-        )
+        self.planning_module = PlanningModule()
+
+        #: Initialize Execution Module
+        self.execution_module = ExecutionModule()
 
         #: Initialize Feedback Module
         self.feedback_module = FeedbackModule()
@@ -72,10 +73,6 @@ class Agent:
     ):
         """Update the Q-learning table in the PlanningModule."""
         self.planning_module.update_q_table(state, action, reward, next_state)
-
-    def _collect_feedback(self, action: str, outcome: Optional[Any]) -> float:
-        """Collect feedback for the action & outcome in the FeedbackModule."""
-        return self.feedback_module.collect_feedback(action, outcome)
 
     # --------------------------------------------------------------
     # RL-based PLANNING & EXECUTION
@@ -130,23 +127,30 @@ class Agent:
                 # 1. Choose an action
                 #    You might treat the entire system as one "state", or define states.
                 logger.info(f"Current state: {self.state.value}")
-                action_name = self.planning_module.get_action(self.state)
-                logger.info(f"Action chosen: {action_name.value}")
+                next_action = await self.planning_module.get_next_action(self.state)
+                logger.info(f"Action chosen: {next_action.value}")
 
                 # 2. Perform that action
-                outcome = await self._perform_planned_action(action_name)
-                logger.info(f"Outcome: {outcome}")
+                result = await self.execution_module.execute_action(next_action)
+                logger.info(f"Outcome: {result}")
 
                 # 3. Collect feedback
-                reward = self._collect_feedback(action_name.value, outcome)
+                reward = self.feedback_module.collect_feedback(
+                    next_action.value, result.get("outcome")
+                )
                 logger.info(f"Reward: {reward}")
 
-                # 4. Update the planning policy
-                next_state = self.state
-                logger.info(f"Next state: {next_state.value}")
-                self._update_planning_policy(self.state, action_name, reward, next_state)
+                # 4. Update state and memory
+                self.state = AgentState.from_action(next_action)
+                # self.memory_module.store(
+                #     {
+                #         "state": self.state.value,
+                #         "action": next_action.value,
+                #         "outcome": result.get("outcome", "Unknown"),
+                #     }
+                # )
 
-                # 4. Sleep or yield
+                # 5. Sleep or yield
                 logger.info("Let's rest a bit...")
                 await asyncio.sleep(settings.AGENT_REST_TIME)
 
