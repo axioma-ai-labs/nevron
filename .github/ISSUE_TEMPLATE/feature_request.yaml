@@ -1,0 +1,47 @@
+name: 💡 Feature Request
+description: Suggest an idea for this project
+title: "[FEATURE] "
+labels: ["feature", "enhancement"]
+assignees: []
+body:
+  - type: checkboxes
+    attributes:
+      label: Issue Search
+      description: Please search to see if this feature has already been suggested.
+      options:
+        - label: I have searched the existing feature requests
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or features you've considered.
+      placeholder: A clear and concise description of any alternative solutions or features you've thought about.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context, screenshots, or examples about the feature request here.
+        
+        Tip: You can attach images or documents by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
