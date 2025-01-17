@@ -1,0 +1,67 @@
+# == Re-useable Definitions ==================================================
+
+# Default service definition
+x-service-default: &service_default
+  env_file:
+    - .env
+  networks:
+    - internal_net
+    - external_net
+  restart: unless-stopped
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+# == Services ===============================================================
+
+services:
+
+  # -- Nevron Agent -------------------------------------------------------
+  #
+  # The main Nevron AI agent service
+
+  nevron:
+    <<: *service_default
+    image: axiomai/nevron:latest
+    container_name: nevron
+    hostname: nevron
+    depends_on:
+      - qdrant
+    volumes:
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/nevron/logs
+        target: /app/logs
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/nevron/chromadb
+        target: /app/.chromadb
+
+  # -- Qdrant ---------------------------------------------------------------
+  #
+  # Vector database with persistent storage
+
+  qdrant:
+    <<: *service_default
+    image: qdrant/qdrant:latest
+    container_name: nevron-qdrant
+    hostname: nevron-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/qdrant/data
+        target: /qdrant/storage
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/qdrant/snapshots
+        target: /qdrant/snapshots
+
+# == Networks ===============================================================
+
+networks:
+  internal_net:
+    driver: bridge
+    internal: true
+  external_net:
+    driver: bridge

@@ -38,6 +38,7 @@ nav:
       - Feedback: agent/feedback.md
   - Development:
       - Setup: development/setup.md
+      - Environment: development/environment.md
       - Workflow: development/workflow.md
       - Contributing: development/contributing.md
   - Deployment: deployment.md

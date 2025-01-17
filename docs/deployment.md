@@ -1,126 +1,126 @@
 # Deployment
 
-This guide explains how to deploy Nevron using Docker and various cloud platforms.
+This guide covers deployment option for Nevron using Docker.
 
 ## Docker Deployment
 
-Nevron comes with a pre-configured Dockerfile that allows you to run the agent in a containerized environment. This provides consistency across different deployment environments and makes it easy to deploy the agent anywhere that supports Docker.
+### Official Docker Image
 
-### Prerequisites
-
-- Docker installed on your system
-- `.env` file with proper configuration
-- Sufficient disk space for logs
-
-### Building the Docker Image
-
-To build the Docker image, run the following command from the root directory of the project:
-
+Nevron is available as an official Docker image on Docker Hub:
 ```bash
-docker build -t nevron:latest .
+docker pull axiomai/nevron:latest
 ```
 
-### Running the Container
-
-To run the Nevron container, you need to:
-1. Mount the logs directory
-2. Provide environment variables
-
-Here's the basic command:
+Also you can build the image locally:
 
 ```bash
+docker build -t axiomai/nevron:latest .
+```
+
+### Running with Docker
+
+Basic run command:
+```bash
+# create directories for volumes
+mkdir -p volumes/.chromadb
+
+# run the agent
 docker run -d \
   --name nevron \
-  -v $(pwd)/logs:/nevron/logs \
-  --env-file .env \
-  nevron:latest
+  -e .env \
+  -v $(pwd)/volumes/.chromadb:/app/.chromadb \
+  axiomai/nevron:latest
 ```
 
-#### Important Notes:
+### Configuration
 
-##### Logs Volume
+#### Volume Mounts
+- `.chromadb`: Persistent storage for ChromaDB (when using ChromaDB backend)
+- `qdrant_storage`: Persistent storage for Qdrant (when using Qdrant backend)
 
-- The container creates a `/nevron/logs` directory
-- You should mount this directory to persist logs
-- Example: `-v $(pwd)/logs:/nevron/logs`
+#### Environment Variables
 
-##### Environment Variables
+You'll need to set the `OPENAI_API_KEY` environment variable to be able to use the agent.
 
-- The container requires a properly configured `.env` file
-- You can copy `.env.dev` as a template: `cp .env.dev .env`
-- Make sure to set all required API keys and configurations
-- Pass the env file using `--env-file .env`
+For a complete list of available environment variables, see the [Environment Variables](development/environment.md) documentation.
 
-##### Container Management
+### Docker Compose
+
+For production deployments, we provide a `docker-compose.yml`:
+
+```yaml
+# See the full file in the repository
+services:
+  nevron:
+    image: axiomai/nevron:latest
+    # ... configuration ...
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    # ... configuration ...
+```
+
+Key features of our Docker Compose setup:
+
+1. **Service Definitions**
+   - Reusable service defaults
+   - Automatic restart policies
+   - Proper logging configuration
+   - Network isolation
+
+2. **Volume Management**
+   - Persistent storage for logs
+   - Configurable volume base directory
+   - Separate volumes for different components
+
+3. **Networking**
+   - Internal network for service communication
+   - External network for API access
+   - Bridge network driver for security
+
+4. **Environment Configuration**
+   - Environment file support
+   - Override capability for all settings
+   - Service-specific environment variables
+
+To use Docker Compose:
 
 ```bash
-# Stop the container
-docker stop nevron
+# Create required directories
+mkdir -p volumes/{nevron,qdrant}/{logs,data,snapshots}
 
-# Start the container
-docker start nevron
+# Add your .env file
+cp .env.example .env
+
+# Start services
+docker compose up -d
 
 # View logs
-docker logs -f nevron
+docker compose logs -f
+
+# Stop services
+docker compose down
 ```
 
-## Cloud Deployment Options
+Important:
+- Make sure to set the correct environment variables in the `.env` file.
+- Make sure to set the correct volume mounts in the `docker-compose.yml` file.
 
-You can deploy the Nevron Docker container to various cloud platforms:
+## Production Considerations
 
-### AWS
+When deploying to production, consider the following:
 
-1. Push the image to Amazon ECR
-2. Deploy using:
-      - ECS (Elastic Container Service)
-      - EKS (Elastic Kubernetes Service)
-      - EC2 with Docker installed
+1. Use a production-grade process manager (e.g., supervisord, systemd)
+2. Set up proper logging and monitoring
+3. Use secure storage for API keys and sensitive data
+4. Configure appropriate resource limits
+5. Set up health checks and automatic restarts
+6. Use a reverse proxy for any exposed endpoints
+7. Implement proper backup strategies for memory backends
 
-### Google Cloud
-
-1. Push the image to Google Container Registry
-2. Deploy using:
-      - Google Kubernetes Engine (GKE)
-      - Cloud Run
-      - Compute Engine with Docker installed
-
-### Azure
-
-1. Push the image to Azure Container Registry
-2. Deploy using:
-      - Azure Kubernetes Service (AKS)
-      - Azure Container Instances
-      - VM with Docker installed
-
-### Digital Ocean
-
-1. Push the image to Digital Ocean Container Registry
-2. Deploy using:
-      - Digital Ocean Kubernetes
-      - Droplet with Docker installed
-
-## Best Practices
-
-##### Security
-
-- Never include sensitive data in the Docker image
-- Use environment variables for all sensitive information
-- Follow the [Security Policy](../SECURITY.md) guidelines
-
-##### Monitoring
-
-- Mount the logs directory to persist logs
-- Consider implementing container monitoring
-- Set up alerts for container health
-
-##### Updates
-
-- Use specific version tags for production deployments
-- Implement a strategy for updating the container
-- Keep base images updated for security patches
-
-##### Resource Management
-
-- Monitor container resource usage
-- Set appropriate resource limits
-- Scale based on your needs 
+For production deployments, we recommend:
+- Using the Docker Compose deployment method
+- Setting `ENVIRONMENT=production` in your configuration
+- Using a dedicated memory backend instance
+- Implementing proper monitoring and alerting
+- Regular backups of memory storage 
