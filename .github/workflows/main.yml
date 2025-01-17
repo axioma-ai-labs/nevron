@@ -11,6 +11,16 @@ on:
       - dev
 
 jobs:
+  Cancel-Previous:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - uses: khan/pull-request-workflow-cancel@1.0.1
+        with:
+          workflows: "python.yml"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
   Lint:
     runs-on: ubuntu-latest
     steps:
