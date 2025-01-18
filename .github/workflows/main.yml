@@ -10,17 +10,11 @@ on:
       - main
       - dev
 
-jobs:
-  Cancel-Previous:
-    runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
-    steps:
-      - uses: khan/pull-request-workflow-cancel@1.0.1
-        with:
-          workflows: "main.yml | docker.yml"
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
 
+jobs:
   Lint:
     runs-on: ubuntu-latest
     steps:

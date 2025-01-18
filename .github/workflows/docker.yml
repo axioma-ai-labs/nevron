@@ -14,6 +14,10 @@ env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/nevron
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
