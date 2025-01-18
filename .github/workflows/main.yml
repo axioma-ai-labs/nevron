@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.1
         with:
-          workflows: "python.yml"
+          workflows: "main.yml | docker.yml"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
@@ -79,4 +79,4 @@ jobs:
         with:
           flags: main
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: axioma-ai-labs/aa-core
+          slug: axioma-ai-labs/nevron
