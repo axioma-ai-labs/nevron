@@ -71,3 +71,9 @@ class GitHubError(Exception):
     """Raised when WhatsApp operations fail"""
 
     pass
+
+
+class ExecutionError(AgentBaseError):
+    """Exception raised when execution fails."""
+
+    pass

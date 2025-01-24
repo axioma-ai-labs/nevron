@@ -12,7 +12,6 @@ def log_settings():
     # General settings
     logger.info("General Settings:")
     logger.info(f"  Environment: {settings.ENVIRONMENT}")
-    logger.info(f"  Planning Module table path: {settings.PERSISTENT_Q_TABLE_PATH}")
     logger.info(f"  Agent's memory powered by: {settings.MEMORY_BACKEND_TYPE}")
     logger.info(f"  Agent's intelligence powered by: {settings.LLM_PROVIDER}")
 

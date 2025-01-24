@@ -12,6 +12,13 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
+        },
+        {
+            "name": "Python: Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.debug",
+            "console": "integratedTerminal"
         }
     ]
 } 
