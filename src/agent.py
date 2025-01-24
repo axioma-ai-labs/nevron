@@ -1,7 +1,7 @@
 """Agent runtime implementation."""
 
 import asyncio
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from loguru import logger
 
@@ -12,8 +12,12 @@ from src.execution.execution_module import ExecutionModule
 from src.feedback.feedback_module import FeedbackModule
 from src.memory.memory_module import get_memory_module
 from src.planning.planning_module import PlanningModule
-from src.workflows.analyze_signal import analyze_signal
-from src.workflows.research_news import analyze_news_workflow
+
+ACTION_2_STATE: Dict[AgentAction, AgentState] = {
+    AgentAction.ANALYZE_NEWS: AgentState.JUST_ANALYZED_NEWS,
+    AgentAction.CHECK_SIGNAL: AgentState.JUST_ANALYZED_SIGNAL,
+    AgentAction.IDLE: AgentState.DEFAULT,
+}
 
 
 class Agent:
@@ -58,59 +62,12 @@ class Agent:
 
     def _update_state(self, last_action: AgentAction):
         """Updates the agent's state based on the last action."""
-        if last_action == AgentAction.CHECK_SIGNAL:
-            self.state = AgentState.JUST_ANALYZED_SIGNAL
-        elif last_action == AgentAction.ANALYZE_NEWS:
-            self.state = AgentState.JUST_ANALYZED_NEWS
-        elif last_action == AgentAction.IDLE:
-            self.state = AgentState.DEFAULT
-
+        self.state = ACTION_2_STATE[last_action]
         logger.info(f"Agent state updated to: {self.state.value}")
 
     def _collect_feedback(self, action: str, outcome: Optional[Any]) -> float:
         """Collect feedback for the action & outcome in the FeedbackModule."""
         return self.feedback_module.collect_feedback(action, outcome)
-
-    # --------------------------------------------------------------
-    # RL-based PLANNING & EXECUTION
-    # --------------------------------------------------------------
-
-    async def _perform_planned_action(self, action_name: AgentAction) -> Optional[str]:
-        """Perform the planned action and return the outcome."""
-        outcome = None
-
-        # 1. Perform the action based on the action name (arg)
-        if action_name == AgentAction.IDLE:
-            logger.info("Agent is idling.")
-            outcome = action_name.value
-
-        elif action_name == AgentAction.CHECK_SIGNAL:
-            result = await analyze_signal()
-            if result:
-                logger.info("Actionable signal perceived.")
-                outcome = result
-            else:
-                logger.info("No actionable signal detected.")
-                outcome = None
-
-        elif action_name == AgentAction.ANALYZE_NEWS:
-            recent_news = "No recent news found"
-            retrieved = await self.memory_module.search("news", top_k=1)
-            logger.debug(f"Retrieved memories: {retrieved}")
-            if retrieved:
-                recent_news = retrieved[0]["event"]
-            outcome = await analyze_news_workflow(recent_news)
-
-        # 2. Store the outcome in memory
-        event = f"Performed action '{action_name.value}'"
-        await self.memory_module.store(
-            event, action_name.value, str(outcome), metadata={"state": self.state.value}
-        )
-        logger.debug("Stored performed action to memory.")
-
-        # 3. Update the state
-        self._update_state(action_name)
-        return outcome
 
     # --------------------------------------------------------------
     # MAIN LOOP

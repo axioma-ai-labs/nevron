@@ -29,7 +29,7 @@ class AnalyzeNewsExecutor(ActionExecutor):
             news_text = context.get("news_text")
             if not news_text:
                 return False, "No news text provided in context"
-                
+
             result = await analyze_news_workflow(news=news_text)
             return True, f"News analyzed: {result}"
         except Exception as e:

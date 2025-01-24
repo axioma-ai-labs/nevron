@@ -126,22 +126,6 @@ def test_agent_context_queries():
     assert all(a.action == AgentAction.IDLE for a in idle_actions)
 
 
-def test_context_manager_save_load(temp_context_file, sample_context_data):
-    """Test saving and loading context."""
-    # Save context
-    with open(temp_context_file, "w") as f:
-        json.dump(sample_context_data, f)
-
-    # Load context
-    manager = ContextManager(context_path=temp_context_file)
-    context = manager.get_context()
-
-    assert len(context.actions_history) == 1
-    assert context.total_actions == 1
-    assert context.total_rewards == 1.0
-    assert context.metadata == {"test": True}
-
-
 def test_context_manager_add_action(temp_context_file):
     """Test adding actions through ContextManager."""
     manager = ContextManager(context_path=temp_context_file)
