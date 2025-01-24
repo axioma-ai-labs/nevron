@@ -1,7 +1,7 @@
 """Context module for maintaining agent's persistent state and history."""
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -14,7 +14,7 @@ from src.core.defs import AgentAction, AgentState
 class ActionContext(BaseModel):
     """Context for a single action."""
 
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = datetime.now(timezone.utc)
     action: AgentAction
     state: AgentState
     outcome: Optional[str] = None
@@ -94,7 +94,7 @@ class ContextManager:
             try:
                 with open(self.context_path, "r") as f:
                     data = json.load(f)
-                    return AgentContext.model_validate(data)
+                    return AgentContext.model_validate_json(data)
             except Exception as e:
                 logger.error(f"Failed to load context: {e}")
                 return AgentContext()
@@ -105,9 +105,9 @@ class ContextManager:
         try:
             # Create directory if it doesn't exist
             self.context_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             with open(self.context_path, "w") as f:
-                json.dump(self.context.model_dump(), f, indent=2, default=str)
+                f.write(self.context.model_dump_json(indent=2))
             logger.debug(f"Context saved to {self.context_path}")
         except Exception as e:
             logger.error(f"Failed to save context: {e}")
@@ -135,4 +135,4 @@ class ContextManager:
 
     def get_context(self) -> AgentContext:
         """Get the current context."""
-        return self.context 
+        return self.context

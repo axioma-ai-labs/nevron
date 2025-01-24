@@ -3,7 +3,7 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.defs import Environment, LLMProviderType, LlamaProviderType, MemoryBackendType
+from src.core.defs import Environment, LlamaProviderType, LLMProviderType, MemoryBackendType
 
 
 class Settings(BaseSettings):

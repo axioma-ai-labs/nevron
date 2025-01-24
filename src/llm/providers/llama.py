@@ -143,10 +143,7 @@ async def _call_llama_api(messages: List[Dict[str, str]], **kwargs) -> str:
     model = kwargs.get("model", settings.LLAMA_API_MODEL)
     temperature = kwargs.get("temperature", 0.6)
 
-    client = OpenAI(
-        api_key=settings.LLAMA_API_KEY,
-        base_url=settings.LLAMA_API_BASE_URL
-    )
+    client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL)
 
     logger.debug(
         f"Calling Llama API with model={model}, temperature={temperature}, messages={messages}"
@@ -155,7 +152,7 @@ async def _call_llama_api(messages: List[Dict[str, str]], **kwargs) -> str:
     try:
         response = client.chat.completions.create(
             model=model,
-            messages=messages,
+            messages=messages,  # type: ignore
             temperature=temperature,
         )
 
@@ -184,10 +181,7 @@ async def _call_openrouter(messages: List[Dict[str, str]], **kwargs) -> str:
     model = kwargs.get("model", settings.LLAMA_OPENROUTER_MODEL)
     temperature = kwargs.get("temperature", 0.6)
 
-    client = OpenAI(
-        api_key=settings.LLAMA_API_KEY,
-        base_url=settings.LLAMA_OPENROUTER_URL
-    )
+    client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_OPENROUTER_URL)
 
     logger.debug(
         f"Calling OpenRouter with model={model}, temperature={temperature}, messages={messages}"
@@ -196,7 +190,7 @@ async def _call_openrouter(messages: List[Dict[str, str]], **kwargs) -> str:
     try:
         response = client.chat.completions.create(
             model=model,
-            messages=messages,
+            messages=messages,  # type: ignore
             temperature=temperature,
         )
 

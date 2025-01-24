@@ -40,9 +40,6 @@ mkdocs-macros-plugin = "*"
 mkdocs-awesome-pages-plugin = "*"
 anthropic = "*"
 chromadb = "*"
-pytest = "*"
-ruff = "*"
-
 
 [dev-packages]
 mypy = "*"
@@ -51,8 +48,7 @@ pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 ruff = "*"
-torch = {version = "*", index = "pypi", extras = ["cpu"]}
-transformers = {version = ">=4.38.0"}
+freezegun = "*"
 
 [requires]
 python_version = "3.12"
