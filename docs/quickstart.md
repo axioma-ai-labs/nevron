@@ -35,9 +35,22 @@ cp .env.example .env
 
 ### 2. Configure
 
-You have to set the `OPENAI_API_KEY` environment variable to be able to use the agent.
+Edit `.env` file with your settings:
 ```bash
-OPENAI_API_KEY=your_key_here    # Required
+# Required: Choose one of the LLM providers and set its API key
+OPENAI_API_KEY=your_key_here    # For OpenAI
+# ANTHROPIC_API_KEY=your_key_here # For Anthropic
+# XAI_API_KEY=your_key_here      # For xAI
+# LLAMA_API_KEY=your_key_here    # For Llama with Fireworks
+# Or use local Llama with Ollama:
+# LLAMA_PROVIDER=ollama
+# LLAMA_OLLAMA_MODEL=llama3.1:8b
+
+# Optional: Set the environment
+ENVIRONMENT=production          # Recommended for Docker setup
+
+# Optional: Choose memory backend
+MEMORY_BACKEND_TYPE=chroma     # Default memory backend
 ```
 
 Also, you can configure the personality, goals and rest time of your agent in `.env`.

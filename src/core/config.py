@@ -3,7 +3,7 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.defs import Environment, LLMProviderType, MemoryBackendType
+from src.core.defs import Environment, LLMProviderType, LlamaProviderType, MemoryBackendType
 
 
 class Settings(BaseSettings):
@@ -196,8 +196,18 @@ class Settings(BaseSettings):
     GITHUB_TOKEN: str = ""
 
     # --- llama settings ---
-    LLAMA_MODEL_PATH: str = ""
-    LLAMA_MAX_TOKENS: int = 512
+    LLAMA_API_KEY: str = ""
+    LLAMA_MODEL_NAME: str = "llama3-8b-8192"
+    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
+    LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
+    LLAMA_OLLAMA_URL: str = "http://localhost:11434"
+    LLAMA_OLLAMA_MODEL: str = "llama3.2:latest"
+    LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
+    LLAMA_API_MODEL: str = "llama3.1-70b"
+    LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
+    LLAMA_OPENROUTER_MODEL: str = "meta-llama/llama-3.2-1b-instruct"
+    LLAMA_OPENROUTER_SITE_URL: str = ""  # Optional. Site URL for rankings
+    LLAMA_OPENROUTER_SITE_NAME: str = ""  # Optional. Site name for rankings
 
     # ==========================
     # Validators

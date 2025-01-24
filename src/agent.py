@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from loguru import logger
 
+from src.context.context import ContextManager
 from src.core.config import settings
 from src.core.defs import AgentAction, AgentState
 from src.feedback.feedback_module import FeedbackModule
@@ -21,6 +22,7 @@ class Agent:
       4. Execution Module
       5. Feedback Module
       6. Autonomy Engine
+      7. Context Manager (for persistent state)
 
     ### Adding a New State
       1. Open `core/defs.py`.
@@ -43,8 +45,11 @@ class Agent:
         #: Initialize Feedback Module
         self.feedback_module = FeedbackModule()
 
-        #: Start in a default state
-        self.state = AgentState.DEFAULT  # "default"
+        #: Initialize Context Manager
+        self.context_manager = ContextManager()
+
+        #: Start with the last known state or default
+        self.state = self.context_manager.get_context().last_state
 
         # ===== Agent Personality =====
         #: The agent's personality description
@@ -128,7 +133,6 @@ class Agent:
         while True:
             try:
                 # 1. Choose an action
-                #    You might treat the entire system as one "state", or define states.
                 logger.info(f"Current state: {self.state.value}")
                 action_name = self.planning_module.get_action(self.state)
                 logger.info(f"Action chosen: {action_name.value}")
@@ -141,12 +145,20 @@ class Agent:
                 reward = self._collect_feedback(action_name.value, outcome)
                 logger.info(f"Reward: {reward}")
 
-                # 4. Update the planning policy
+                # 4. Update context
+                self.context_manager.add_action(
+                    action=action_name,
+                    state=self.state,
+                    outcome=str(outcome) if outcome else None,
+                    reward=reward,
+                )
+
+                # 5. Update the planning policy
                 next_state = self.state
                 logger.info(f"Next state: {next_state.value}")
                 self._update_planning_policy(self.state, action_name, reward, next_state)
 
-                # 4. Sleep or yield
+                # 6. Sleep or yield
                 logger.info("Let's rest a bit...")
                 await asyncio.sleep(settings.AGENT_REST_TIME)
 

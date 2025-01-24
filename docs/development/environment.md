@@ -23,7 +23,7 @@ This page lists all available environment variables that can be configured in Ne
 - `MEMORY_PERSIST_DIRECTORY`: Memory persist directory (ChromaDB only). Default: `.chromadb`
 
 ### LLM Settings
-- `LLM_PROVIDER`: LLM provider type (`openai`, `anthropic`, `xai`). Default: `openai`
+- `LLM_PROVIDER`: LLM provider type (`openai`, `anthropic`, `xai`, `llama`). Default: `openai`
 
 #### Anthropic
 - `ANTHROPIC_API_KEY`: Anthropic API key
@@ -37,6 +37,25 @@ This page lists all available environment variables that can be configured in Ne
 #### xAI
 - `XAI_API_KEY`: xAI API key
 - `XAI_MODEL`: xAI model name. Default: `grok-2-latest`
+
+#### Llama
+- `LLAMA_API_KEY`: Llama API key (required for Fireworks, Llama API, and OpenRouter providers)
+- `LLAMA_MODEL_NAME`: Llama model name for Fireworks. Default: `llama3-8b-8192`
+- `LLAMA_PROVIDER`: Llama provider type (`fireworks`, `ollama`, `llama-api`, or `openrouter`). Default: `ollama`
+
+##### Ollama Settings
+- `LLAMA_OLLAMA_URL`: Ollama API URL. Default: `http://localhost:11434`
+- `LLAMA_OLLAMA_MODEL`: Ollama model name. Default: `llama3.2:latest`
+
+##### Llama API Settings
+- `LLAMA_API_BASE_URL`: Llama API base URL. Default: `https://api.llama-api.com`
+- `LLAMA_API_MODEL`: Llama API model name. Default: `llama3.1-70b`
+
+##### OpenRouter Settings
+- `LLAMA_OPENROUTER_URL`: OpenRouter API URL. Default: `https://openrouter.ai/api/v1`
+- `LLAMA_OPENROUTER_MODEL`: OpenRouter model name. Default: `meta-llama/llama-3.2-1b-instruct`
+- `LLAMA_OPENROUTER_SITE_URL`: Optional. Site URL for rankings on openrouter.ai
+- `LLAMA_OPENROUTER_SITE_NAME`: Optional. Site name for rankings on openrouter.ai
 
 ## Agent Settings
 

@@ -3,8 +3,8 @@
 from enum import Enum
 
 
-class Environment(Enum):
-    """The environment of the application."""
+class Environment(str, Enum):
+    """Environment type."""
 
     PRODUCTION = "production"
     DEVELOPMENT = "development"
@@ -30,16 +30,25 @@ class AgentState(Enum):
 
 
 class MemoryBackendType(str, Enum):
-    """Available memory backend types."""
+    """Memory backend type."""
 
-    QDRANT = "qdrant"
     CHROMA = "chroma"
+    QDRANT = "qdrant"
 
 
 class LLMProviderType(str, Enum):
-    """Available LLM provider types."""
+    """LLM provider type."""
 
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     XAI = "xai"
     LLAMA = "llama"
+
+
+class LlamaProviderType(str, Enum):
+    """Llama provider type."""
+
+    OLLAMA = "ollama"
+    FIREWORKS = "fireworks"
+    LLAMA_API = "llama-api"
+    OPENROUTER = "openrouter"
