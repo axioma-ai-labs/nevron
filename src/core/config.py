@@ -25,16 +25,6 @@ class Settings(BaseSettings):
     #: Project name
     PROJECT_NAME: str = "autonomous-agent"
 
-    # --- Planning settings ---
-
-    #: Path to the persistent Q-table file
-    PERSISTENT_Q_TABLE_PATH: str = "persistent_q_table.json"
-
-    #: PlanningModule parameters
-    PLANNING_ALPHA: float = 0.1  # Default learning rate
-    PLANNING_GAMMA: float = 0.95  # Default discount factor
-    PLANNING_EPSILON: float = 0.1  # Default exploration rate
-
     # --- Memory settings ---
 
     #: Memory backend type
@@ -71,6 +61,16 @@ class Settings(BaseSettings):
     #: xAI
     XAI_API_KEY: str = ""
     XAI_MODEL: str = "grok-2-latest"
+
+    #: Llama
+    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
+    LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
+    LLAMA_API_KEY: str = ""  # API key for your provider
+
+    LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
+    LLAMA_OLLAMA_URL: str = "http://localhost:11434"
+    LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
+    LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
 
     # ==========================
     # Agent settings
@@ -194,20 +194,6 @@ class Settings(BaseSettings):
 
     #: --- Github settings ---
     GITHUB_TOKEN: str = ""
-
-    # --- llama settings ---
-    LLAMA_API_KEY: str = ""
-    LLAMA_MODEL_NAME: str = "llama3-8b-8192"
-    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
-    LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
-    LLAMA_OLLAMA_URL: str = "http://localhost:11434"
-    LLAMA_OLLAMA_MODEL: str = "llama3.2:latest"
-    LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
-    LLAMA_API_MODEL: str = "llama3.1-70b"
-    LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-    LLAMA_OPENROUTER_MODEL: str = "meta-llama/llama-3.2-1b-instruct"
-    LLAMA_OPENROUTER_SITE_URL: str = ""  # Optional. Site URL for rankings
-    LLAMA_OPENROUTER_SITE_NAME: str = ""  # Optional. Site name for rankings
 
     # ==========================
     # Validators

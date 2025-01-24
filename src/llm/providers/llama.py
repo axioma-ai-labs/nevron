@@ -96,7 +96,7 @@ async def _call_ollama(messages: List[Dict[str, str]], **kwargs) -> str:
         str: Response content from Ollama.
     """
     url = f"{settings.LLAMA_OLLAMA_URL}/api/generate"
-    model = kwargs.get("model", settings.LLAMA_OLLAMA_MODEL)
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
     temperature = kwargs.get("temperature", 0.6)
 
     # Format messages into a prompt
@@ -140,7 +140,7 @@ async def _call_llama_api(messages: List[Dict[str, str]], **kwargs) -> str:
     Returns:
         str: Response content from Llama API.
     """
-    model = kwargs.get("model", settings.LLAMA_API_MODEL)
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
     temperature = kwargs.get("temperature", 0.6)
 
     client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL)
@@ -178,7 +178,7 @@ async def _call_openrouter(messages: List[Dict[str, str]], **kwargs) -> str:
     Returns:
         str: Response content from OpenRouter.
     """
-    model = kwargs.get("model", settings.LLAMA_OPENROUTER_MODEL)
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
     temperature = kwargs.get("temperature", 0.6)
 
     client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_OPENROUTER_URL)
