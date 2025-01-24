@@ -10,6 +10,9 @@ persistent_q_table.json
 coverage.lcov
 volumes/
 logs/
+!logs/.gitkeep
+lib/*
+!lib/.gitkeep
 
 # ====== Default gitignore config ======
 
