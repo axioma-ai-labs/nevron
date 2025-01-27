@@ -62,6 +62,11 @@ class Settings(BaseSettings):
     XAI_API_KEY: str = ""
     XAI_MODEL: str = "grok-2-latest"
 
+    #: DeepSeek
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-reasoner"
+    DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com"
+
     #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider

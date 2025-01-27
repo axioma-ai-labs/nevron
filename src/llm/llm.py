@@ -7,6 +7,7 @@ from src.core.config import settings
 from src.core.defs import LLMProviderType
 from src.core.exceptions import LLMError
 from src.llm.providers.anthropic import call_anthropic
+from src.llm.providers.deepseek import call_deepseek
 from src.llm.providers.llama import call_llama
 from src.llm.providers.oai import call_openai
 from src.llm.providers.xai import call_xai
@@ -20,7 +21,7 @@ class LLM:
     def __init__(self):
         """
         Initialize the LLM class based on the selected provider from settings.
-        Supported providers: 'openai', 'anthropic', 'xai'
+        Supported providers: 'openai', 'anthropic', 'xai', 'llama', 'deepseek'
         """
         self.provider = settings.LLM_PROVIDER
         logger.debug(f"Using LLM provider: {self.provider}")
@@ -52,6 +53,8 @@ class LLM:
             return await call_xai(messages, **kwargs)
         elif self.provider == LLMProviderType.LLAMA:
             return await call_llama(messages, **kwargs)
+        elif self.provider == LLMProviderType.DEEPSEEK:
+            return await call_deepseek(messages, **kwargs)
         else:
             raise LLMError(f"Unknown LLM provider: {self.provider}")
 
