@@ -533,7 +533,6 @@
                 "sha256:f5e7cb1e5e56ca0933b4873c0220a78b773b24d40d186b6738080b73d3d0a756",
                 "sha256:f677e1268c4e23420c3acade68fac427fffcb8d19d7df95ed7ad17cdef8404f4"
             ],
-            "markers": "python_version >= '3.7' and python_full_version not in '3.9.0, 3.9.1'",
             "version": "==44.0.0"
         },
         "cssselect": {
@@ -990,7 +989,6 @@
                 "sha256:03a46bcf682256c95b5fd9e9a99c1323584c3eec6440d379b9903d709476bc6d",
                 "sha256:a83aca08fbe7aacb79fec788c9c0bac936343560ed9ec18b82a13a12c28d2abb"
             ],
-            "markers": "python_full_version >= '3.6.1'",
             "version": "==4.1.0"
         },
         "hjson": {
@@ -1070,7 +1068,6 @@
                 "sha256:f9eb89ecf8b290f2e293325c646a211ff1c2493222798bb80a530c5e7502494f",
                 "sha256:fc411e1c0a7dcd2f902c7c48cf079947a7e65b5485dea9decb82b9105ca71a43"
             ],
-            "markers": "python_full_version >= '3.8.0'",
             "version": "==0.6.4"
         },
         "httpx": {
@@ -2587,7 +2584,7 @@
                 "sha256:506ff4f4386c4cec0590ec19e6302d3aedb992fdc02c761e90416f158dacf8e1",
                 "sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a"
             ],
-            "markers": "python_version >= '3.1'",
+            "markers": "python_version > '3.0'",
             "version": "==3.2.1"
         },
         "pypika": {
@@ -2622,7 +2619,7 @@
                 "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3",
                 "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==2.9.0.post0"
         },
         "python-dotenv": {
@@ -3009,7 +3006,7 @@
                 "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
                 "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==1.17.0"
         },
         "slack-sdk": {
@@ -3278,7 +3275,6 @@
                 "sha256:f3df876acd7ec037a3d005b3ab85a7e4110422e4d9c1571d4fc89b0fc41b6816",
                 "sha256:f7089d2dc73179ce5ac255bdf37c236a9f914b264825fdaacaded6990a7fb4c2"
             ],
-            "markers": "python_full_version >= '3.8.0'",
             "version": "==0.21.0"
         },
         "w3lib": {
@@ -3399,7 +3395,6 @@
                 "sha256:fb2c46e275fbb9f0c92e7654b231543c7bbfa1df07cdc4b99fa73bedfde5c844",
                 "sha256:fc2eb5d14a8e0d5df7b36288979176fbb39672d45184fc4b1c004d7c3ce29317"
             ],
-            "markers": "python_version >= '3.9'",
             "version": "==1.0.4"
         },
         "wcmatch": {
@@ -3503,11 +3498,11 @@
         },
         "whatsapp-api-client-python": {
             "hashes": [
-                "sha256:c87c3b3dc8cb27ee74d371288af9bd59c744c457f70fc4371f6bb93051dffa76"
+                "sha256:6c0667344a1ac336720aa1e192b4f8cf31813bdd1025b1d2612ca49a8028766c"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==0.0.47"
+            "version": "==0.0.48"
         },
         "wrapt": {
             "hashes": [
