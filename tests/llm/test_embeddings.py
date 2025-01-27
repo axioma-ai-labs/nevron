@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from loguru import logger
 from openai import AsyncOpenAI
-from openai.types.create_embedding_response import CreateEmbeddingResponse, Embedding
+from openai.types.create_embedding_response import CreateEmbeddingResponse
 
 from src.core.config import settings
 from src.llm.embeddings import EmbeddingGenerator
@@ -41,7 +41,7 @@ def create_mock_embedding_response(embeddings_data):
     """Helper function to create mock embedding responses."""
     mock_embeddings = []
     for emb in embeddings_data:
-        mock_embedding = MagicMock(spec=Embedding)
+        mock_embedding = MagicMock()
         mock_embedding.embedding = emb
         mock_embeddings.append(mock_embedding)
 

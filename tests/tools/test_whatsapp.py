@@ -5,6 +5,7 @@ import pytest
 from src.core.exceptions import WhatsAppError
 from src.tools.whatsapp import WhatsAppClient, format_phone_number
 
+
 # Test constants
 ID_INSTANCE = "test-instance"
 API_TOKEN = "test-token"

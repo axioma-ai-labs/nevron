@@ -8,7 +8,8 @@ import pytest
 from git import Repo
 from github import Repository
 
-from src.tools.github import FileChange, GitHubError, GitHubIntegration
+from src.core.exceptions import GitHubError
+from src.tools.github import FileChange, GitHubIntegration
 
 
 @pytest.fixture

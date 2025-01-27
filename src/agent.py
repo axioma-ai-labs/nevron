@@ -13,6 +13,7 @@ from src.feedback.feedback_module import FeedbackModule
 from src.memory.memory_module import get_memory_module
 from src.planning.planning_module import PlanningModule
 
+
 ACTION_2_STATE: Dict[AgentAction, AgentState] = {
     AgentAction.ANALYZE_NEWS: AgentState.JUST_ANALYZED_NEWS,
     AgentAction.CHECK_SIGNAL: AgentState.JUST_ANALYZED_SIGNAL,

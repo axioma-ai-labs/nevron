@@ -16,7 +16,7 @@ help:
 
 .PHONY: deps
 deps:
-	pipenv install --dev
+	poetry install --with dev
 
 .PHONY: format
 format:	\
@@ -25,11 +25,11 @@ format:	\
 
 .PHONY: format-ruff
 format-ruff:
-	pipenv run ruff format --line-length 100 $(DIRS_PYTHON)
+	poetry run ruff format --line-length 100 $(DIRS_PYTHON)
 
 .PHONY: format-isort
 format-isort:
-	pipenv run isort --profile=black --line-length 100 $(DIRS_PYTHON)
+	poetry run isort --profile=black --line-length 100 $(DIRS_PYTHON)
 
 .PHONY: lint
 lint: \
@@ -39,23 +39,23 @@ lint: \
 
 .PHONY: lint-ruff
 lint-ruff:
-	pipenv run ruff check --line-length 100 $(DIRS_PYTHON)
+	poetry run ruff check --line-length 100 $(DIRS_PYTHON)
 
 .PHONY: lint-isort
 lint-isort:
-	pipenv run isort --profile=black --line-length 100 --check-only --diff $(DIRS_PYTHON)
+	poetry run isort --profile=black --line-length 100 --check-only --diff $(DIRS_PYTHON)
 
 .PHONY: lint-mypy
 lint-mypy:
-	pipenv run mypy --check-untyped-defs $(DIRS_PYTHON)
+	poetry run mypy --check-untyped-defs $(DIRS_PYTHON)
 
 .PHONY: run
 run:
-	pipenv run python -m src.main
+	poetry run python -m src.main
 
 .PHONY: test
 test:
-	pipenv run pytest \
+	poetry run pytest \
 		--cov-report term-missing \
 		--cov-report lcov \
 		--cov=src \
@@ -63,7 +63,7 @@ test:
 
 .PHONY: test-ci
 test-ci:
-	pipenv run pytest \
+	poetry run pytest \
 		--cov-report term-missing \
 		--cov-report lcov \
 		--cov=src \
@@ -71,7 +71,7 @@ test-ci:
 
 .PHONY: docs
 docs:
-	pipenv run mkdocs serve
+	poetry run mkdocs serve
 
 # .PHONY: jupyternotebook
 # jupyternotebook:

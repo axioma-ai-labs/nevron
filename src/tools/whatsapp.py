@@ -8,6 +8,7 @@ from whatsapp_api_client_python.API import GreenAPI
 from src.core.config import settings
 from src.core.exceptions import WhatsAppError
 
+
 # Disable SSL warning for development
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
