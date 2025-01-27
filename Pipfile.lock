@@ -125,12 +125,12 @@
         },
         "anthropic": {
             "hashes": [
-                "sha256:20759c25cd0f4072eb966b0180a41c061c156473bbb674da6a3f1e92e1ad78f8",
-                "sha256:c7f13e4b7b515ac4a3111142310b214527c0fc561485e5bc9b582e49fe3adba2"
+                "sha256:16ccb6fffb4c0f1842b16547a85f96390ecfe00c67269ae87f2d4aadc70a550b",
+                "sha256:a8df17a3f467e6085202893316d5b1b82c00006d2c28bd55a1bad242515125b1"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==0.43.1"
+            "version": "==0.45.1"
         },
         "anyio": {
             "hashes": [
@@ -2411,12 +2411,12 @@
         },
         "pydantic": {
             "hashes": [
-                "sha256:278b38dbbaec562011d659ee05f63346951b3a248a6f3642e1bc68894ea2b4ff",
-                "sha256:4dd4e322dbe55472cb7ca7e73f4b63574eecccf2835ffa2af9021ce113c83c53"
+                "sha256:427d664bf0b8a2b34ff5dd0f5a18df00591adcee7198fbd71981054cef37b584",
+                "sha256:ca5daa827cce33de7a42be142548b0096bf05a7e7b365aebfa5f8eeec7128236"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==2.10.5"
+            "version": "==2.10.6"
         },
         "pydantic-core": {
             "hashes": [
