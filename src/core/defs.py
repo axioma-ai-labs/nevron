@@ -67,6 +67,7 @@ class LLMProviderType(str, Enum):
     ANTHROPIC = "anthropic"
     XAI = "xai"
     LLAMA = "llama"
+    DEEPSEEK = "deepseek"
 
 
 class LlamaProviderType(str, Enum):
@@ -74,5 +75,5 @@ class LlamaProviderType(str, Enum):
 
     OLLAMA = "ollama"
     FIREWORKS = "fireworks"
-    LLAMA_API = "llama-api"
+    LLAMA_API = "llama_api"
     OPENROUTER = "openrouter"
