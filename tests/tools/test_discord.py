@@ -6,6 +6,7 @@ import pytest
 from src.core.exceptions import DiscordError
 from src.tools.discord import DiscordBot, DiscordTool
 
+
 # Test constants
 TOKEN = "mock-token"
 CHANNEL_ID = 123456789

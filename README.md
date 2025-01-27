@@ -22,14 +22,14 @@ Description of the agent in bullet points:
 
 ## TLDR: Start the agent
 
-1. Install pipenv if you haven't already:
+1. Install Poetry if you haven't already:
 ```bash
-pip install pipenv
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 2. Install dependencies:
 ```bash
-make deps
+poetry install
 ```
 
 3. Copy and configure environment variables:
@@ -42,7 +42,7 @@ cp .env.dev .env
 
 4. Run the agent:
 ```bash
-make run
+poetry run python -m src.main
 ```
 
 ## Documentation

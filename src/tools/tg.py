@@ -8,6 +8,7 @@ from telegram.error import TelegramError
 from src.core.config import settings
 from src.core.exceptions import TelegramError as TelegramPostError
 
+
 # Initialize the bot
 bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
 
