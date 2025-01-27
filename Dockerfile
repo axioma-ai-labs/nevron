@@ -2,7 +2,7 @@
 # Build Nevron Agent
 # ==================
 
-FROM python:3.12-slim
+FROM python:3.13-slim
 WORKDIR /nevron
 
 ENV LANG=C.UTF-8
@@ -14,17 +14,18 @@ ENV PYTHONFAULTHANDLER=1
 # Install system packages
 # -----------------------
 
-RUN apt-get update && apt-get install -y
-#   git \
-#   curl \
-#   libxml2-dev \
-#   libxslt-dev \
-#   libjpeg-dev \
-#   zlib1g-dev \
-#   libpng12-dev \
-#   && rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install pipenv
+# Install poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Add Poetry to PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Configure Poetry
+RUN poetry config virtualenvs.create false
 
 # -------------------------
 # Create the logs directory
@@ -36,9 +37,9 @@ RUN mkdir logs
 # Setup the environment
 # ---------------------
 
-COPY Pipfile Pipfile.lock .
+COPY pyproject.toml poetry.lock ./
 
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
+RUN poetry install --no-interaction --no-ansi --no-root
 
 # --------------
 # Nevron Runtime
@@ -46,5 +47,8 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 
 COPY . /nevron
 
+COPY entrypoint.sh /nevron/entrypoint.sh
+RUN chmod +x /nevron/entrypoint.sh
+
 # Command to run the application
-CMD ["pipenv", "run", "python", "-m", "src.main"]
+ENTRYPOINT ["/nevron/entrypoint.sh"]
