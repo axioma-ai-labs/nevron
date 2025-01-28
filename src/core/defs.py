@@ -68,6 +68,7 @@ class LLMProviderType(str, Enum):
     XAI = "xai"
     LLAMA = "llama"
     DEEPSEEK = "deepseek"
+    QWEN = "qwen"
 
 
 class LlamaProviderType(str, Enum):
