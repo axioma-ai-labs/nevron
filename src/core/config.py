@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     DEEPSEEK_MODEL: str = "deepseek-reasoner"
     DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com"
 
+    #: Qwen
+    QWEN_API_KEY: str = ""
+    QWEN_MODEL: str = "qwen-plus"
+    QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+
     #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
