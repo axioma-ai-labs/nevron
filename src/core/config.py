@@ -69,7 +69,7 @@ class Settings(BaseSettings):
 
     #: Qwen
     QWEN_API_KEY: str = ""
-    QWEN_MODEL: str = "qwen-plus"
+    QWEN_MODEL: str = "qwen-max"
     QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
     #: Llama
