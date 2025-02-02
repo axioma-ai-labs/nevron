@@ -3,7 +3,7 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.defs import Environment, LlamaProviderType, LLMProviderType, MemoryBackendType
+from src.core.defs import Environment, LlamaProviderType, LLMProviderType, MemoryBackendType, LlamaPoolingType, EmbeddingProviderType
 
 
 class Settings(BaseSettings):
@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     XAI_MODEL: str = "grok-2-latest"
 
     #: Llama
-    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
+    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
     LLAMA_API_KEY: str = ""  # API key for your provider
 
@@ -71,6 +71,12 @@ class Settings(BaseSettings):
     LLAMA_OLLAMA_URL: str = "http://localhost:11434"
     LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
     LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
+
+    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
+    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
+    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b" # llama2-7b 
+    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
+    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN 
 
     # ==========================
     # Agent settings
@@ -218,6 +224,64 @@ class Settings(BaseSettings):
                 raise ValueError(f"{param} is required.")
             if not isinstance(params[param], param_type):
                 raise ValueError(f"{param} must be of type {param_type.__name__}.")
+
+    @field_validator("EMBEDDING_PROVIDER", mode="before")
+    def validate_embedding_provider(cls, value: str | EmbeddingProviderType) -> EmbeddingProviderType:
+        """Convert string to EmbeddingProviderType enum."""
+        if isinstance(value, EmbeddingProviderType):
+            return value
+        try:
+            # Map string values to enum
+            if value.lower() == "openai":
+                return EmbeddingProviderType.OPENAI
+            elif value.lower() == "llama_local":
+                return EmbeddingProviderType.LLAMA_LOCAL
+            elif value.lower() == "llama_api":
+                return EmbeddingProviderType.LLAMA_API
+            else:
+                raise ValueError(f"Invalid embedding provider: {value}")
+        except Exception as e:
+            raise ValueError(f"Invalid embedding provider: {value}") from e
+
+    @field_validator("EMBEDDING_POOLING_TYPE", mode="before")
+    def validate_embedding_pooling_type(cls, value: str | LlamaPoolingType) -> LlamaPoolingType:
+        """Convert string to LlamaPoolingType enum."""
+        if isinstance(value, LlamaPoolingType):
+            return value
+        try:
+            return LlamaPoolingType[value.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid pooling type: {value}. Must be one of {list(LlamaPoolingType)}")
+
+    @field_validator("LLAMA_PROVIDER", mode="before")
+    def validate_llama_provider(cls, value: str | LlamaProviderType) -> LlamaProviderType:
+        """Convert string to LlamaProviderType enum."""
+        if isinstance(value, LlamaProviderType):
+            return value
+        try:
+            return LlamaProviderType[value.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid Llama provider: {value}. Must be one of {list(LlamaProviderType)}")
+
+    @field_validator("LLM_PROVIDER", mode="before")
+    def validate_llm_provider(cls, value: str | LLMProviderType) -> LLMProviderType:
+        """Convert string to LLMProviderType enum."""
+        if isinstance(value, LLMProviderType):
+            return value
+        try:
+            return LLMProviderType[value.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid LLM provider: {value}. Must be one of {list(LLMProviderType)}")
+
+    @field_validator("MEMORY_BACKEND_TYPE", mode="before")
+    def validate_memory_backend_type(cls, value: str | MemoryBackendType) -> MemoryBackendType:
+        """Convert string to MemoryBackendType enum."""
+        if isinstance(value, MemoryBackendType):
+            return value
+        try:
+            return MemoryBackendType[value.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid memory backend type: {value}. Must be one of {list(MemoryBackendType)}")
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")  # type: ignore[call-arg]

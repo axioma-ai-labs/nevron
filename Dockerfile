@@ -36,7 +36,7 @@ RUN mkdir logs
 # Setup the environment
 # ---------------------
 
-COPY Pipfile Pipfile.lock .
+COPY Pipfile Pipfile.lock 
 
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 
