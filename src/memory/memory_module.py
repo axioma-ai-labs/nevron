@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
-from openai import AsyncOpenAI
 
 from src.core.config import settings
 from src.core.defs import MemoryBackendType

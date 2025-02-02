@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import requests
 from loguru import logger
-from openai import OpenAI, AsyncOpenAI
+from openai import AsyncOpenAI, OpenAI
 
 from src.core.config import settings
 from src.core.defs import LlamaProviderType

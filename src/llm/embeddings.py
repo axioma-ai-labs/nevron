@@ -1,16 +1,16 @@
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 import numpy as np
+from llama_cpp import Llama
 from loguru import logger
 from openai import AsyncOpenAI
-from llama_cpp import Llama
 
 from src.core.config import settings
 from src.core.defs import EmbeddingProviderType
 from src.llm.llm import get_embedding_client, get_llama_model
 from src.llm.providers.llama_embeddings import (
+    generate_embedding_api,
     generate_llama_embedding_local,
-    generate_embedding_api
 )
 
 
@@ -20,7 +20,7 @@ class EmbeddingGenerator:
     def __init__(
         self,
         provider: EmbeddingProviderType = settings.EMBEDDING_PROVIDER,
-        openai_client: Optional[AsyncOpenAI] = None,
+        embedding_client: Optional[AsyncOpenAI] = None,
         llama_model: Optional[Union[str, Llama]] = None,
     ):
         """
@@ -33,19 +33,23 @@ class EmbeddingGenerator:
         """
         self.provider = provider
         logger.debug(f"Using Embedding provider: {self.provider}")
-        
+
         if self.provider == EmbeddingProviderType.OPENAI:
-            self.client = openai_client or get_embedding_client(self.provider)
-            self.model = settings.OPENAI_EMBEDDING_MODEL
+            self.client = embedding_client or get_embedding_client(self.provider)
+            self.model_name: str = settings.OPENAI_EMBEDDING_MODEL
         elif self.provider == EmbeddingProviderType.LLAMA_LOCAL:
             if isinstance(llama_model, Llama):
-                self.model = llama_model
+                self.llama_model: Llama = llama_model
             else:
-                model_path = llama_model if (isinstance(llama_model, str) and llama_model != "") else settings.LLAMA_MODEL_PATH
-                self.model = get_llama_model(model_path)
+                model_path = (
+                    llama_model
+                    if (isinstance(llama_model, str) and llama_model != "")
+                    else settings.LLAMA_MODEL_PATH
+                )
+                self.llama_model = get_llama_model(model_path)
         elif self.provider == EmbeddingProviderType.LLAMA_API:
-            self.client = openai_client or get_embedding_client(self.provider)
-            self.model = settings.LLAMA_EMBEDDING_MODEL
+            self.client = embedding_client or get_embedding_client(self.provider)
+            self.model_name = settings.LLAMA_EMBEDDING_MODEL
         else:
             raise ValueError(f"Unsupported embedding provider: {self.provider}")
 
@@ -68,10 +72,11 @@ class EmbeddingGenerator:
 
         try:
             if self.provider in (EmbeddingProviderType.OPENAI, EmbeddingProviderType.LLAMA_API):
-                return await generate_embedding_api(self.client, text, self.model)
+                return await generate_embedding_api(self.client, text, self.model_name)
             elif self.provider == EmbeddingProviderType.LLAMA_LOCAL:
-                return await generate_llama_embedding_local(self.model, text)
-                
+                return await generate_llama_embedding_local(self.llama_model, text)
+            else:
+                raise ValueError(f"Unsupported provider: {self.provider}")
         except Exception as e:
             logger.error(f"Error getting embeddings from {self.provider}: {str(e)}")
             raise

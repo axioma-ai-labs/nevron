@@ -3,7 +3,14 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.defs import Environment, LlamaProviderType, LLMProviderType, MemoryBackendType, LlamaPoolingType, EmbeddingProviderType
+from src.core.defs import (
+    EmbeddingProviderType,
+    Environment,
+    LlamaPoolingType,
+    LlamaProviderType,
+    LLMProviderType,
+    MemoryBackendType,
+)
 
 
 class Settings(BaseSettings):
@@ -84,9 +91,9 @@ class Settings(BaseSettings):
 
     EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
     LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b" # llama2-7b 
+    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
     # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN 
+    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
 
     # ==========================
     # Agent settings
@@ -236,7 +243,9 @@ class Settings(BaseSettings):
                 raise ValueError(f"{param} must be of type {param_type.__name__}.")
 
     @field_validator("EMBEDDING_PROVIDER", mode="before")
-    def validate_embedding_provider(cls, value: str | EmbeddingProviderType) -> EmbeddingProviderType:
+    def validate_embedding_provider(
+        cls, value: str | EmbeddingProviderType
+    ) -> EmbeddingProviderType:
         """Convert string to EmbeddingProviderType enum."""
         if isinstance(value, EmbeddingProviderType):
             return value
@@ -261,7 +270,9 @@ class Settings(BaseSettings):
         try:
             return LlamaPoolingType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid pooling type: {value}. Must be one of {list(LlamaPoolingType)}")
+            raise ValueError(
+                f"Invalid pooling type: {value}. Must be one of {list(LlamaPoolingType)}"
+            )
 
     @field_validator("LLAMA_PROVIDER", mode="before")
     def validate_llama_provider(cls, value: str | LlamaProviderType) -> LlamaProviderType:
@@ -271,7 +282,9 @@ class Settings(BaseSettings):
         try:
             return LlamaProviderType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid Llama provider: {value}. Must be one of {list(LlamaProviderType)}")
+            raise ValueError(
+                f"Invalid Llama provider: {value}. Must be one of {list(LlamaProviderType)}"
+            )
 
     @field_validator("LLM_PROVIDER", mode="before")
     def validate_llm_provider(cls, value: str | LLMProviderType) -> LLMProviderType:
@@ -281,7 +294,9 @@ class Settings(BaseSettings):
         try:
             return LLMProviderType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid LLM provider: {value}. Must be one of {list(LLMProviderType)}")
+            raise ValueError(
+                f"Invalid LLM provider: {value}. Must be one of {list(LLMProviderType)}"
+            )
 
     @field_validator("MEMORY_BACKEND_TYPE", mode="before")
     def validate_memory_backend_type(cls, value: str | MemoryBackendType) -> MemoryBackendType:
@@ -291,7 +306,9 @@ class Settings(BaseSettings):
         try:
             return MemoryBackendType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid memory backend type: {value}. Must be one of {list(MemoryBackendType)}")
+            raise ValueError(
+                f"Invalid memory backend type: {value}. Must be one of {list(MemoryBackendType)}"
+            )
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")  # type: ignore[call-arg]
