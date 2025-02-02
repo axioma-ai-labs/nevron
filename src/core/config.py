@@ -62,6 +62,26 @@ class Settings(BaseSettings):
     XAI_API_KEY: str = ""
     XAI_MODEL: str = "grok-2-latest"
 
+    #: DeepSeek
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-reasoner"
+    DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com"
+
+    #: Qwen
+    QWEN_API_KEY: str = ""
+    QWEN_MODEL: str = "qwen-max"
+    QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+
+    #: Llama
+    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
+    LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
+    LLAMA_API_KEY: str = ""  # API key for your provider
+
+    LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
+    LLAMA_OLLAMA_URL: str = "http://localhost:11434"
+    LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
+    LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
+
     #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider

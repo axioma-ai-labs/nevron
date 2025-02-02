@@ -10,6 +10,7 @@ from loguru import logger
 from src.core.config import settings
 from src.core.exceptions import ShopifyError
 
+
 # Disable SSL verification warnings and disable SSL globally
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 ssl._create_default_https_context = ssl._create_unverified_context

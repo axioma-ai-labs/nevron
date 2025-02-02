@@ -3,6 +3,7 @@
 from enum import Enum
 import llama_cpp
 
+
 class Environment(str, Enum):
     """Environment type."""
 
@@ -67,6 +68,8 @@ class LLMProviderType(str, Enum):
     ANTHROPIC = "anthropic"
     XAI = "xai"
     LLAMA = "llama"
+    DEEPSEEK = "deepseek"
+    QWEN = "qwen"
 
 
 class LlamaProviderType(str, Enum):

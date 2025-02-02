@@ -5,6 +5,7 @@ from loguru import logger
 from src.agent import Agent
 from src.utils import log_settings
 
+
 # Configure logging
 logger.add("logs/debug.log", rotation="1 MB", retention="10 days", level="DEBUG")
 

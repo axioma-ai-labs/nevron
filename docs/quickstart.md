@@ -12,7 +12,7 @@ Common requirements for all installation methods:
 
 Additional requirements:
 - For Docker setup: **Docker**
-- For local setup: **Python 3.12** and **Pipenv**
+- For local setup: **Python 3.13** and **Poetry**
 
 -----
 
@@ -88,8 +88,11 @@ Set up Nevron locally in 5 steps:
 git clone https://github.com/axioma-ai-labs/nevron.git
 cd nevron
 
+# install Poetry if you haven't already
+curl -sSL https://install.python-poetry.org | python3 -
+
 # install dependencies
-make deps
+poetry install
 ```
 
 ### 2. Configure Environment
@@ -146,7 +149,7 @@ See the [Agent Overview](agent/overview.md) for more details.
 Common issues:
 - Ensure all required API keys are set in `.env`
 - Check logs in the console for detailed error messages
-- Verify Python version: `python --version`
-- Confirm dependencies: `pipenv graph`
+- Verify Python version: `python --version` (should be 3.13)
+- Confirm dependencies: `poetry show`
 
 For more help, visit our [GitHub Discussions](https://github.com/axioma-ai-labs/nevron/discussions).

@@ -7,6 +7,7 @@ from loguru import logger
 from src.core.config import settings
 from src.core.exceptions import CoinstatsError
 
+
 #: Coinstatst API
 COINSTATS_BASE_URL = "https://openapiv1.coinstats.app"
 
