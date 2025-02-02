@@ -7,7 +7,7 @@ from openai import AsyncOpenAI
 from openai.types.create_embedding_response import CreateEmbeddingResponse, Embedding
 
 from src.core.config import settings
-from src.llm.embeddings import EmbeddingGenerator
+from src.llm.embeddings import EmbeddingGenerator, EmbeddingProviderType
 
 
 @pytest.fixture
@@ -34,7 +34,10 @@ def mock_openai_client():
 @pytest.fixture
 def embedding_generator(mock_openai_client):
     """Create an EmbeddingGenerator instance with mocked client."""
-    return EmbeddingGenerator(client=mock_openai_client, model=settings.OPENAI_EMBEDDING_MODEL)
+    return EmbeddingGenerator(
+        provider=EmbeddingProviderType.OPENAI,
+        embedding_client=mock_openai_client,
+    )
 
 
 def create_mock_embedding_response(embeddings_data):
@@ -52,10 +55,12 @@ def create_mock_embedding_response(embeddings_data):
 
 def test_init_custom_values(mock_openai_client):
     """Test EmbeddingGenerator initialization with custom values."""
-    custom_model = "custom-embedding-model"
-    generator = EmbeddingGenerator(client=mock_openai_client, model=custom_model)
+    generator = EmbeddingGenerator(
+        provider=EmbeddingProviderType.OPENAI,
+        embedding_client=mock_openai_client,
+    )
     assert generator.client == mock_openai_client
-    assert generator.model == custom_model
+    assert generator.model_name == settings.OPENAI_EMBEDDING_MODEL
 
 
 @pytest.mark.asyncio
@@ -74,7 +79,7 @@ async def test_get_embedding_single_text(embedding_generator, mock_logger):
 
     # assert:
     embedding_generator.client.embeddings.create.assert_called_once_with(
-        model=embedding_generator.model, input=[text]
+        model=embedding_generator.model_name, input=[text]
     )
     mock_debug.assert_called_once_with("Getting embeddings for 1 texts")
     assert isinstance(result, np.ndarray)
@@ -97,7 +102,7 @@ async def test_get_embedding_multiple_texts(embedding_generator, mock_logger):
 
     # assert:
     embedding_generator.client.embeddings.create.assert_called_once_with(
-        model=embedding_generator.model, input=texts
+        model=embedding_generator.model_name, input=texts
     )
     mock_debug.assert_called_once_with("Getting embeddings for 3 texts")
     assert isinstance(result, np.ndarray)

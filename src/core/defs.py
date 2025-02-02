@@ -1,7 +1,9 @@
 """Here will be all the definitions of the core components of the system"""
 
 from enum import Enum
+
 import llama_cpp
+
 
 class Environment(str, Enum):
     """Environment type."""
@@ -78,6 +80,7 @@ class LlamaProviderType(str, Enum):
     LLAMA_LOCAL = "llama_local"
     OPENROUTER = "openrouter"
 
+
 class LlamaPoolingType(int, Enum):
     """local Llama model pooling type."""
 
@@ -94,4 +97,3 @@ class EmbeddingProviderType(str, Enum):
     OPENAI = LLMProviderType.OPENAI
     LLAMA_LOCAL = LlamaProviderType.LLAMA_LOCAL
     LLAMA_API = LlamaProviderType.LLAMA_API
-
