@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import requests
 from loguru import logger
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 
 from src.core.config import settings
 from src.core.defs import LlamaProviderType
@@ -143,14 +143,14 @@ async def _call_llama_api(messages: List[Dict[str, str]], **kwargs) -> str:
     model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
     temperature = kwargs.get("temperature", 0.6)
 
-    client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL)
+    client = AsyncOpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL)
 
     logger.debug(
         f"Calling Llama API with model={model}, temperature={temperature}, messages={messages}"
     )
 
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=model,
             messages=messages,  # type: ignore
             temperature=temperature,
