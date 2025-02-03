@@ -7,7 +7,8 @@ from openai import AsyncOpenAI
 from openai.types.create_embedding_response import CreateEmbeddingResponse
 
 from src.core.config import settings
-from src.llm.embeddings import EmbeddingGenerator, EmbeddingProviderType
+from src.core.defs import EmbeddingProviderType
+from src.llm.embeddings import EmbeddingGenerator
 
 
 @pytest.fixture

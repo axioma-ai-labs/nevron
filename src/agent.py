@@ -13,10 +13,7 @@ from src.feedback.feedback_module import FeedbackModule
 from src.memory.memory_module import get_memory_module
 from src.planning.planning_module import PlanningModule
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 03fe3c0 (66 integrate llama reasoning (#102))
 ACTION_2_STATE: Dict[AgentAction, AgentState] = {
     AgentAction.ANALYZE_NEWS: AgentState.JUST_ANALYZED_NEWS,
     AgentAction.CHECK_SIGNAL: AgentState.JUST_ANALYZED_SIGNAL,

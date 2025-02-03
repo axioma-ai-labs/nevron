@@ -11,10 +11,7 @@ from src.tools.twitter import post_twitter_thread
 from src.tools.whatsapp import WhatsAppClient
 from src.tools.youtube import YouTubeClient
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 03fe3c0 (66 integrate llama reasoning (#102))
 __all__ = [
     "DiscordTool",
     "GitHubIntegration",
