@@ -35,7 +35,10 @@ def mock_openai_client():
 @pytest.fixture
 def embedding_generator(mock_openai_client):
     """Create an EmbeddingGenerator instance with mocked client."""
-    return EmbeddingGenerator(client=mock_openai_client, model=settings.OPENAI_EMBEDDING_MODEL)
+    return EmbeddingGenerator(
+        provider=EmbeddingProviderType.OPENAI,
+        embedding_client=mock_openai_client,
+    )
 
 
 def create_mock_embedding_response(embeddings_data):
