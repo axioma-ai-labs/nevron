@@ -28,7 +28,7 @@ authors = ["Dzmitry Hramyka <grom.dima.grom@gmail.com>"]
 package-mode = false 
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.13"
 pydantic = "^2.10.5"
 pydantic-settings = "^2.7.1"
 loguru = "^0.7.3"
