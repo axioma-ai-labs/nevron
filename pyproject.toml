@@ -9,7 +9,7 @@ authors = []
 description = "Nevron AI Agent"
 readme = "README.md"
 keywords = ["agent", "ai"]
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: GNU General Public License v3.0",
@@ -65,7 +65,6 @@ qdrant-client = "^1.13.2"
 discord-py = {extras = ["voice"], version = "^2.4.0"}
 audioop-lts = { version = "^0.2.1", python = ">=3.13" }
 requests-toolbelt = "^1.0.0"
-llama-cpp-python = "^0.3.7"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
@@ -76,6 +75,11 @@ pytest-asyncio = "^0.25.2"
 pytest-cov = "^6.0.0"
 types-requests = "^2.32.0.20241016"
 freezegun = "^1.5.1"
+
+[[tool.poetry.source]]
+name = "llama-cpp-python-cpu"
+url = "https://abetlen.github.io/llama-cpp-python/whl/cpu/"
+priority = "supplemental"
 
 [tool.mypy]
 python_version = "3.13"
