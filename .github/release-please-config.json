@@ -1,0 +1,12 @@
+{
+    "branches": [
+      {
+        "branch": "main",
+        "releaseType": "python",
+        "bumpMinorPreMajor": true,
+        "bumpPatchForMinorPreMajor": true
+      }
+    ],
+    "changelogPath": "CHANGELOG.md",
+    "handleGHRelease": true
+  }
