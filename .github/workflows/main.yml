@@ -16,9 +16,12 @@ concurrency:
 
 jobs:
   Lint:
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12", "3.13" ]
     uses: ./.github/workflows/base.yml
     with:
-      python-version: "3.13"
+      python-version: ${{ matrix.python-version }}
     steps:
       - name: Lint source code
         run: make lint
@@ -26,9 +29,12 @@ jobs:
   Unit-Test:
     needs:
       - Lint
+    strategy:
+      matrix:
+        python-version: [ "3.11", "3.12", "3.13" ]
     uses: ./.github/workflows/base.yml
     with:
-      python-version: "3.13"
+      python-version: ${{ matrix.python-version }}
     steps:
       - name: Run tests
         run: make test-ci
