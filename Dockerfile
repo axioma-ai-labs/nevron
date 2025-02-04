@@ -44,8 +44,8 @@ RUN mkdir logs
 
 COPY pyproject.toml poetry.lock ./
 
-# Install other dependencies with Poetry
-RUN poetry install --no-interaction --no-ansi --no-root
+# Install dependencies with Poetry
+RUN poetry install --no-interaction --no-ansi --no-root --only main
 
 # --------------
 # Nevron Runtime
