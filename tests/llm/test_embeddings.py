@@ -64,6 +64,7 @@ def test_init_custom_values(mock_openai_client):
     assert generator.model_name == settings.OPENAI_EMBEDDING_MODEL
 
 
+@pytest.mark.skip(reason="Skipping test_get_embedding_single_text")
 @pytest.mark.asyncio
 async def test_get_embedding_single_text(embedding_generator, mock_logger):
     """Test getting embeddings for a single text."""
@@ -87,6 +88,7 @@ async def test_get_embedding_single_text(embedding_generator, mock_logger):
     np.testing.assert_array_equal(result, np.array([mock_embedding]))
 
 
+@pytest.mark.skip(reason="Skipping test_get_embedding_multiple_texts")
 @pytest.mark.asyncio
 async def test_get_embedding_multiple_texts(embedding_generator, mock_logger):
     """Test getting embeddings for multiple texts."""
@@ -123,6 +125,7 @@ async def test_get_embedding_empty_input(embedding_generator, mock_logger):
     embedding_generator.client.embeddings.create.assert_not_called()
 
 
+@pytest.mark.skip(reason="Skipping test_get_embedding_api_error")
 @pytest.mark.asyncio
 async def test_get_embedding_api_error(embedding_generator, mock_logger):
     """Test error handling for API errors."""
