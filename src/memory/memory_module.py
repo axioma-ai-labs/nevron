@@ -1,12 +1,10 @@
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
-from openai import AsyncOpenAI
 
 from src.core.config import settings
 from src.core.defs import MemoryBackendType
 from src.llm.embeddings import EmbeddingGenerator
-from src.llm.llm import get_oai_client
 from src.memory.backends.chroma import ChromaBackend
 from src.memory.backends.qdrant import QdrantBackend
 
@@ -14,7 +12,6 @@ from src.memory.backends.qdrant import QdrantBackend
 class MemoryModule:
     def __init__(
         self,
-        openai_client: AsyncOpenAI = get_oai_client(),
         backend_type: str = settings.MEMORY_BACKEND_TYPE,
         collection_name: str = settings.MEMORY_COLLECTION_NAME,
         host: str = settings.MEMORY_HOST,
@@ -26,7 +23,6 @@ class MemoryModule:
         Initialize the memory module with the specified backend.
 
         Args:
-            openai_client: AsyncOpenAI client instance for embedding generation
             backend_type: Type of memory backend to use (qdrant or chroma)
             collection_name: Name of the vector store collection
             host: Vector store host for Qdrant. Will be ignored for ChromaDB.
@@ -34,8 +30,8 @@ class MemoryModule:
             vector_size: Size of embedding vectors for Qdrant. Will be set automatically for ChromaDB.
             persist_directory: Directory to persist ChromaDB data. Will be ignored for Qdrant.
         """
-        #: Initialize embedding generator
-        self.embedding_generator = EmbeddingGenerator(openai_client)
+        # Initialize embedding generator
+        self.embedding_generator = EmbeddingGenerator()
 
         # Setup the vector store backend
         self.backend: Union[QdrantBackend, ChromaBackend]
@@ -98,8 +94,7 @@ class MemoryModule:
 
 
 def get_memory_module(
-    openai_client: AsyncOpenAI = get_oai_client(),
     backend_type: str = settings.MEMORY_BACKEND_TYPE,
 ) -> MemoryModule:
     """Get a memory module instance with the specified backend."""
-    return MemoryModule(openai_client=openai_client, backend_type=backend_type)
+    return MemoryModule(backend_type=backend_type)

@@ -2,6 +2,8 @@
 
 from enum import Enum
 
+import llama_cpp
+
 
 class Environment(str, Enum):
     """Environment type."""
@@ -76,5 +78,24 @@ class LlamaProviderType(str, Enum):
 
     OLLAMA = "ollama"
     FIREWORKS = "fireworks"
-    LLAMA_API = "llama_api"
+    LLAMA_API = "llama-api"
+    LLAMA_LOCAL = "llama_local"
     OPENROUTER = "openrouter"
+
+
+class LlamaPoolingType(int, Enum):
+    """local Llama model pooling type."""
+
+    NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
+    MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
+    CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
+    LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
+    RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
+
+
+class EmbeddingProviderType(str, Enum):
+    """Embedding provider type."""
+
+    OPENAI = LLMProviderType.OPENAI
+    LLAMA_LOCAL = LlamaProviderType.LLAMA_LOCAL
+    LLAMA_API = LlamaProviderType.LLAMA_API
