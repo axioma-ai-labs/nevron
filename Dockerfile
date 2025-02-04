@@ -44,8 +44,13 @@ RUN mkdir logs
 
 COPY pyproject.toml poetry.lock ./
 
+<<<<<<< HEAD
 # Install dependencies with Poetry
 RUN poetry install --no-interaction --no-ansi --no-root --only main
+=======
+# Install other dependencies with Poetry
+RUN poetry install --no-interaction --no-ansi --no-root
+>>>>>>> e4f134c (Integrate llama embeddings (#116))
 
 # --------------
 # Nevron Runtime

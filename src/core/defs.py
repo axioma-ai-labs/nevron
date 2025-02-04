@@ -4,6 +4,7 @@ from enum import Enum
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import llama_cpp
 =======
 
@@ -12,6 +13,9 @@ import llama_cpp
 =======
 import llama_cpp
 >>>>>>> a287324 (Small fixes)
+=======
+import llama_cpp
+>>>>>>> e4f134c (Integrate llama embeddings (#116))
 
 
 class Environment(str, Enum):
@@ -107,6 +111,7 @@ class LlamaProviderType(str, Enum):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 class LlamaPoolingType(int, Enum):
 =======
 class LlamaPoolingType(str, Enum):  # change to int when using llama_cpp
@@ -114,6 +119,9 @@ class LlamaPoolingType(str, Enum):  # change to int when using llama_cpp
 =======
 class LlamaPoolingType(int, Enum):  # change to int when using llama_cpp
 >>>>>>> a287324 (Small fixes)
+=======
+class LlamaPoolingType(int, Enum):
+>>>>>>> e4f134c (Integrate llama embeddings (#116))
     """local Llama model pooling type."""
 
     NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
