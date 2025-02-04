@@ -16,26 +16,82 @@ concurrency:
 
 jobs:
   Lint:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-    uses: ./.github/workflows/base.yml
     with:
       python-version: ${{ matrix.python-version }}
     steps:
+      - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+          lfs: 'true'
+
+        - name: Set up Python 3.13
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.13"
+
+        - name: Install and configure Poetry
+          uses: snok/install-poetry@v1
+          with:
+            version: 2.0.1
+            virtualenvs-create: true
+            virtualenvs-in-project: true
+
+        - name: Set up cache
+          uses: actions/cache@v3
+          id: cached-poetry-dependencies
+          with:
+            path: .venv
+            key: venv-${{ runner.os }}-python-3.13-${{ hashFiles('**/poetry.lock') }}
+
+        - name: Install dependencies
+          run: poetry install
+          if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
       - name: Lint source code
         run: make lint
 
   Unit-Test:
+    runs-on: ubuntu-latest
     needs:
       - Lint
     strategy:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
-    uses: ./.github/workflows/base.yml
     with:
       python-version: ${{ matrix.python-version }}
     steps:
+      - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+          lfs: 'true'
+
+        - name: Set up Python 3.13
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.13"
+
+        - name: Install and configure Poetry
+          uses: snok/install-poetry@v1
+          with:
+            version: 2.0.1
+            virtualenvs-create: true
+            virtualenvs-in-project: true
+
+        - name: Set up cache
+          uses: actions/cache@v3
+          id: cached-poetry-dependencies
+          with:
+            path: .venv
+            key: venv-${{ runner.os }}-python-3.13-${{ hashFiles('**/poetry.lock') }}
+
+        - name: Install dependencies
+          run: poetry install
+          if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
       - name: Run tests
         run: make test-ci
 
