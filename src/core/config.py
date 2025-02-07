@@ -85,6 +85,11 @@ class Settings(BaseSettings):
     QWEN_MODEL: str = "qwen-max"
     QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
+    #: Venice
+    VENICE_API_KEY: str = ""
+    VENICE_MODEL: str = "venice-2-13b"
+    VENICE_API_BASE_URL: str = "https://api.venice.ai/api/v1"
+
     #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
