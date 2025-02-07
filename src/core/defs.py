@@ -3,11 +3,15 @@
 from enum import Enum
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import llama_cpp
 =======
 
 # import llama_cpp
 >>>>>>> 74f5caf (Tools refactoring and executors implementation)
+=======
+import llama_cpp
+>>>>>>> a287324 (Small fixes)
 
 
 class Environment(str, Enum):
@@ -102,23 +106,21 @@ class LlamaProviderType(str, Enum):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 class LlamaPoolingType(int, Enum):
 =======
 class LlamaPoolingType(str, Enum):  # change to int when using llama_cpp
 >>>>>>> 74f5caf (Tools refactoring and executors implementation)
+=======
+class LlamaPoolingType(int, Enum):  # change to int when using llama_cpp
+>>>>>>> a287324 (Small fixes)
     """local Llama model pooling type."""
 
-    NONE = "LLAMA_POOLING_TYPE_NONE"
-    MEAN = "LLAMA_POOLING_TYPE_MEAN"
-    CLS = "LLAMA_POOLING_TYPE_CLS"
-    LAST = "LLAMA_POOLING_TYPE_LAST"
-    RANK = "LLAMA_POOLING_TYPE_RANK"
-
-    # NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
-    # MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
-    # CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
-    # LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
-    # RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
+    NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
+    MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
+    CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
+    LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
+    RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
 
 
 class EmbeddingProviderType(str, Enum):
