@@ -11,6 +11,7 @@ from src.llm.providers.anthropic import call_anthropic
 from src.llm.providers.deepseek import call_deepseek
 from src.llm.providers.llama import call_llama
 from src.llm.providers.oai import call_openai
+from src.llm.providers.venice import call_venice
 from src.llm.providers.xai import call_xai
 
 
@@ -56,6 +57,8 @@ class LLM:
             return await call_llama(messages, **kwargs)
         elif self.provider == LLMProviderType.DEEPSEEK:
             return await call_deepseek(messages, **kwargs)
+        elif self.provider == LLMProviderType.VENICE:
+            return await call_venice(messages, **kwargs)
         else:
             raise LLMError(f"Unknown LLM provider: {self.provider}")
 

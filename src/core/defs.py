@@ -83,6 +83,7 @@ class LLMProviderType(str, Enum):
     LLAMA = "llama"
     DEEPSEEK = "deepseek"
     QWEN = "qwen"
+    VENICE = "venice"
 
 
 class LlamaProviderType(str, Enum):
@@ -95,9 +96,7 @@ class LlamaProviderType(str, Enum):
     OPENROUTER = "openrouter"
 
 
-
 class LlamaPoolingType(int, Enum):
-
     """local Llama model pooling type."""
 
     NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
