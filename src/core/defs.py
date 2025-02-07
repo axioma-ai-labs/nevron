@@ -95,7 +95,9 @@ class LlamaProviderType(str, Enum):
     OPENROUTER = "openrouter"
 
 
-class LlamaPoolingType(int, Enum):  # change to int when using llama_cpp
+
+class LlamaPoolingType(int, Enum):
+
     """local Llama model pooling type."""
 
     NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
