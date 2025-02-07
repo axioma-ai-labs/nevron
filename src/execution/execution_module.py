@@ -1,6 +1,6 @@
 """Execution module for handling agent actions."""
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type
 
 from loguru import logger
 
@@ -8,95 +8,42 @@ from src.context.context import ContextManager
 from src.core.defs import AgentAction
 from src.core.exceptions import ExecutionError
 from src.execution.base import ActionExecutor, ExecutionModuleBase
-from src.tools import post_summary_to_telegram, post_twitter_thread
-from src.workflows.analyze_signal import analyze_signal
-from src.workflows.research_news import analyze_news_workflow
-
-
-class AnalyzeNewsExecutor(ActionExecutor):
-    """Executor for news analysis action."""
-
-    def _initialize_client(self) -> None:
-        """No client needed for workflow."""
-        return None
-
-    def get_required_context(self) -> List[str]:
-        """Get required context fields."""
-        return ["news_text"]
-
-    async def execute(self, context: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-        try:
-            news_text = context.get("news_text")
-            if not news_text:
-                return False, "No news text provided in context"
-
-            result = await analyze_news_workflow(news=news_text)
-            return True, f"News analyzed: {result}"
-        except Exception as e:
-            logger.error(f"Failed to analyze news: {e}")
-            return False, str(e)
-
-
-class CheckSignalExecutor(ActionExecutor):
-    """Executor for signal checking action."""
-
-    def _initialize_client(self) -> None:
-        """No client needed for workflow."""
-        return None
-
-    async def execute(self, context: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-        try:
-            result = await analyze_signal()
-            return True, f"Signal checked: {result}"
-        except Exception as e:
-            logger.error(f"Failed to check signal: {e}")
-            return False, str(e)
-
-
-class PostTweetExecutor(ActionExecutor):
-    """Executor for posting tweets."""
-
-    def get_required_context(self) -> List[str]:
-        return ["tweet_text"]
-
-    async def execute(self, context: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-        tweet_text = context.get("tweet_text")
-        twitter_thread = {"tweet1": tweet_text}
-        if not tweet_text:
-            return False, "No tweet text provided in context"
-        try:
-            await post_twitter_thread(twitter_thread)
-            return True, f"Tweet posted: {tweet_text[:50]}..."
-        except Exception as e:
-            return False, f"Failed to post tweet: {str(e)}"
-
-
-class SendTelegramMessageExecutor(ActionExecutor):
-    """Executor for sending Telegram messages."""
-
-    def get_required_context(self) -> List[str]:
-        return ["message_text"]
-
-    async def execute(self, context: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-        message = context.get("message_text")
-        if not message:
-            return False, "No message text provided"
-        try:
-            await post_summary_to_telegram(message)
-            return True, f"Telegram message sent: {message[:50]}..."
-        except Exception as e:
-            return False, f"Failed to send Telegram message: {str(e)}"
-
-
-class IdleExecutor(ActionExecutor):
-    """Executor for idle action."""
-
-    def _initialize_client(self) -> None:
-        """No client needed for idle."""
-        return None
-
-    async def execute(self, context: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
-        return True, "Idle completed"
+from src.execution.development_executors import (
+    CreateGithubIssueExecutor,
+    CreateGithubPRExecutor,
+    ProcessGithubMemoriesExecutor,
+    SearchGoogleDriveExecutor,
+    UploadGoogleDriveExecutor,
+)
+from src.execution.ecommerce_executors import (
+    GetShopifyOrdersExecutor,
+    GetShopifyProductExecutor,
+    UpdateShopifyProductExecutor,
+)
+from src.execution.media_executors import (
+    RetrieveSpotifyPlaylistExecutor,
+    RetrieveYouTubePlaylistExecutor,
+    SearchSpotifySongExecutor,
+    SearchYouTubeVideoExecutor,
+)
+from src.execution.research_executors import (
+    CoinstatsExecutor,
+    PerplexityExecutor,
+    SearchTavilyExecutor,
+)
+from src.execution.social_media_executors import (
+    FetchLensExecutor,
+    ListenDiscordMessagesExecutor,
+    ListenSlackMessagesExecutor,
+    ListenWhatsAppMessagesExecutor,
+    PostLensExecutor,
+    PostTweetExecutor,
+    SendDiscordMessageExecutor,
+    SendSlackMessageExecutor,
+    SendTelegramMessageExecutor,
+    SendWhatsAppMessageExecutor,
+)
+from src.execution.workflows_executors import AnalyzeNewsExecutor, CheckSignalExecutor, IdleExecutor
 
 
 ACTION_EXECUTOR_MAP: Dict[AgentAction, Type[ActionExecutor]] = {
@@ -106,22 +53,34 @@ ACTION_EXECUTOR_MAP: Dict[AgentAction, Type[ActionExecutor]] = {
     AgentAction.IDLE: IdleExecutor,
     # Social Media
     AgentAction.POST_TWEET: PostTweetExecutor,
-    AgentAction.SEND_DISCORD_MESSAGE: IdleExecutor,  # TODO: Implement
+    AgentAction.LISTEN_DISCORD_MESSAGES: ListenDiscordMessagesExecutor,  # TODO: Implement
+    AgentAction.SEND_DISCORD_MESSAGE: SendDiscordMessageExecutor,  # TODO: Implement
     AgentAction.SEND_TELEGRAM_MESSAGE: SendTelegramMessageExecutor,
-    AgentAction.POST_LENS: IdleExecutor,  # TODO: Implement
-    AgentAction.SEND_WHATSAPP: IdleExecutor,  # TODO: Implement
+    AgentAction.POST_LENS: PostLensExecutor,  # TODO: Implement
+    AgentAction.FETCH_LENS: FetchLensExecutor,  # TODO: Implement
+    AgentAction.LISTEN_WHATSAPP_MESSAGES: ListenWhatsAppMessagesExecutor,  # TODO: Implement
+    AgentAction.SEND_WHATSAPP_MESSAGE: SendWhatsAppMessageExecutor,  # TODO: Implement
+    AgentAction.LISTEN_SLACK_MESSAGES: ListenSlackMessagesExecutor,  # TODO: Implement
+    AgentAction.SEND_SLACK_MESSAGE: SendSlackMessageExecutor,  # TODO: Implement
     # Research
-    AgentAction.SEARCH_TAVILY: IdleExecutor,  # TODO: Implement
-    AgentAction.ASK_PERPLEXITY: IdleExecutor,  # TODO: Implement
+    AgentAction.SEARCH_TAVILY: SearchTavilyExecutor,  # TODO: Implement
+    AgentAction.ASK_PERPLEXITY: PerplexityExecutor,  # TODO: Implement
+    AgentAction.ASK_COINSTATS: CoinstatsExecutor,  # TODO: Implement
     # Development
-    AgentAction.CREATE_GITHUB_ISSUE: IdleExecutor,  # TODO: Implement
-    AgentAction.CREATE_GITHUB_PR: IdleExecutor,  # TODO: Implement
+    AgentAction.CREATE_GITHUB_ISSUE: CreateGithubIssueExecutor,  # TODO: Implement
+    AgentAction.CREATE_GITHUB_PR: CreateGithubPRExecutor,  # TODO: Implement
+    AgentAction.PROCESS_GITHUB_MEMORIES: ProcessGithubMemoriesExecutor,  # TODO: Implement
+    AgentAction.SEARCH_GOOGLE_DRIVE: SearchGoogleDriveExecutor,  # TODO: Implement
+    AgentAction.UPLOAD_GOOGLE_DRIVE: UploadGoogleDriveExecutor,  # TODO: Implement
     # E-commerce
-    AgentAction.CREATE_SHOPIFY_PRODUCT: IdleExecutor,  # TODO: Implement
-    AgentAction.UPDATE_SHOPIFY_PRODUCT: IdleExecutor,  # TODO: Implement
+    AgentAction.GET_SHOPIFY_PRODUCT: GetShopifyProductExecutor,  # TODO: Implement
+    AgentAction.GET_SHOPIFY_ORDERS: GetShopifyOrdersExecutor,  # TODO: Implement
+    AgentAction.UPDATE_SHOPIFY_PRODUCT: UpdateShopifyProductExecutor,  # TODO: Implement
     # Media
-    AgentAction.UPLOAD_YOUTUBE_VIDEO: IdleExecutor,  # TODO: Implement
-    AgentAction.CREATE_SPOTIFY_PLAYLIST: IdleExecutor,  # TODO: Implement
+    AgentAction.SEARCH_YOUTUBE_VIDEO: SearchYouTubeVideoExecutor,  # TODO: Implement
+    AgentAction.RETRIEVE_YOUTUBE_PLAYLIST: RetrieveYouTubePlaylistExecutor,  # TODO: Implement
+    AgentAction.SEARCH_SPOTIFY_SONG: SearchSpotifySongExecutor,  # TODO: Implement
+    AgentAction.RETRIEVE_SPOTIFY_PLAYLIST: RetrieveSpotifyPlaylistExecutor,  # TODO: Implement
 }
 
 

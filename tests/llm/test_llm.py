@@ -5,9 +5,9 @@ import pytest
 from loguru import logger
 
 from src.core.config import settings
-from src.core.defs import LLMProviderType
+from src.core.defs import EmbeddingProviderType, LLMProviderType
 from src.core.exceptions import LLMError
-from src.llm.llm import LLM, get_oai_client
+from src.llm.llm import LLM, get_embedding_client
 
 
 @pytest.fixture
@@ -134,7 +134,7 @@ async def test_generate_response_invalid_provider(mock_settings):
 def test_get_oai_client(mock_settings):
     """Test OpenAI client creation."""
     # act:
-    client = get_oai_client()
+    client = get_embedding_client(EmbeddingProviderType.OPENAI)
 
     # assert:
     assert isinstance(client, openai.AsyncOpenAI)

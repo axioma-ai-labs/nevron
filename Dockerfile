@@ -16,6 +16,9 @@ ENV PYTHONFAULTHANDLER=1
 
 RUN apt-get update && apt-get install -y \
     curl \
+    git \
+    gcc \
+    g++ \
     build-essential \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -41,7 +44,8 @@ RUN mkdir logs
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --no-interaction --no-ansi --no-root
+# Install dependencies with Poetry
+RUN poetry install --no-interaction --no-ansi --no-root --only main
 
 # --------------
 # Nevron Runtime

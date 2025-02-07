@@ -1,4 +1,6 @@
-name: CI 
+---
+
+name: CI
 
 on:
   push:
@@ -17,11 +19,14 @@ concurrency:
 jobs:
   Lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-         lfs: 'true'
+          lfs: 'true'
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -53,11 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - Lint
+    strategy:
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-         lfs: 'true'
+          lfs: 'true'
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5

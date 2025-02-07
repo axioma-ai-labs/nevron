@@ -3,7 +3,14 @@ from typing import List
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.defs import Environment, LlamaProviderType, LLMProviderType, MemoryBackendType, LlamaPoolingType, EmbeddingProviderType
+from src.core.defs import (
+    EmbeddingProviderType,
+    Environment,
+    LlamaPoolingType,
+    LlamaProviderType,
+    LLMProviderType,
+    MemoryBackendType,
+)
 
 
 class Settings(BaseSettings):
@@ -45,6 +52,12 @@ class Settings(BaseSettings):
     #: Memory persist directory. Used only for ChromaDB.
     MEMORY_PERSIST_DIRECTORY: str = ".chromadb"
 
+    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
+    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
+    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
+    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
+    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
+
     # --- LLMs settings ---
 
     LLM_PROVIDER: LLMProviderType = LLMProviderType.OPENAI
@@ -73,16 +86,6 @@ class Settings(BaseSettings):
     QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
     #: Llama
-    LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.OLLAMA
-    LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
-    LLAMA_API_KEY: str = ""  # API key for your provider
-
-    LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
-    LLAMA_OLLAMA_URL: str = "http://localhost:11434"
-    LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
-    LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-
-    #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
     LLAMA_API_KEY: str = ""  # API key for your provider
@@ -91,12 +94,6 @@ class Settings(BaseSettings):
     LLAMA_OLLAMA_URL: str = "http://localhost:11434"
     LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
     LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-
-    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
-    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b" # llama2-7b 
-    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN 
 
     # ==========================
     # Agent settings
@@ -153,7 +150,8 @@ class Settings(BaseSettings):
 
     #: Perplexity endpoint
     PERPLEXITY_ENDPOINT: str = "https://api.perplexity.ai/chat/completions"
-
+    #: Perplexity model
+    PERPLEXITY_MODEL: str = "llama-3.1-sonar-small-128k-online"
     #: Perplexity news settings
     PERPLEXITY_NEWS_PROMPT: str = "Search for the latest cryptocurrency news: Neurobro"
     PERPLEXITY_NEWS_CATEGORY_LIST: List[str] = [
@@ -246,7 +244,9 @@ class Settings(BaseSettings):
                 raise ValueError(f"{param} must be of type {param_type.__name__}.")
 
     @field_validator("EMBEDDING_PROVIDER", mode="before")
-    def validate_embedding_provider(cls, value: str | EmbeddingProviderType) -> EmbeddingProviderType:
+    def validate_embedding_provider(
+        cls, value: str | EmbeddingProviderType
+    ) -> EmbeddingProviderType:
         """Convert string to EmbeddingProviderType enum."""
         if isinstance(value, EmbeddingProviderType):
             return value
@@ -271,7 +271,9 @@ class Settings(BaseSettings):
         try:
             return LlamaPoolingType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid pooling type: {value}. Must be one of {list(LlamaPoolingType)}")
+            raise ValueError(
+                f"Invalid pooling type: {value}. Must be one of {list(LlamaPoolingType)}"
+            )
 
     @field_validator("LLAMA_PROVIDER", mode="before")
     def validate_llama_provider(cls, value: str | LlamaProviderType) -> LlamaProviderType:
@@ -281,7 +283,9 @@ class Settings(BaseSettings):
         try:
             return LlamaProviderType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid Llama provider: {value}. Must be one of {list(LlamaProviderType)}")
+            raise ValueError(
+                f"Invalid Llama provider: {value}. Must be one of {list(LlamaProviderType)}"
+            )
 
     @field_validator("LLM_PROVIDER", mode="before")
     def validate_llm_provider(cls, value: str | LLMProviderType) -> LLMProviderType:
@@ -291,7 +295,9 @@ class Settings(BaseSettings):
         try:
             return LLMProviderType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid LLM provider: {value}. Must be one of {list(LLMProviderType)}")
+            raise ValueError(
+                f"Invalid LLM provider: {value}. Must be one of {list(LLMProviderType)}"
+            )
 
     @field_validator("MEMORY_BACKEND_TYPE", mode="before")
     def validate_memory_backend_type(cls, value: str | MemoryBackendType) -> MemoryBackendType:
@@ -301,7 +307,9 @@ class Settings(BaseSettings):
         try:
             return MemoryBackendType[value.upper()]
         except KeyError:
-            raise ValueError(f"Invalid memory backend type: {value}. Must be one of {list(MemoryBackendType)}")
+            raise ValueError(
+                f"Invalid memory backend type: {value}. Must be one of {list(MemoryBackendType)}"
+            )
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")  # type: ignore[call-arg]

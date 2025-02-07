@@ -20,11 +20,11 @@ class FileChange(BaseModel):
     mode: str = "100644"  # Default file mode
 
 
-class GitHubIntegration:
+class GitHubTool:
     """GitHub integration for Nevron framework."""
 
     def __init__(self, token: str = settings.GITHUB_TOKEN, cache_dir: str = ".nevron/repos"):
-        """Initialize GitHub integration.
+        """Initialize GitHub integration tool.
 
         Args:
             token: GitHub access token
@@ -189,3 +189,32 @@ class GitHubIntegration:
 
         except Exception as e:
             raise GitHubError(f"Failed to create commit: {str(e)}")
+
+    async def create_issue(self, title: str, body: str, labels: Optional[List[str]] = None) -> Dict:
+        """Create a new issue in the current repository.
+
+        Args:
+            title: Issue title
+            body: Issue description
+            labels: Optional list of labels to apply to the issue
+
+        Returns:
+            Dict containing issue details
+
+        Raises:
+            GitHubError: If no repository is initialized or if issue creation fails
+        """
+        if not self.current_gh_repo:
+            raise GitHubError("No repository initialized")
+
+        try:
+            issue = self.current_gh_repo.create_issue(title=title, body=body, labels=labels or [])
+            logger.info(f"Created issue #{issue.number}: {title}")
+            return {
+                "number": issue.number,
+                "url": issue.html_url,
+                "title": issue.title,
+                "state": issue.state,
+            }
+        except Exception as e:
+            raise GitHubError(f"Failed to create issue: {str(e)}")

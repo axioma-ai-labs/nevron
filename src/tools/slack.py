@@ -12,7 +12,7 @@ from slack_sdk.web.async_client import AsyncWebClient
 from src.core.config import settings
 
 
-class SlackIntegration:
+class SlackTool:
     def __init__(
         self, bot_token: str = settings.SLACK_BOT_TOKEN, app_token: str = settings.SLACK_APP_TOKEN
     ):

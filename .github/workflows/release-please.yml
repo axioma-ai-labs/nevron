@@ -21,6 +21,7 @@ jobs:
         uses: GoogleCloudPlatform/release-please-action@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
+          config-file: .github/release-please-config.json
 
   Container-Release:
     needs: release-please

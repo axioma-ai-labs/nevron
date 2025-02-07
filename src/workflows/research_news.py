@@ -3,8 +3,8 @@ from typing import Optional
 from loguru import logger
 
 from src.llm.llm import LLM
-from src.tools.perplexity import search_with_perplexity
-from src.tools.twitter import post_twitter_thread
+from src.tools.perplexity import PerplexityTool
+from src.tools.twitter import TwitterTool
 
 
 async def analyze_news_workflow(news: str) -> Optional[str]:
@@ -13,7 +13,7 @@ async def analyze_news_workflow(news: str) -> Optional[str]:
     try:
         logger.info("Analyzing news...")
         # Get recent news context using Perplexity
-        context = await search_with_perplexity("Latest crypto news")
+        context = await PerplexityTool().search("Latest crypto news")
 
         # Prepare LLM prompt
         llm = LLM()
@@ -30,7 +30,7 @@ async def analyze_news_workflow(news: str) -> Optional[str]:
 
         # Publish tweet
         logger.info(f"Publishing tweet:\n{tweet_text}")
-        result = await post_twitter_thread(tweets={"tweet1": tweet_text})
+        result = await TwitterTool().post_thread(tweets={"tweet1": tweet_text})
         logger.info("Tweet posted successfully!")
         return ";".join(str(res) for res in result)
     except Exception as e:
