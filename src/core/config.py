@@ -85,11 +85,14 @@ class Settings(BaseSettings):
     QWEN_MODEL: str = "qwen-max"
     QWEN_API_BASE_URL: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
+<<<<<<< HEAD
     #: Venice
     VENICE_API_KEY: str = ""
     VENICE_MODEL: str = "venice-2-13b"
     VENICE_API_BASE_URL: str = "https://api.venice.ai/api/v1"
 
+=======
+>>>>>>> 74f5caf (Tools refactoring and executors implementation)
     #: Llama
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
@@ -99,12 +102,6 @@ class Settings(BaseSettings):
     LLAMA_OLLAMA_URL: str = "http://localhost:11434"
     LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
     LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-
-    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
-    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b" # llama2-7b 
-    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN 
 
     # ==========================
     # Agent settings

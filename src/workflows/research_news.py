@@ -3,8 +3,11 @@ from typing import Optional
 from loguru import logger
 
 from src.llm.llm import LLM
+<<<<<<< HEAD
 from src.memory.memory_module import MemoryModule, get_memory_module
 from src.tools.link_parser import LinkParserTool
+=======
+>>>>>>> 74f5caf (Tools refactoring and executors implementation)
 from src.tools.perplexity import PerplexityTool
 from src.tools.twitter import TwitterTool
 
@@ -16,6 +19,7 @@ async def analyze_news_workflow(
 
     try:
         logger.info("Analyzing news...")
+<<<<<<< HEAD
         if link:
             # Parse link content
             link_parser = LinkParserTool()
@@ -29,6 +33,10 @@ async def analyze_news_workflow(
         else:
             # Get recent news context using Perplexity
             context = await PerplexityTool().search("Latest crypto news")
+=======
+        # Get recent news context using Perplexity
+        context = await PerplexityTool().search("Latest crypto news")
+>>>>>>> 74f5caf (Tools refactoring and executors implementation)
 
         # Prepare LLM prompt
         llm = LLM()

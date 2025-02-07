@@ -55,7 +55,11 @@ class CoinstatsTool:
             logger.error(f"ERROR RETRIEVING NEWS: {str(e)}")
             raise CoinstatsError("News data currently unavailable")
 
+<<<<<<< HEAD
     async def fetch_signal(self) -> Dict[str, Any]:
+=======
+    async def fetch_signal(self) -> dict:
+>>>>>>> 74f5caf (Tools refactoring and executors implementation)
         """
         Fetch a crypto signal from the Coinstats API.
 
@@ -67,10 +71,17 @@ class CoinstatsTool:
         """
         try:
             data = await self.get_coinstats_news()
+<<<<<<< HEAD
             if data and isinstance(data["result"], list):
                 latest_news = data["result"][0]
                 logger.debug(f"Signal fetched: {latest_news}")
                 signal = latest_news.get("title", None)
+=======
+            if data and data.get("result") and len(data["result"]) > 0:
+                latest_news = data["result"][0]
+                logger.debug(f"Signal fetched: {latest_news}")
+                signal = latest_news.get("title", None)  # type: ignore
+>>>>>>> 74f5caf (Tools refactoring and executors implementation)
                 if not signal:
                     return {"status": "no_data"}
                 return {"status": "new_signal", "content": signal}
