@@ -2,8 +2,7 @@
 
 from enum import Enum
 
-
-# import llama_cpp
+import llama_cpp
 
 
 class Environment(str, Enum):
@@ -96,20 +95,14 @@ class LlamaProviderType(str, Enum):
     OPENROUTER = "openrouter"
 
 
-class LlamaPoolingType(str, Enum):  # change to int when using llama_cpp
+class LlamaPoolingType(int, Enum):  # change to int when using llama_cpp
     """local Llama model pooling type."""
 
-    NONE = "LLAMA_POOLING_TYPE_NONE"
-    MEAN = "LLAMA_POOLING_TYPE_MEAN"
-    CLS = "LLAMA_POOLING_TYPE_CLS"
-    LAST = "LLAMA_POOLING_TYPE_LAST"
-    RANK = "LLAMA_POOLING_TYPE_RANK"
-
-    # NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
-    # MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
-    # CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
-    # LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
-    # RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
+    NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
+    MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
+    CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
+    LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
+    RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
 
 
 class EmbeddingProviderType(str, Enum):
