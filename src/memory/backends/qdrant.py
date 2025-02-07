@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 from qdrant_client import QdrantClient
@@ -85,22 +85,56 @@ class QdrantBackend(MemoryBackend):
             logger.error(f"Error storing memory in Qdrant: {e}")
             raise
 
-    async def search(self, query_vector: List[float], top_k: int = 3) -> List[Dict[str, Any]]:
+    async def search(
+        self, query_vector: List[float], top_k: int = 3, filters: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
-        Search for similar memories in Qdrant.
+        Search for similar memories in Qdrant with optional filters.
 
         Args:
             query_vector: Query vector
             top_k: Number of results to return
+            filters: Optional metadata filters (e.g., {"type": "tweet"})
 
         Returns:
             List[Dict[str, Any]]: List of similar memories
         """
         try:
+            qdrant_filters = None
+            if filters:
+                must_conditions: List[
+                    Union[
+                        qdrant_models.FieldCondition,
+                        qdrant_models.IsEmptyCondition,
+                        qdrant_models.IsNullCondition,
+                        qdrant_models.HasIdCondition,
+                        qdrant_models.HasVectorCondition,
+                        qdrant_models.NestedCondition,
+                        qdrant_models.Filter,
+                    ]
+                ] = []
+
+                for key, value in filters.items():
+                    if isinstance(value, list):
+                        must_conditions.append(
+                            qdrant_models.FieldCondition(
+                                key=key, match=qdrant_models.MatchAny(any=value)
+                            )
+                        )
+                    else:
+                        must_conditions.append(
+                            qdrant_models.FieldCondition(
+                                key=key, match=qdrant_models.MatchValue(value=value)
+                            )
+                        )
+
+                qdrant_filters = qdrant_models.Filter(must=must_conditions)
+
             search_result = self.client.search(
                 collection_name=self.collection_name,
                 query_vector=query_vector,
                 limit=top_k,
+                query_filter=qdrant_filters,
             )
             return [point.payload for point in search_result if point.payload]
         except Exception as e:

@@ -95,21 +95,35 @@ class ChromaBackend(MemoryBackend):
             logger.error(f"Error storing memory in ChromaDB: {e}")
             raise
 
-    async def search(self, query_vector: List[float], top_k: int = 3) -> List[Dict[str, Any]]:
+    async def search(
+        self, query_vector: List[float], top_k: int = 3, filters: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
-        Search for similar memories in ChromaDB.
+        Search for similar memories in ChromaDB with optional filters.
 
         Args:
             query_vector: Query vector
             top_k: Number of results to return
+            filters: Optional metadata filters (e.g., {"type": "tweet"})
 
         Returns:
             List[Dict[str, Any]]: List of similar memories
         """
         try:
-            # Convert query_vector to the expected type
             query_vector_seq: Sequence[float] = query_vector
-            results = self.collection.query(query_embeddings=[query_vector_seq], n_results=top_k)
+
+            where: Optional[Dict[str, Any]] = None
+            if filters:
+                where = {}
+                for key, value in filters.items():
+                    if isinstance(value, list):
+                        where[key] = {"$in": value}
+                    else:
+                        where[key] = {"$eq": value}
+
+            results = self.collection.query(
+                query_embeddings=[query_vector_seq], n_results=top_k, where=where
+            )
 
             # Format results to match the expected output
             formatted_results = []
