@@ -150,7 +150,8 @@ class Settings(BaseSettings):
 
     #: Perplexity endpoint
     PERPLEXITY_ENDPOINT: str = "https://api.perplexity.ai/chat/completions"
-
+    #: Perplexity model
+    PERPLEXITY_MODEL: str = "llama-3.1-sonar-small-128k-online"
     #: Perplexity news settings
     PERPLEXITY_NEWS_PROMPT: str = "Search for the latest cryptocurrency news: Neurobro"
     PERPLEXITY_NEWS_CATEGORY_LIST: List[str] = [

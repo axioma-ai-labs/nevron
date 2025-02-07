@@ -9,7 +9,7 @@ from src.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-class YouTubeClient:
+class YouTubeTool:
     """YouTube API client for handling all YouTube-related operations."""
 
     def __init__(self, api_key=None):
