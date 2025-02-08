@@ -85,9 +85,7 @@ async def test_search_memory(mock_qdrant_backend, mock_qdrant_client):
     results = await mock_qdrant_backend.search(query_vector, top_k=3)
 
     mock_qdrant_client.search.assert_called_once_with(
-        collection_name="test_collection",
-        query_vector=query_vector,
-        limit=3,
+        collection_name="test_collection", query_vector=query_vector, limit=3, query_filter=None
     )
     assert results == [{"event": "Event1"}, {"event": "Event2"}, {"event": "Event3"}]
 
@@ -101,8 +99,6 @@ async def test_search_memory_no_results(mock_qdrant_backend, mock_qdrant_client)
     results = await mock_qdrant_backend.search(query_vector, top_k=3)
 
     mock_qdrant_client.search.assert_called_once_with(
-        collection_name="test_collection",
-        query_vector=query_vector,
-        limit=3,
+        collection_name="test_collection", query_vector=query_vector, limit=3, query_filter=None
     )
     assert results == []

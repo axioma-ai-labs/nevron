@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: AA Core",
+            "name": "Python: Nevron",
             "type": "python",
             "request": "launch",
             "module": "src.main",
@@ -12,6 +12,13 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
+        },
+        {
+            "name": "Python: Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.debug",
+            "console": "integratedTerminal"
         }
     ]
 } 

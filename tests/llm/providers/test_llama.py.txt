@@ -132,9 +132,9 @@ async def test_llama_memory_requirements(mock_llama_setup, model_size, memory_re
         # Verify device mapping based on memory requirements
         model_args = mock_model.call_args[1]
         expected_device = "cpu" if memory_requirement > 8 else "cuda"
-        assert (
-            model_args["device_map"] == expected_device
-        ), f"Expected {expected_device} for {model_size} model with 8GB GPU"
+        assert model_args["device_map"] == expected_device, (
+            f"Expected {expected_device} for {model_size} model with 8GB GPU"
+        )
 
 
 @pytest.mark.asyncio

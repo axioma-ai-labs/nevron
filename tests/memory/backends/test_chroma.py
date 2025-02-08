@@ -87,8 +87,7 @@ async def test_search_memory(mock_chroma_backend, mock_chroma_collection):
     results = await mock_chroma_backend.search(query_vector, top_k=3)
 
     mock_chroma_collection.query.assert_called_once_with(
-        query_embeddings=[query_vector],
-        n_results=3,
+        query_embeddings=[query_vector], n_results=3, where=None
     )
     assert results == [{"event": "Event1"}, {"event": "Event2"}, {"event": "Event3"}]
 
@@ -102,8 +101,7 @@ async def test_search_memory_no_results(mock_chroma_backend, mock_chroma_collect
     results = await mock_chroma_backend.search(query_vector, top_k=3)
 
     mock_chroma_collection.query.assert_called_once_with(
-        query_embeddings=[query_vector],
-        n_results=3,
+        query_embeddings=[query_vector], n_results=3, where=None
     )
     assert results == []
 

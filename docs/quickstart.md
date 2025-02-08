@@ -12,7 +12,7 @@ Common requirements for all installation methods:
 
 Additional requirements:
 - For Docker setup: **Docker**
-- For local setup: **Python 3.12** and **Pipenv**
+- For local setup: **Python 3.13** and **Poetry**
 
 -----
 
@@ -35,9 +35,22 @@ cp .env.example .env
 
 ### 2. Configure
 
-You have to set the `OPENAI_API_KEY` environment variable to be able to use the agent.
+Edit `.env` file with your settings:
 ```bash
-OPENAI_API_KEY=your_key_here    # Required
+# Required: Choose one of the LLM providers and set its API key
+OPENAI_API_KEY=your_key_here    # For OpenAI
+# ANTHROPIC_API_KEY=your_key_here # For Anthropic
+# XAI_API_KEY=your_key_here      # For xAI
+# LLAMA_API_KEY=your_key_here    # For Llama with Fireworks
+# Or use local Llama with Ollama:
+# LLAMA_PROVIDER=ollama
+# LLAMA_OLLAMA_MODEL=llama3.1:8b
+
+# Optional: Set the environment
+ENVIRONMENT=production          # Recommended for Docker setup
+
+# Optional: Choose memory backend
+MEMORY_BACKEND_TYPE=chroma     # Default memory backend
 ```
 
 Also, you can configure the personality, goals and rest time of your agent in `.env`.
@@ -75,8 +88,11 @@ Set up Nevron locally in 5 steps:
 git clone https://github.com/axioma-ai-labs/nevron.git
 cd nevron
 
+# install Poetry if you haven't already
+curl -sSL https://install.python-poetry.org | python3 -
+
 # install dependencies
-make deps
+poetry install
 ```
 
 ### 2. Configure Environment
@@ -133,7 +149,7 @@ See the [Agent Overview](agent/overview.md) for more details.
 Common issues:
 - Ensure all required API keys are set in `.env`
 - Check logs in the console for detailed error messages
-- Verify Python version: `python --version`
-- Confirm dependencies: `pipenv graph`
+- Verify Python version: `python --version` (should be 3.13)
+- Confirm dependencies: `poetry show`
 
 For more help, visit our [GitHub Discussions](https://github.com/axioma-ai-labs/nevron/discussions).

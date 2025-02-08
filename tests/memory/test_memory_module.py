@@ -127,7 +127,9 @@ async def test_search_memory_qdrant(memory_module_qdrant, mock_qdrant_backend):
     results = await memory_module_qdrant.search(query, top_k)
 
     memory_module_qdrant.embedding_generator.get_embedding.assert_called_once_with(query)
-    mock_qdrant_backend.search.assert_called_once_with(query_vector=[0.1, 0.2, 0.3], top_k=top_k)
+    mock_qdrant_backend.search.assert_called_once_with(
+        query_vector=[0.1, 0.2, 0.3], top_k=top_k, filters=None
+    )
     assert results == [{"event": "result_event"}]
 
 
@@ -141,5 +143,7 @@ async def test_search_memory_chroma(memory_module_chroma, mock_chroma_backend):
     results = await memory_module_chroma.search(query, top_k)
 
     memory_module_chroma.embedding_generator.get_embedding.assert_called_once_with(query)
-    mock_chroma_backend.search.assert_called_once_with(query_vector=[0.1, 0.2, 0.3], top_k=top_k)
+    mock_chroma_backend.search.assert_called_once_with(
+        query_vector=[0.1, 0.2, 0.3], top_k=top_k, filters=None
+    )
     assert results == [{"event": "result_event"}]

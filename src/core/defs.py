@@ -2,9 +2,11 @@
 
 from enum import Enum
 
+import llama_cpp
 
-class Environment(Enum):
-    """The environment of the application."""
+
+class Environment(str, Enum):
+    """Environment type."""
 
     PRODUCTION = "production"
     DEVELOPMENT = "development"
@@ -12,11 +14,47 @@ class Environment(Enum):
 
 
 class AgentAction(Enum):
-    """The actions that the agent can take."""
+    """Available actions for the agent."""
 
-    IDLE = "idle"
+    # === Workflows ===
     ANALYZE_NEWS = "analyze_news"
     CHECK_SIGNAL = "check_signal"
+    IDLE = "idle"
+
+    # === Social Media ===
+    POST_TWEET = "post_tweet"
+    LISTEN_DISCORD_MESSAGES = "listen_discord_messages"
+    SEND_DISCORD_MESSAGE = "send_discord_message"
+    SEND_TELEGRAM_MESSAGE = "send_telegram_message"
+    POST_LENS = "post_lens"
+    FETCH_LENS = "fetch_lens"
+    LISTEN_WHATSAPP_MESSAGES = "listen_whatsapp_messages"
+    SEND_WHATSAPP_MESSAGE = "send_whatsapp_message"
+    LISTEN_SLACK_MESSAGES = "listen_slack_messages"
+    SEND_SLACK_MESSAGE = "send_slack_message"
+
+    # === Research ===
+    SEARCH_TAVILY = "search_tavily"
+    ASK_PERPLEXITY = "ask_perplexity"
+    ASK_COINSTATS = "ask_coinstats"
+
+    # === Development ===
+    CREATE_GITHUB_ISSUE = "create_github_issue"
+    CREATE_GITHUB_PR = "create_github_pr"
+    PROCESS_GITHUB_MEMORIES = "process_github_memories"
+    SEARCH_GOOGLE_DRIVE = "search_google_drive"
+    UPLOAD_GOOGLE_DRIVE = "upload_google_drive"
+
+    # === E-commerce ===
+    GET_SHOPIFY_PRODUCT = "get_shopify_product"
+    GET_SHOPIFY_ORDERS = "get_shopify_orders"
+    UPDATE_SHOPIFY_PRODUCT = "update_shopify_product"
+
+    # === Media ===
+    SEARCH_YOUTUBE_VIDEO = "search_youtube_video"
+    RETRIEVE_YOUTUBE_PLAYLIST = "retrieve_youtube_playlist"
+    SEARCH_SPOTIFY_SONG = "search_spotify_song"
+    RETRIEVE_SPOTIFY_PLAYLIST = "retrieve_spotify_playlist"
 
 
 class AgentState(Enum):
@@ -30,16 +68,47 @@ class AgentState(Enum):
 
 
 class MemoryBackendType(str, Enum):
-    """Available memory backend types."""
+    """Memory backend type."""
 
-    QDRANT = "qdrant"
     CHROMA = "chroma"
+    QDRANT = "qdrant"
 
 
 class LLMProviderType(str, Enum):
-    """Available LLM provider types."""
+    """LLM provider type."""
 
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     XAI = "xai"
     LLAMA = "llama"
+    DEEPSEEK = "deepseek"
+    QWEN = "qwen"
+    VENICE = "venice"
+
+
+class LlamaProviderType(str, Enum):
+    """Llama provider type."""
+
+    OLLAMA = "ollama"
+    FIREWORKS = "fireworks"
+    LLAMA_API = "llama-api"
+    LLAMA_LOCAL = "llama_local"
+    OPENROUTER = "openrouter"
+
+
+class LlamaPoolingType(int, Enum):
+    """local Llama model pooling type."""
+
+    NONE = llama_cpp.LLAMA_POOLING_TYPE_NONE
+    MEAN = llama_cpp.LLAMA_POOLING_TYPE_MEAN
+    CLS = llama_cpp.LLAMA_POOLING_TYPE_CLS
+    LAST = llama_cpp.LLAMA_POOLING_TYPE_LAST
+    RANK = llama_cpp.LLAMA_POOLING_TYPE_RANK
+
+
+class EmbeddingProviderType(str, Enum):
+    """Embedding provider type."""
+
+    OPENAI = LLMProviderType.OPENAI
+    LLAMA_LOCAL = LlamaProviderType.LLAMA_LOCAL
+    LLAMA_API = LlamaProviderType.LLAMA_API

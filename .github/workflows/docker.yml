@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/nevron
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME && secrets.DOCKER_USERNAME || 'dependabot' }}/nevron
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -33,7 +33,7 @@ jobs:
       
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
-        if: github.event_name == 'push'  # Only log in on pushes to main
+        if: github.actor != 'dependabot[bot]' && github.event_name == 'push'
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -43,7 +43,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: false # disable push for now
+          push: ${{ github.event_name == 'push' }}
           tags: ${{ env.IMAGE_NAME }}:latest
           labels: ${{ env.IMAGE_NAME }}:latest
           platforms: linux/amd64,linux/arm64

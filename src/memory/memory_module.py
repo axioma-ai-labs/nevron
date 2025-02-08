@@ -1,12 +1,12 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
-from openai import AsyncOpenAI
 
 from src.core.config import settings
 from src.core.defs import MemoryBackendType
 from src.llm.embeddings import EmbeddingGenerator
-from src.llm.llm import get_oai_client
+from src.llm.llm import LLM
 from src.memory.backends.chroma import ChromaBackend
 from src.memory.backends.qdrant import QdrantBackend
 
@@ -14,7 +14,6 @@ from src.memory.backends.qdrant import QdrantBackend
 class MemoryModule:
     def __init__(
         self,
-        openai_client: AsyncOpenAI = get_oai_client(),
         backend_type: str = settings.MEMORY_BACKEND_TYPE,
         collection_name: str = settings.MEMORY_COLLECTION_NAME,
         host: str = settings.MEMORY_HOST,
@@ -26,7 +25,6 @@ class MemoryModule:
         Initialize the memory module with the specified backend.
 
         Args:
-            openai_client: AsyncOpenAI client instance for embedding generation
             backend_type: Type of memory backend to use (qdrant or chroma)
             collection_name: Name of the vector store collection
             host: Vector store host for Qdrant. Will be ignored for ChromaDB.
@@ -34,8 +32,10 @@ class MemoryModule:
             vector_size: Size of embedding vectors for Qdrant. Will be set automatically for ChromaDB.
             persist_directory: Directory to persist ChromaDB data. Will be ignored for Qdrant.
         """
-        #: Initialize embedding generator
-        self.embedding_generator = EmbeddingGenerator(openai_client)
+        # Initialize embedding generator
+        self.embedding_generator = EmbeddingGenerator()
+        # Initialize LLM
+        self.llm = LLM()
 
         # Setup the vector store backend
         self.backend: Union[QdrantBackend, ChromaBackend]
@@ -55,6 +55,66 @@ class MemoryModule:
             raise ValueError(f"Unsupported backend type: {backend_type}")
         logger.debug(f"Memory backend initialized: {self.backend}")
 
+    async def llm_filter(
+        self, raw_data: str, metadata_filters: Optional[Dict[str, Any]] = None
+    ) -> Optional[str]:
+        """
+        Use LLM to filter and summarize raw data based on metadata filters.
+
+        Args:
+            raw_data: The raw data to evaluate
+            metadata_filters: Filters to consider when evaluating importance (e.g., {"type": "...", "topic": "Project X"})
+
+        Returns:
+            Optional[str]: Summary if data is worth remembering, None otherwise
+        """
+        filter_context = ""
+        if metadata_filters:
+            filter_context = " Consider these important criteria when evaluating:\n"
+            for key, value in metadata_filters.items():
+                if isinstance(value, list):
+                    filter_context += f"- {key}: {', '.join(value)}\n"
+                else:
+                    filter_context += f"- {key}: {value}\n"
+
+        prompt = (
+            f"Evaluate this data for its importance and relevance. {filter_context}\n"
+            f"1. Analyze the content and context of the data\n"
+            f"2. Compare it against the evaluation criteria\n"
+            f"3. If it's relevant and worth remembering, extract the most important information as a concise summary\n"
+            f"4. If it's not relevant or important, return exactly 'None'\n\n"
+            f"Data to evaluate:\n{raw_data}\n\n"
+            f"Your response should be either:\n"
+            f"- A concise summary of the most important information (if relevant)\n"
+            f"- Exactly 'None' (if not relevant or important)\n"
+            f"Do not include any additional comments or explanations in your response."
+        )
+
+        response = await self.llm.generate_response([{"role": "user", "content": prompt}])
+        return response if response != "None" else None
+
+    async def filter_and_store(
+        self, raw_data: str, data_type: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Filter raw data using LLM and store only the meaningful summary.
+
+        Args:
+            raw_data: The raw data to evaluate
+            data_type: Type of data (e.g., tweet, news finding, slack post etc.)
+            metadata: Additional metadata to store with the memory
+        """
+        summary = await self.llm_filter(raw_data)
+        if summary:
+            # Add timestamp and type to metadata
+            metadata = metadata or {}
+            metadata.update(
+                {"timestamp": datetime.now(timezone.utc).isoformat(), "type": data_type}
+            )
+            await self.store(
+                event="Filtered Memory", action="Store", outcome=summary, metadata=metadata
+            )
+
     async def store(
         self, event: str, action: str, outcome: str, metadata: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -63,7 +123,7 @@ class MemoryModule:
 
         Args:
             event: Event description
-            action: Action taken (is fromed from the ActionName enum)
+            action: Action taken
             outcome: Result of the action
             metadata: Additional metadata to store
         """
@@ -78,13 +138,16 @@ class MemoryModule:
             metadata=metadata,
         )
 
-    async def search(self, query: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    async def search(
+        self, query: str, top_k: int = 3, filters: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
-        Search for similar memories using the specified backend.
+        Search for similar memories with optional filters.
 
         Args:
             query: Query to search for
             top_k: Number of results to return
+            filters: Optional metadata filters (e.g., {"type": "tweet", "topic": "Project X"})
 
         Returns:
             List[Dict[str, Any]]: List of similar memories
@@ -92,14 +155,12 @@ class MemoryModule:
         logger.debug(f"Searching for memories: {query}")
         query_vector = await self.embedding_generator.get_embedding(query)
         return await self.backend.search(
-            query_vector=query_vector[0].tolist(),
-            top_k=top_k,
+            query_vector=query_vector[0].tolist(), top_k=top_k, filters=filters
         )
 
 
 def get_memory_module(
-    openai_client: AsyncOpenAI = get_oai_client(),
     backend_type: str = settings.MEMORY_BACKEND_TYPE,
 ) -> MemoryModule:
     """Get a memory module instance with the specified backend."""
-    return MemoryModule(openai_client=openai_client, backend_type=backend_type)
+    return MemoryModule(backend_type=backend_type)

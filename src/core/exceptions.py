@@ -43,6 +43,12 @@ class WhatsAppError(AgentBaseError):
     pass
 
 
+class YouTubeError(AgentBaseError):
+    """YouTube API error."""
+
+    pass
+
+
 class APIError(AgentBaseError):
     """Exception raised when API request fails."""
 
@@ -71,3 +77,29 @@ class GitHubError(Exception):
     """Raised when WhatsApp operations fail"""
 
     pass
+
+
+class ExecutionError(AgentBaseError):
+    """Exception raised when execution fails."""
+
+    pass
+
+
+class PerplexityError(Exception):
+    """Perplexity API error."""
+
+
+class TavilyError(Exception):
+    """Tavily API error."""
+
+
+class GoogleDriveError(Exception):
+    """Google Drive API error."""
+
+
+class LensError(Exception):
+    """Lens Protocol error."""
+
+
+class SlackError(Exception):
+    """Slack API error."""

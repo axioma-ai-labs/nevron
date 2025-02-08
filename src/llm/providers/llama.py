@@ -1,49 +1,213 @@
-from pathlib import Path
 from typing import Dict, List
 
-import torch
+import requests
 from loguru import logger
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from openai import AsyncOpenAI, OpenAI
 
 from src.core.config import settings
+from src.core.defs import LlamaProviderType
 from src.core.exceptions import LLMError
 
 
-def validate_llama_setup(model_path: str) -> None:
+def _format_messages_for_ollama(messages: List[Dict[str, str]]) -> str:
     """
-    Validate that the Llama model and tokenizer files exist and are accessible.
+    Format messages for Ollama API.
 
     Args:
-        model_path: Path to the Llama model directory
+        messages: List of message dictionaries with 'role' and 'content'.
 
-    Raises:
-        LLMError: If model files are missing or inaccessible
+    Returns:
+        str: Formatted prompt string.
     """
-    path = Path(model_path)
-    if not path.exists():
-        raise LLMError(f"Llama model path does not exist: {model_path}")
+    formatted_messages = []
+    for msg in messages:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "system":
+            formatted_messages.append(f"System: {content}")
+        elif role == "user":
+            formatted_messages.append(f"User: {content}")
+        elif role == "assistant":
+            formatted_messages.append(f"Assistant: {content}")
+    return "\n".join(formatted_messages)
 
-    # Check for essential model files
-    required_files = ["config.json", "tokenizer.json", "tokenizer_config.json"]
-    missing_files = [f for f in required_files if not (path / f).exists()]
 
-    if missing_files:
-        raise LLMError(
-            f"Missing required Llama model files in {model_path}: {', '.join(missing_files)}"
+async def _call_fireworks(messages: List[Dict[str, str]], **kwargs) -> str:
+    """
+    Call the Fireworks.ai Llama endpoint.
+
+    Args:
+        messages: A list of dicts with 'role' and 'content'.
+        kwargs: Additional parameters (e.g., model, temperature).
+
+    Returns:
+        str: Response content from Llama.
+    """
+    url = f"{settings.LLAMA_FIREWORKS_URL}/v1/chat/completions"
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
+    temperature = kwargs.get("temperature", 0.6)
+
+    payload = {
+        "model": model,
+        "max_tokens": 16384,
+        "top_p": 1,
+        "top_k": 40,
+        "presence_penalty": 0,
+        "frequency_penalty": 0,
+        "temperature": temperature,
+        "messages": messages,
+    }
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {settings.LLAMA_API_KEY}",
+    }
+
+    logger.debug(
+        f"Calling Fireworks Llama with model={model}, temperature={temperature}, messages={messages}"
+    )
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        data = response.json()
+        if not data.get("choices") or not data["choices"][0].get("message", {}).get("content"):
+            raise LLMError("No content in Fireworks Llama response")
+
+        content = data["choices"][0]["message"]["content"].strip()
+        logger.debug(f"Fireworks Llama response: {content}")
+        return content
+    except Exception as e:
+        logger.error(f"Fireworks Llama call failed: {e}")
+        raise LLMError("Error during Fireworks Llama API call") from e
+
+
+async def _call_ollama(messages: List[Dict[str, str]], **kwargs) -> str:
+    """
+    Call the local Ollama endpoint.
+
+    Args:
+        messages: A list of dicts with 'role' and 'content'.
+        kwargs: Additional parameters (e.g., model, temperature).
+
+    Returns:
+        str: Response content from Ollama.
+    """
+    url = f"{settings.LLAMA_OLLAMA_URL}/api/generate"
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
+    temperature = kwargs.get("temperature", 0.6)
+
+    # Format messages into a prompt
+    prompt = _format_messages_for_ollama(messages)
+
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False,
+        "temperature": temperature,
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    logger.debug(f"Calling Ollama with model={model}, temperature={temperature}, prompt={prompt}")
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+
+        data = response.json()
+        if not data.get("response"):
+            raise LLMError("No content in Ollama response")
+
+        content = data["response"].strip()
+        logger.debug(f"Ollama response: {content}")
+        return content
+    except Exception as e:
+        logger.error(f"Ollama call failed: {e}")
+        raise LLMError("Error during Ollama API call") from e
+
+
+async def _call_llama_api(messages: List[Dict[str, str]], **kwargs) -> str:
+    """
+    Call the Llama API endpoint.
+
+    Args:
+        messages: A list of dicts with 'role' and 'content'.
+        kwargs: Additional parameters (e.g., model, temperature).
+
+    Returns:
+        str: Response content from Llama API.
+    """
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
+    temperature = kwargs.get("temperature", 0.6)
+
+    client = AsyncOpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL)
+
+    logger.debug(
+        f"Calling Llama API with model={model}, temperature={temperature}, messages={messages}"
+    )
+
+    try:
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,  # type: ignore
+            temperature=temperature,
         )
 
-    # Check for model weights file (either pytorch_model.bin or model.safetensors)
-    has_weights = (path / "pytorch_model.bin").exists() or (path / "model.safetensors").exists()
-    if not has_weights:
-        raise LLMError(
-            f"No model weights found in {model_path}. "
-            "Expected either pytorch_model.bin or model.safetensors"
+        if not response.choices or not response.choices[0].message.content:
+            raise LLMError("No content in Llama API response")
+
+        content = response.choices[0].message.content.strip()
+        logger.debug(f"Llama API response: {content}")
+        return content
+    except Exception as e:
+        logger.error(f"Llama API call failed: {e}")
+        raise LLMError("Error during Llama API call") from e
+
+
+async def _call_openrouter(messages: List[Dict[str, str]], **kwargs) -> str:
+    """
+    Call the OpenRouter endpoint.
+
+    Args:
+        messages: A list of dicts with 'role' and 'content'.
+        kwargs: Additional parameters (e.g., model, temperature).
+
+    Returns:
+        str: Response content from OpenRouter.
+    """
+    model = kwargs.get("model", settings.LLAMA_MODEL_NAME)
+    temperature = kwargs.get("temperature", 0.6)
+
+    client = OpenAI(api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_OPENROUTER_URL)
+
+    logger.debug(
+        f"Calling OpenRouter with model={model}, temperature={temperature}, messages={messages}"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,  # type: ignore
+            temperature=temperature,
         )
+
+        if not response.choices or not response.choices[0].message.content:
+            raise LLMError("No content in OpenRouter response")
+
+        content = response.choices[0].message.content.strip()
+        logger.debug(f"OpenRouter response: {content}")
+        return content
+    except Exception as e:
+        logger.error(f"OpenRouter call failed: {e}")
+        raise LLMError("Error during OpenRouter API call") from e
 
 
 async def call_llama(messages: List[Dict[str, str]], **kwargs) -> str:
     """
-    Call the Llama model for text generation.
+    Call the Llama model based on the configured provider.
 
     Args:
         messages: A list of dicts with 'role' and 'content'.
@@ -53,112 +217,17 @@ async def call_llama(messages: List[Dict[str, str]], **kwargs) -> str:
         str: Response content from Llama.
 
     Raises:
-        LLMError: If model loading or inference fails
+        LLMError: If the provider is not supported or if the API call fails.
     """
-    model_path = kwargs.get("model_path", settings.LLAMA_MODEL_PATH)
-    max_tokens = kwargs.get("max_tokens", settings.LLAMA_MAX_TOKENS)
-    temperature = kwargs.get("temperature", 0.7)
+    provider = settings.LLAMA_PROVIDER
 
-    try:
-        # Validate model setup before loading
-        validate_llama_setup(model_path)
-
-        # Check available memory and adjust device map
-        device_map = kwargs.get("device_map", "auto")
-
-        if torch.cuda.is_available():
-            gpu_memory = torch.cuda.get_device_properties(0).total_memory
-            gpu_memory_gb = gpu_memory / (1024**3)  # Convert to GB
-
-            # Estimate memory requirements based on model size
-            model_size = Path(model_path).name.lower()
-            required_memory = 0
-
-            if "70b" in model_size:
-                required_memory = 140
-            elif "405b" in model_size:
-                required_memory = 780
-            elif "8b" in model_size:
-                required_memory = 16
-
-            # Set device based on available memory
-            if gpu_memory_gb >= required_memory:
-                device_map = "cuda"  # Use GPU if enough memory
-            else:
-                logger.warning(
-                    f"Insufficient GPU memory ({gpu_memory_gb:.1f}GB) for {model_size} model "
-                    f"(requires {required_memory}GB). Falling back to CPU."
-                )
-                device_map = "cpu"
-        else:
-            logger.info("CUDA not available, using CPU")
-            device_map = "cpu"
-
-        # Load model and tokenizer
-        try:
-            tokenizer = AutoTokenizer.from_pretrained(model_path)
-        except Exception as e:
-            raise LLMError(f"Failed to load Llama tokenizer: {str(e)}")
-
-        try:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path, torch_dtype="auto", device_map=device_map
-            )
-        except Exception as e:
-            raise LLMError(f"Failed to load Llama model: {str(e)}")
-
-        # Format messages into prompt
-        prompt = ""
-        for msg in messages:
-            if msg["role"] == "system":
-                prompt += f"System: {msg['content']}\n"
-            elif msg["role"] == "user":
-                prompt += f"User: {msg['content']}\n"
-            else:
-                prompt += f"Assistant: {msg['content']}\n"
-        prompt += "Assistant:"
-
-        logger.debug(f"Calling Llama with prompt: {prompt}")
-
-        # Add context window limits based on model size
-        model_size = Path(model_path).name.lower()
-        if "8b" in model_size:
-            max_length = 2048
-        elif "70b" in model_size:
-            max_length = 4096
-        elif "405b" in model_size:
-            max_length = 8192
-        else:
-            max_length = 2048  # Default
-
-        # Generate response
-        try:
-            inputs = tokenizer(
-                prompt, return_tensors="pt", max_length=max_length, truncation=True
-            ).to(model.device)
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                top_p=kwargs.get("top_p", 0.9),
-                pad_token_id=tokenizer.eos_token_id,
-                eos_token_id=tokenizer.eos_token_id,
-            )
-            response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        except Exception as e:
-            raise LLMError(f"Llama inference failed: {str(e)}")
-
-        # Extract assistant's response
-        content = response.split("Assistant:")[-1].strip()
-        if not content:
-            raise LLMError("Llama generated empty response")
-
-        logger.debug(f"Llama response: {content}")
-        return content
-
-    except LLMError:
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in Llama call: {e}")
-        raise LLMError("Error during Llama model inference") from e
+    provider_map = {
+        LlamaProviderType.FIREWORKS: _call_fireworks,
+        LlamaProviderType.OLLAMA: _call_ollama,
+        LlamaProviderType.LLAMA_API: _call_llama_api,
+        LlamaProviderType.OPENROUTER: _call_openrouter,
+    }
+    if provider in provider_map:
+        return await provider_map[provider](messages, **kwargs)
+    else:
+        raise LLMError(f"Unsupported Llama provider: {provider}")

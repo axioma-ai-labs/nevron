@@ -8,6 +8,7 @@ from whatsapp_api_client_python.API import GreenAPI
 from src.core.config import settings
 from src.core.exceptions import WhatsAppError
 
+
 # Disable SSL warning for development
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -20,7 +21,7 @@ def format_phone_number(phone: str) -> str:
     return f"{clean_number}@c.us"
 
 
-class WhatsAppClient:
+class WhatsAppTool:
     def __init__(self):
         self.id_instance = settings.WHATSAPP_ID_INSTANCE
         self.api_token = settings.WHATSAPP_API_TOKEN
