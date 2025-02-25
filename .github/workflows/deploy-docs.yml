@@ -12,9 +12,8 @@ permissions:
   id-token: write
 
 jobs:
-  build_mkdocs:
+  build_and_deploy:
     runs-on: ubuntu-latest
- 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,33 +52,60 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
+      # Fetch gh-pages branch if it exists
+      - name: Fetch gh-pages
+        run: |
+          git fetch origin gh-pages --depth=1 || true
+
+      # Create gh-pages branch if it doesn't exist
+      - name: Create gh-pages branch if needed
+        run: |
+          if ! git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            git checkout --orphan gh-pages
+            git reset --hard
+            git commit --allow-empty -m "Initial gh-pages commit"
+            git push origin gh-pages
+            git checkout -
+          fi
+
+      # Deploy documentation based on branch
       - name: Deploy docs for main branch (stable)
         if: github.ref == 'refs/heads/main'
         run: |
-          poetry run mike deploy --push --update-aliases stable latest
+          poetry run mike deploy --rebase stable latest
+          poetry run mike set-default stable
 
       - name: Deploy docs for dev branch
         if: github.ref == 'refs/heads/dev'
         run: |
-          poetry run mike deploy --push dev
+          poetry run mike deploy --rebase dev
 
-  deploy_mkdocs:
-    needs: build_mkdocs
+      # Push changes to gh-pages branch
+      - name: Push changes to gh-pages branch
+        run: |
+          git push origin gh-pages
+
+  # This job handles the GitHub Pages deployment
+  pages:
+    needs: build_and_deploy
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
           ref: gh-pages
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
