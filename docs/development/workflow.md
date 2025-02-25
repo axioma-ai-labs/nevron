@@ -2,9 +2,16 @@
 
 ## Code Style
 
-Follow the [Code Style and Standards](development/contributing.md#code-style-and-standards) section.
+Follow the [Code Style and Standards](contributing.md#code-style-and-standards) section.
 
 ## Testing
+
+### Writing Tests
+- Place tests in the `tests/` directory
+- Follow the same directory structure as the source code
+- Name test files with `test_` prefix
+- Use pytest fixtures for common setup
+- Aim for 100% test coverage for new code
 
 ### Running Tests
 ```bash
@@ -17,13 +24,6 @@ pipenv run pytest tests/path/to/test_file.py
 # Run with coverage
 make coverage
 ```
-
-### Writing Tests
-- Place tests in the `tests/` directory
-- Follow the same directory structure as the source code
-- Name test files with `test_` prefix
-- Use pytest fixtures for common setup
-- Aim for 100% test coverage for new code
 
 ## Debugging
 
@@ -64,12 +64,4 @@ The project uses several GitHub Actions workflows:
 
 ## Release Process
 
-1. Update version in `pyproject.toml`
-2. Update CHANGELOG.md
-3. Create a new release on GitHub
-4. Tag the release following semantic versioning
-5. CI/CD will automatically:
-   - Build and test the package
-   - Deploy documentation
-   - Push Docker images
-   - Publish to PyPI 
+The maintainer reviews and publishes releases manually!

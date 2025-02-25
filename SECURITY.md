@@ -11,7 +11,7 @@ If you discover a security vulnerability within this project, please follow thes
 1. **DO NOT** disclose the vulnerability publicly until it has been addressed
 2. Create a private security advisory through GitHub's Security tab
 3. Alternatively, contact the maintainers directly:
-   - Email: axioma.ai.labs@gmail.com
+   - Email: info@neurobro.ai
    - GitHub: @gromdimon
 
 ### What to Include in Your Report
@@ -86,8 +86,8 @@ This security policy may be updated at any time. Contributors will be notified o
 ## Contact
 
 For any security-related questions, contact:
-- Dzmitry Hramyka (@gromdimon)
-- Axioma AI
+- Email: info@neurobro.ai
+- GitHub: @gromdimon
 
 ---
 
