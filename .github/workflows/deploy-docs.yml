@@ -45,45 +45,50 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
       - name: Install mike
-        run: poetry add mike
+        run: |
+          poetry add mike==1.1.2
+          poetry run mike --version
 
       - name: Configure Git user
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      # Fetch gh-pages branch if it exists
-      - name: Fetch gh-pages
+      # Setup gh-pages branch
+      - name: Setup gh-pages branch
         run: |
-          git fetch origin gh-pages --depth=1 || true
-
-      # Create gh-pages branch if it doesn't exist
-      - name: Create gh-pages branch if needed
-        run: |
-          if ! git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+          # Try to fetch gh-pages branch
+          git fetch origin gh-pages || true
+          
+          # Check if gh-pages branch exists
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            echo "gh-pages branch exists, checking it out"
+            git checkout gh-pages || git checkout -b gh-pages origin/gh-pages
+          else
+            echo "Creating new gh-pages branch"
             git checkout --orphan gh-pages
-            git reset --hard
-            git commit --allow-empty -m "Initial gh-pages commit"
+            git rm -rf .
+            touch .nojekyll
+            git add .nojekyll
+            git commit -m "Initial gh-pages commit"
             git push origin gh-pages
             git checkout -
           fi
+          
+          # Return to original branch
+          git checkout ${{ github.ref_name }}
 
       # Deploy documentation based on branch
       - name: Deploy docs for main branch (stable)
         if: github.ref == 'refs/heads/main'
         run: |
-          poetry run mike deploy --rebase stable latest
-          poetry run mike set-default stable
+          poetry run mike deploy stable latest --push
+          poetry run mike set-default stable --push
 
       - name: Deploy docs for dev branch
         if: github.ref == 'refs/heads/dev'
         run: |
-          poetry run mike deploy --rebase dev
-
-      # Push changes to gh-pages branch
-      - name: Push changes to gh-pages branch
-        run: |
-          git push origin gh-pages
+          poetry run mike deploy dev --push
 
   # This job handles the GitHub Pages deployment
   pages:
