@@ -13,7 +13,12 @@ This framework is designed to be a modular and extensible framework for building
 
 Follow this documentation to learn how to create your first Nevron, build your own tools & workflows, and integrate with external services.
 
-> **Note:** This documentation version is for the latest stable version of Nevron. If you are looking for the documentation for the development version, please refer to the GitHub repository and build the docs locally. More on that in the [Development Setup](development/setup.md) section.
+> **Documentation Versions**
+> 
+> - **stable**: Latest stable release (from the main branch)
+> - **dev**: Development version (from the dev branch)
+> 
+> You can switch between versions using the version selector in the top navigation bar.
 
 ## Overview
 
