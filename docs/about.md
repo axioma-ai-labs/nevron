@@ -6,7 +6,7 @@ Our mission is to make AI innovation accessible, decentralized, and collaborativ
 
 Nevron is part of Neurobro's commitment to open-source decentralized artificial intelligence, fostering innovation through community-driven development.
 
-To learn more about our vision, mission & belief, feel free to read our [Litepaper](https://neurobro.gitbook.io/neuro.bro).
+To learn more about our vision, mission & belief, feel free to read our [Whitepaper](https://neurobro.gitbook.io/neuro.bro).
 
 More about our AI Agents can be found [here](https://neurobro.gitbook.io/neuro.bro/technical/technical-overview)
 
@@ -34,7 +34,7 @@ Follow us on social media to stay updated on the latest developments and get inv
 
 - [Neurobro Website](https://neurobro.ai)
 - [Neurobro on Twitter](https://x.com/0xNeurobro)
-- [Neurobro on Telegram](https://t.me/+lgEC3JKudyY4ZDFi)
+- [Neurobro on Telegram](https://t.me/Neurobro_Official)
 - [Neurobro on YouTube](https://www.youtube.com/@0xNeurobro?sub_confirmation=1)
 - [Neurobro on TikTok](https://www.tiktok.com/@0xneurobro?_t=8rqeq1epfra&_r=1)
 
