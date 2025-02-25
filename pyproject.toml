@@ -60,7 +60,7 @@ anthropic = "^0.45.0"
 chromadb = "^0.6.3"
 google-auth = "^2.38.0"
 google-auth-oauthlib = "^1.2.1"
-google-api-python-client = "^2.159.0"
+google-api-python-client = "^2.161.0"
 qdrant-client = "^1.13.2"
 discord-py = {extras = ["voice"], version = "^2.4.0"}
 audioop-lts = { version = "^0.2.1", python = ">=3.13" }
