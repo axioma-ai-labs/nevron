@@ -4,17 +4,51 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/nevron
 
 jobs:
+  # Determine if this is a merge from dev or a hotfix
+  check-source:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') || 
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && 
+      (github.event.pull_request.head.ref == 'dev' || contains(github.event.pull_request.labels.*.name, 'hotfix')))
+    outputs:
+      should_continue: ${{ steps.check.outputs.should_continue }}
+    steps:
+      - name: Check source branch
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "Direct push to main detected (hotfix)"
+            echo "should_continue=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.pull_request.head.ref }}" == "dev" ]]; then
+            echo "Merge from dev to main detected"
+            echo "should_continue=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ contains(github.event.pull_request.labels.*.name, 'hotfix') }}" == "true" ]]; then
+            echo "Hotfix PR merged to main"
+            echo "should_continue=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not a relevant event for release"
+            echo "should_continue=false" >> $GITHUB_OUTPUT
+          fi
+
   release-please:
+    needs: check-source
+    if: needs.check-source.outputs.should_continue == 'true'
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_name: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - name: Create GitHub release
         id: release
@@ -24,9 +58,9 @@ jobs:
           config-file: .github/release-please-config.json
 
   Container-Release:
-    needs: release-please
+    needs: [check-source, release-please]
     runs-on: ubuntu-latest
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: needs.check-source.outputs.should_continue == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,10 +83,20 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}},value=${{ needs.release-please.outputs.release_name }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.release_name }}
-            type=semver,pattern={{major}},value=${{ needs.release-please.outputs.release_name }}
+            # Always tag with 'main' for main branch
+            type=raw,value=main
+            # Tag with 'latest' for main branch
+            type=raw,value=latest
+            # Tag with 'stable' for releases
+            type=raw,value=stable,enable=${{ needs.release-please.outputs.release_created == 'true' }}
+            # Tag with full semver version (x.y.z) if a release was created
+            type=semver,pattern={{version}},value=${{ needs.release-please.outputs.release_name }},enable=${{ needs.release-please.outputs.release_created == 'true' }}
+            # Tag with major.minor (x.y) if a release was created
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.release_name }},enable=${{ needs.release-please.outputs.release_created == 'true' }}
+            # Tag with major (x) if a release was created
+            type=semver,pattern={{major}},value=${{ needs.release-please.outputs.release_name }},enable=${{ needs.release-please.outputs.release_created == 'true' }}
+            # Tag with short SHA for traceability
+            type=sha,format=short
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
