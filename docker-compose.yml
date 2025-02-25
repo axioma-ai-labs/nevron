@@ -57,6 +57,22 @@ services:
         source: ${volumes_basedir:-./volumes}/qdrant/snapshots
         target: /qdrant/snapshots
 
+  # -- Ollama ---------------------------------------------------------------
+  #
+  # Local LLM service for running models
+
+  ollama:
+    <<: *service_default
+    image: ollama/ollama:latest
+    container_name: nevron-ollama
+    hostname: nevron-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/ollama/models
+        target: /root/.ollama
+
 # == Networks ===============================================================
 
 networks:

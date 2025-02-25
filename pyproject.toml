@@ -22,9 +22,9 @@ Documentation = "https://nevron.ai"
 
 [tool.poetry]
 name = "nevron"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python framework for building autonomous AI agents"
-authors = ["Dzmitry Hramyka <grom.dima.grom@gmail.com>"]
+authors = ["Neurobro Foundation <info@neurobro.ai>"]
 package-mode = false 
 
 [tool.poetry.dependencies]
