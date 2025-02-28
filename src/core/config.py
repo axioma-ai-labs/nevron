@@ -230,6 +230,11 @@ class Settings(BaseSettings):
     #: --- Github settings ---
     GITHUB_TOKEN: str = ""
 
+    # --- Jina Reader settings ---
+    JINA_READER_API_KEY: str = ""
+    JINA_READER_TIMEOUT: int = 0
+    JINA_READER_TOKEN_BUDGET: int = 0
+    JINA_SEARCH_WEBSITE: str = ""
     # ==========================
     # Validators
     # ==========================
