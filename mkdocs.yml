@@ -1,6 +1,7 @@
 site_name: Nevron
 site_description: Official documentation Agentic Framework - Nevron | Made by Neurobro
 site_author: Neurobro
+site_url: https://axioma-ai-labs.github.io/nevron/
 theme:
   name: material
   palette: 
@@ -72,11 +73,10 @@ plugins:
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
       lang:
         - en
-      prebuild_index: true
-      indexing: 'full'
   - tags
   - macros
   - awesome-pages
+  - mike
 
 extra:
   social:
@@ -87,6 +87,8 @@ extra:
   search:
     language: 'en'
     tokenizer: '[\s\-\.]+'
+  version:
+    provider: mike
 
 markdown_extensions:
   - codehilite
