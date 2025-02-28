@@ -6,29 +6,31 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Official documentation for the Nevron AI Agent | Made by Neurobro">
+        <meta name="description" content="Official documentation Agentic Framework - Nevron | Made by Neurobro">
       
       
         <meta name="author" content="Neurobro">
       
       
+        <link rel="canonical" href="https://axioma-ai-labs.github.io/nevron/agent/llm/">
       
-        <link rel="prev" href="../workflows/">
+      
+        <link rel="prev" href="../memory/">
       
       
         <link rel="next" href="../tools/">
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
-        <title>LLMs - Nevron</title>
+        <title>LLM Integration - Nevron</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.d7758b05.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -85,6 +87,10 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
@@ -111,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              LLMs
+              LLM Integration
             
           </span>
         </div>
@@ -268,6 +274,27 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -280,14 +307,14 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Nevron
+    Agent
     
   </span>
   
@@ -295,10 +322,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            Nevron
+            Agent
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -314,219 +341,6 @@
   
   <span class="md-ellipsis">
     Overview
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workflows/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Workflows
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    LLMs
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    LLMs
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-embeddings" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Embeddings
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-response-processing-generation" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Response Processing &amp; Generation
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      Environment Variables
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
-    <span class="md-ellipsis">
-      Best Practices
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-enhancements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Future Enhancements
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tools/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Tools
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../memory/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Memory
     
   </span>
   
@@ -566,6 +380,28 @@
   
   
     <li class="md-nav__item">
+      <a href="../execution/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Execution
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../feedback/" class="md-nav__link">
         
   
@@ -576,6 +412,1067 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    LLM Integration
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    LLM Integration
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported Providers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-llm-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. LLM Class
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-provider-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Provider Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Provider-Specific Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider-Specific Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openai" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anthropic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xai-grok" class="md-nav__link">
+    <span class="md-ellipsis">
+      xAI (Grok)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek" class="md-nav__link">
+    <span class="md-ellipsis">
+      DeepSeek
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#venice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Venice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llama
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Llama">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-llama-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 1: Llama API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-openrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 2: OpenRouter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-3-fireworks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 3: Fireworks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-4-ollama-local-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 4: Ollama (Local Deployment)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Embedding Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Embedding Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openai-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama-api-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llama API Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-llama-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Llama Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-provider-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Provider Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-token-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Token Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cost-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Cost Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Enhancements
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            Tools
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/workflows/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Custom Workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7_3" id="__nav_4_7_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Social Media
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            Social Media
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/twitter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    X (Twitter)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/telegram/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telegram
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/discord/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discord
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/lens_protocol/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lens
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/whatsapp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WhatsApp
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/slack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Slack
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7_4" id="__nav_4_7_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Search & Research
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            Search & Research
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/perplexity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Perplexity
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/tavily/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tavily
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/coinstats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coinstats
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7_5" id="__nav_4_7_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Media & Content
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            Media & Content
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/youtube/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    YouTube
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/spotify/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Spotify
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7_6" id="__nav_4_7_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/github/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/google_drive/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Google Drive
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7_7" id="__nav_4_7_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    E-commerce
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_7_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7_7">
+            <span class="md-nav__icon md-icon"></span>
+            E-commerce
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/shopify/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Shopify
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -602,10 +1499,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -617,8 +1514,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
@@ -636,28 +1533,6 @@
   
   <span class="md-ellipsis">
     Setup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../development/environment/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Environment
     
   </span>
   
@@ -830,15 +1705,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#implementation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       Overview
@@ -849,20 +1715,59 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-embeddings" class="md-nav__link">
+  <a href="#supported-providers" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Embeddings
+      Supported Providers
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-llm-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. LLM Class
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-response-processing-generation" class="md-nav__link">
+  <a href="#2-embeddings" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Response Processing &amp; Generation
+      2. Embeddings
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -882,9 +1787,240 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
+  <a href="#basic-provider-selection" class="md-nav__link">
     <span class="md-ellipsis">
-      Environment Variables
+      Basic Provider Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Provider-Specific Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider-Specific Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openai" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anthropic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xai-grok" class="md-nav__link">
+    <span class="md-ellipsis">
+      xAI (Grok)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deepseek" class="md-nav__link">
+    <span class="md-ellipsis">
+      DeepSeek
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#venice" class="md-nav__link">
+    <span class="md-ellipsis">
+      Venice
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llama
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Llama">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-llama-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 1: Llama API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-openrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 2: OpenRouter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-3-fireworks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 3: Fireworks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-4-ollama-local-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 4: Ollama (Local Deployment)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Embedding Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Embedding Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openai-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama-api-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Llama API Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-llama-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Llama Embeddings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-provider-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Provider Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-token-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Token Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cost-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Cost Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Security
     </span>
   </a>
   
@@ -896,11 +2032,26 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
-      Best Practices
+      Troubleshooting
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -930,56 +2081,280 @@
 
 
 <h1 id="llm-integration"><strong>LLM Integration</strong><a class="headerlink" href="#llm-integration" title="Permanent link">&para;</a></h1>
-<p>Large Language Models are the backbone of the Autonomous Agent. They are the core component that allows the agent to understand and respond to natural language.</p>
+<p>Large Language Models are the backbone of the Autonomous Agent. They are the core component that allows the agent to understand and respond to natural language, make decisions, and learn from feedback.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Nevron supports multiple LLM providers, giving you flexibility to choose the model that best fits your needs, budget, and performance requirements. The framework is designed with a modular architecture that allows easy switching between different providers.</p>
+<h3 id="supported-providers">Supported Providers<a class="headerlink" href="#supported-providers" title="Permanent link">&para;</a></h3>
+<p>Nevron currently supports the following LLM providers:</p>
+<ol>
+<li><strong>OpenAI</strong> - GPT-4o, GPT-4, GPT-3.5-Turbo models</li>
+<li><strong>Anthropic</strong> - Claude 3 Opus, Claude 3 Sonnet, Claude 2 models</li>
+<li><strong>xAI</strong> - Grok models</li>
+<li><strong>Llama</strong> - Via multiple deployment options:</li>
+<li>API (api.llama-api.com)</li>
+<li>OpenRouter</li>
+<li>Fireworks</li>
+<li>Local deployment with Ollama</li>
+<li><strong>DeepSeek</strong> - DeepSeek models</li>
+<li><strong>Qwen</strong> - Qwen models</li>
+<li><strong>Venice</strong> - Venice models</li>
+</ol>
 <h2 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h2>
 <p>The LLM integration is primarily handled through the <code>src/llm</code> directory, which provides:</p>
 <ul>
-<li>API interaction with OpenAI/Anthropic/xAI models</li>
+<li>A unified interface for all LLM providers</li>
+<li>Provider-specific API interaction modules</li>
 <li>Embeddings generation for memory storage</li>
 <li>Context management</li>
 <li>Response processing &amp; generation</li>
 </ul>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<h3 id="1-embeddings">1. Embeddings<a class="headerlink" href="#1-embeddings" title="Permanent link">&para;</a></h3>
-<p>For memory storage, the agent uses OpenAI's embedding models to generate vector representations of the memories. These vectors are then stored in a vector database for efficient retrieval and semantic search. To generate embeddings, the agent uses the <code>src/llm/embeddings.py</code> module.</p>
-<p>For embeddings generation we recommend using OpenAI's <a href="https://openai.com/index/new-embedding-models-and-api-updates/"><code>text-embedding-3-large</code></a> model.</p>
-<h3 id="2-response-processing-generation">2. Response Processing &amp; Generation<a class="headerlink" href="#2-response-processing-generation" title="Permanent link">&para;</a></h3>
-<p>The agent uses the LLM class to generate responses through different providers. The <code>src/llm/llm.py</code> module provides:</p>
+<h3 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h3>
+<h4 id="1-llm-class">1. LLM Class<a class="headerlink" href="#1-llm-class" title="Permanent link">&para;</a></h4>
+<p>The <code>LLM</code> class in <code>src/llm/llm.py</code> serves as the main interface for generating responses:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LLM</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">LLM_PROVIDER</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="c1"># Add system message with agent&#39;s personality and goal if not present</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">messages</span> <span class="ow">or</span> <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;system&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            <span class="n">system_message</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="o">.</span><span class="n">AGENT_PERSONALITY</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">settings</span><span class="o">.</span><span class="n">AGENT_GOAL</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>            <span class="p">}</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>            <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">system_message</span><span class="p">]</span> <span class="o">+</span> <span class="n">messages</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="c1"># Route to appropriate provider</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">==</span> <span class="n">LLMProviderType</span><span class="o">.</span><span class="n">OPENAI</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>            <span class="k">return</span> <span class="k">await</span> <span class="n">call_openai</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">==</span> <span class="n">LLMProviderType</span><span class="o">.</span><span class="n">ANTHROPIC</span><span class="p">:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>            <span class="k">return</span> <span class="k">await</span> <span class="n">call_anthropic</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="c1"># ... other providers</span>
+</code></pre></div>
+<h4 id="2-embeddings">2. Embeddings<a class="headerlink" href="#2-embeddings" title="Permanent link">&para;</a></h4>
+<p>For memory storage, the agent uses embedding models to generate vector representations of memories. These vectors are stored in a vector database (ChromaDB or Qdrant) for efficient retrieval and semantic search.</p>
+<p>Nevron supports multiple embedding providers:</p>
 <ul>
-<li>Unified interface for multiple LLM providers through the <code>LLM</code> class</li>
-<li>Automatic system message injection with agent personality and goals</li>
-<li>Async response generation via <code>generate_response()</code> method</li>
-<li>Support for additional parameters like model and temperature</li>
-<li>OpenAI client initialization helper via <code>get_oai_client()</code></li>
+<li><strong>OpenAI</strong> - Using text-embedding-3-small/large models</li>
+<li><strong>Llama API</strong> - Using Llama models via API</li>
+<li><strong>Local Llama</strong> - Using locally deployed Llama models</li>
 </ul>
-<hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>Currently, the agent is configured to use OpenAI's <code>gpt-4o</code> model, but it can be easily configured to use other models (e.g. <code>gpt-4o-mini</code>, <code>gpt-4</code>, Anthropic's models like <code>claude-3-5-sonnet</code> or xAI's <code>grok-2-latest</code> model).</p>
-<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
-<p>To choose model of your choice, set the following environment variables:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OPENAI_API_KEY=your-api-key
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>OPENAI_MODEL=gpt-4  # or other supported models (e.g. gpt-4o-mini, gpt-4o, claude-3-5-sonnet, grok-2-latest)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OPENAI_EMBEDDING_MODEL=text-embedding-3-large # or other supported embedding models
-</code></pre></div></p>
-<hr />
+<h3 id="basic-provider-selection">Basic Provider Selection<a class="headerlink" href="#basic-provider-selection" title="Permanent link">&para;</a></h3>
+<p>To select your LLM provider, set the <code>LLM_PROVIDER</code> environment variable in your <code>.env</code> file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Choose one of: openai, anthropic, xai, llama, deepseek, qwen, venice</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">LLM_PROVIDER</span><span class="o">=</span>openai
+</code></pre></div>
+<h3 id="provider-specific-configuration">Provider-Specific Configuration<a class="headerlink" href="#provider-specific-configuration" title="Permanent link">&para;</a></h3>
+<h4 id="openai">OpenAI<a class="headerlink" href="#openai" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">OPENAI_MODEL</span><span class="o">=</span>gpt-4o-mini
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">OPENAI_EMBEDDING_MODEL</span><span class="o">=</span>text-embedding-3-small
+</code></pre></div>
+<p><strong>Recommended Models:</strong>
+- <code>gpt-4o</code> - Best performance, higher cost
+- <code>gpt-4o-mini</code> - Good balance of performance and cost
+- <code>gpt-3.5-turbo</code> - Fastest, lowest cost</p>
+<h4 id="anthropic">Anthropic<a class="headerlink" href="#anthropic" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Optional (default shown)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nv">ANTHROPIC_MODEL</span><span class="o">=</span>claude-2
+</code></pre></div>
+<p><strong>Recommended Models:</strong>
+- <code>claude-3-opus-20240229</code> - Highest capability
+- <code>claude-3-sonnet-20240229</code> - Good balance
+- <code>claude-2</code> - Faster, lower cost</p>
+<h4 id="xai-grok">xAI (Grok)<a class="headerlink" href="#xai-grok" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">XAI_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Optional (default shown)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">XAI_MODEL</span><span class="o">=</span>grok-2-latest
+</code></pre></div>
+<h4 id="deepseek">DeepSeek<a class="headerlink" href="#deepseek" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">DEEPSEEK_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nv">DEEPSEEK_MODEL</span><span class="o">=</span>deepseek-reasoner
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nv">DEEPSEEK_API_BASE_URL</span><span class="o">=</span>https://api.deepseek.com
+</code></pre></div>
+<h4 id="qwen">Qwen<a class="headerlink" href="#qwen" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">QWEN_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nv">QWEN_MODEL</span><span class="o">=</span>qwen-max
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nv">QWEN_API_BASE_URL</span><span class="o">=</span>https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+</code></pre></div>
+<h4 id="venice">Venice<a class="headerlink" href="#venice" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">VENICE_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nv">VENICE_MODEL</span><span class="o">=</span>venice-2-13b
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nv">VENICE_API_BASE_URL</span><span class="o">=</span>https://api.venice.ai/api/v1
+</code></pre></div>
+<h4 id="llama">Llama<a class="headerlink" href="#llama" title="Permanent link">&para;</a></h4>
+<p>Llama models can be accessed through various providers. First, set the main provider:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nv">LLM_PROVIDER</span><span class="o">=</span>llama
+</code></pre></div>
+<p>Then, configure the specific Llama provider:</p>
+<h5 id="option-1-llama-api">Option 1: Llama API<a class="headerlink" href="#option-1-llama-api" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nv">LLAMA_PROVIDER</span><span class="o">=</span>llama-api
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nv">LLAMA_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="nv">LLAMA_API_BASE_URL</span><span class="o">=</span>https://api.llama-api.com
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nv">LLAMA_API_MODEL</span><span class="o">=</span>llama3.1-70b
+</code></pre></div>
+<h5 id="option-2-openrouter">Option 2: OpenRouter<a class="headerlink" href="#option-2-openrouter" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">LLAMA_PROVIDER</span><span class="o">=</span>openrouter
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nv">LLAMA_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nv">LLAMA_OPENROUTER_URL</span><span class="o">=</span>https://openrouter.ai/api/v1
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nv">LLAMA_OPENROUTER_MODEL</span><span class="o">=</span>meta-llama/llama-3.2-1b-instruct
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># Optional for rankings</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="nv">LLAMA_OPENROUTER_SITE_URL</span><span class="o">=</span>your_site_url
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="nv">LLAMA_OPENROUTER_SITE_NAME</span><span class="o">=</span>your_site_name
+</code></pre></div>
+<h5 id="option-3-fireworks">Option 3: Fireworks<a class="headerlink" href="#option-3-fireworks" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nv">LLAMA_PROVIDER</span><span class="o">=</span>fireworks
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nv">LLAMA_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="nv">LLAMA_FIREWORKS_URL</span><span class="o">=</span>https://api.fireworks.ai/inference
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="nv">LLAMA_MODEL_NAME</span><span class="o">=</span>llama3-8b-8192
+</code></pre></div>
+<h5 id="option-4-ollama-local-deployment">Option 4: Ollama (Local Deployment)<a class="headerlink" href="#option-4-ollama-local-deployment" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Required</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nv">LLAMA_PROVIDER</span><span class="o">=</span>ollama
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Optional (defaults shown)</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="nv">LLAMA_OLLAMA_URL</span><span class="o">=</span>http://localhost:11434
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="nv">LLAMA_OLLAMA_MODEL</span><span class="o">=</span>llama3.2:latest
+</code></pre></div>
+<p>For Ollama, you'll need to:
+1. Install Ollama from <a href="https://ollama.ai">ollama.ai</a>
+2. Pull your desired model: <code>ollama pull llama3:8b-instruct</code>
+3. Ensure Ollama is running before starting Nevron</p>
+<h3 id="embedding-configuration">Embedding Configuration<a class="headerlink" href="#embedding-configuration" title="Permanent link">&para;</a></h3>
+<p>For memory storage, you need to configure the embedding provider:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Choose one of: openai, llama_local, llama_api</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nv">EMBEDDING_PROVIDER</span><span class="o">=</span>openai
+</code></pre></div>
+<h4 id="openai-embeddings">OpenAI Embeddings<a class="headerlink" href="#openai-embeddings" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nv">EMBEDDING_PROVIDER</span><span class="o">=</span>openai
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nv">OPENAI_EMBEDDING_MODEL</span><span class="o">=</span>text-embedding-3-small
+</code></pre></div>
+<h4 id="llama-api-embeddings">Llama API Embeddings<a class="headerlink" href="#llama-api-embeddings" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nv">EMBEDDING_PROVIDER</span><span class="o">=</span>llama_api
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nv">LLAMA_API_KEY</span><span class="o">=</span>your_api_key_here
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nv">LLAMA_API_BASE_URL</span><span class="o">=</span>https://api.llama-api.com
+</code></pre></div>
+<h4 id="local-llama-embeddings">Local Llama Embeddings<a class="headerlink" href="#local-llama-embeddings" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nv">EMBEDDING_PROVIDER</span><span class="o">=</span>llama_local
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nv">LLAMA_MODEL_PATH</span><span class="o">=</span>/path/to/your/local/llama/model
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="nv">LLAMA_EMBEDDING_MODEL</span><span class="o">=</span>llama3.1-8b
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nv">EMBEDDING_POOLING_TYPE</span><span class="o">=</span>MEAN<span class="w">  </span><span class="c1"># Options: NONE, MEAN, CLS, LAST, RANK</span>
+</code></pre></div>
+<h2 id="docker-setup">Docker Setup<a class="headerlink" href="#docker-setup" title="Permanent link">&para;</a></h2>
+<p>When using Docker Compose, you can easily configure Ollama as your LLM provider:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># In your .env file</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nv">LLM_PROVIDER</span><span class="o">=</span>llama
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nv">LLAMA_PROVIDER</span><span class="o">=</span>ollama
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="nv">LLAMA_OLLAMA_MODEL</span><span class="o">=</span>llama3:8b-instruct
+</code></pre></div>
+<p>The Docker Compose setup includes an Ollama container with a volume for model storage:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">ollama</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama/ollama:latest</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nevron-ollama</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nevron-ollama</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;11434:11434&quot;</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bind</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">      </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${volumes_basedir:-./volumes}/ollama/models</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">      </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/root/.ollama</span>
+</code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-provider-selection">1. Provider Selection<a class="headerlink" href="#1-provider-selection" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Development</strong>: Use Ollama for local development to avoid API costs</li>
+<li><strong>Production</strong>: Use OpenAI or Anthropic for highest reliability and performance</li>
+<li><strong>Cost-sensitive</strong>: Consider Llama models via OpenRouter or Fireworks</li>
+</ul>
+<h3 id="2-token-management">2. Token Management<a class="headerlink" href="#2-token-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Monitor and track token consumption across API calls</li>
+<li>Implement rate limiting mechanisms to prevent exceeding quotas</li>
+<li>Establish proper API quota management systems to maintain service availability</li>
+</ul>
+<h3 id="3-error-handling">3. Error Handling<a class="headerlink" href="#3-error-handling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement graceful fallback mechanisms when API calls fail</li>
+<li>Set up automatic retry logic with exponential backoff</li>
+<li>Maintain comprehensive error logging to track and debug issues</li>
+</ul>
+<h3 id="4-cost-optimization">4. Cost Optimization<a class="headerlink" href="#4-cost-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Select appropriate model tiers based on task requirements</li>
+<li>Implement response caching for frequently requested prompts</li>
+<li>Track and analyze API usage patterns to optimize costs</li>
+</ul>
+<h3 id="5-security">5. Security<a class="headerlink" href="#5-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Never commit API keys to version control</li>
+<li>Use environment variables or secrets management for API keys</li>
+<li>Regularly rotate API keys following security best practices</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
 <ol>
+<li><strong>API Key Issues</strong></li>
+<li>Ensure your API key is correctly set in the <code>.env</code> file</li>
 <li>
-<p><strong>Token Management</strong>
-   Monitor and track token consumption across API calls. Implement rate limiting mechanisms to prevent exceeding quotas. Establish proper API quota management systems to maintain service availability.</p>
+<p>Verify the API key has the necessary permissions and quota</p>
 </li>
 <li>
-<p><strong>Error Handling</strong>
-   Implement graceful fallback mechanisms when API calls fail. Set up automatic retry logic with exponential backoff. Maintain comprehensive error logging to track and debug issues.</p>
+<p><strong>Connection Problems</strong></p>
+</li>
+<li>Check your network connection</li>
+<li>
+<p>Verify the API endpoint is accessible from your environment</p>
 </li>
 <li>
-<p><strong>Cost Optimization</strong>
-   Select appropriate model tiers based on task requirements. Implement response caching for frequently requested prompts. Track and analyze API usage patterns to optimize costs.</p>
+<p><strong>Ollama Issues</strong></p>
 </li>
+<li>Ensure Ollama is running: <code>ollama list</code></li>
+<li>Verify the model is downloaded: <code>ollama pull llama3:8b-instruct</code></li>
+<li>
+<p>Check Ollama logs: <code>docker logs nevron-ollama</code></p>
+</li>
+<li>
+<p><strong>Model Selection</strong></p>
+</li>
+<li>Ensure you're using a model that exists for your chosen provider</li>
+<li>Check for typos in model names</li>
 </ol>
-<hr />
 <h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
-<p>We're planning to add support for additional LLM providers, advanced prompt engineering, fine-tuning capabilities, and enhanced error handling in the nearest future.</p>
+<p>We're planning to add:
+- Support for additional LLM providers
+- Advanced prompt engineering capabilities
+- Fine-tuning support for custom models
+- Enhanced error handling and fallback mechanisms
+- Streaming responses for real-time interaction</p>
 <hr />
 <p>If you have any questions or need further assistance, please refer to the <a href="https://github.com/axioma-ai-labs/nevron/discussions">GitHub Discussions</a>.</p>
 
@@ -1018,6 +2393,32 @@
   
 </div>
       
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/axioma-ai-labs/nevron" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/neurobro_ai" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
     </div>
   </div>
 </footer>
@@ -1028,7 +2429,7 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.f1b6f286.min.js"></script>
