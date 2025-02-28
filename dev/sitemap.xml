@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/about/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/about/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/configuration/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/configuration/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/deployment/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/deployment/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/quickstart/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/quickstart/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/execution/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/execution/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/feedback/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/feedback/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/llm/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/llm/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/memory/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/memory/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/overview/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/overview/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/planning/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/planning/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/coinstats/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/coinstats/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/discord/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/discord/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/github/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/github/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/google_drive/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/google_drive/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/lens_protocol/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/lens_protocol/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/perplexity/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/perplexity/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/shopify/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/shopify/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/slack/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/slack/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/spotify/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/spotify/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/tavily/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/tavily/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/telegram/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/telegram/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/twitter/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/twitter/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/whatsapp/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/whatsapp/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/workflows/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/workflows/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/agent/tools/youtube/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/agent/tools/youtube/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/development/contributing/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/development/contributing/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/development/setup/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/development/setup/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
     <url>
-         <loc>https://axioma-ai-labs.github.io/nevron/latest/development/workflow/</loc>
+         <loc>https://axioma-ai-labs.github.io/nevron/dev/development/workflow/</loc>
          <lastmod>2025-02-28</lastmod>
     </url>
 </urlset>
