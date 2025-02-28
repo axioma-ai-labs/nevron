@@ -6,14 +6,7 @@ from loguru import logger
 from src.core.config import settings
 from src.core.defs import MemoryBackendType
 from src.llm.embeddings import EmbeddingGenerator
-<<<<<<< HEAD
-<<<<<<< HEAD
 from src.llm.llm import LLM
-=======
->>>>>>> e4f134c (Integrate llama embeddings (#116))
-=======
-from src.llm.llm import LLM
->>>>>>> e8d3fe2 (Enhance memory module)
 from src.memory.backends.chroma import ChromaBackend
 from src.memory.backends.qdrant import QdrantBackend
 
@@ -41,17 +34,8 @@ class MemoryModule:
         """
         # Initialize embedding generator
         self.embedding_generator = EmbeddingGenerator()
-<<<<<<< HEAD
-<<<<<<< HEAD
         # Initialize LLM
         self.llm = LLM()
-=======
->>>>>>> e4f134c (Integrate llama embeddings (#116))
-=======
-        # Initialize LLM
-        self.llm = LLM()
->>>>>>> e8d3fe2 (Enhance memory module)
-
         # Setup the vector store backend
         self.backend: Union[QdrantBackend, ChromaBackend]
         if backend_type == MemoryBackendType.QDRANT:

@@ -5,10 +5,7 @@ from loguru import logger
 from src.llm.llm import LLM
 from src.memory.memory_module import MemoryModule, get_memory_module
 from src.tools.get_signal import CoinstatsTool
-<<<<<<< HEAD
 from src.tools.link_parser import LinkParserTool
-=======
->>>>>>> 74f5caf (Tools refactoring and executors implementation)
 from src.tools.twitter import TwitterTool
 
 
@@ -18,7 +15,6 @@ async def analyze_signal(
     """Fetch a signal, analyze it with an LLM, and post the result on Twitter."""
     try:
         logger.info("Fetching signal...")
-<<<<<<< HEAD
         if link:
             # Parse link content
             link_parser = LinkParserTool()
@@ -26,9 +22,6 @@ async def analyze_signal(
         else:
             # Fetch signal from Coinstats
             signal = await CoinstatsTool().fetch_signal()
-=======
-        signal = await CoinstatsTool().fetch_signal()
->>>>>>> 74f5caf (Tools refactoring and executors implementation)
 
         if signal.get("status") == "new_signal" and "content" in signal:
             signal_content = signal["content"]
