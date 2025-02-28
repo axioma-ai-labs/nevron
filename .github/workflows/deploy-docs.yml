@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
 
 permissions:
   contents: write
@@ -45,23 +44,8 @@ jobs:
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-      - name: Install mike
-        run: poetry add mike
-
-      - name: Configure Git user
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-      - name: Deploy docs for main branch (stable)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          poetry run mike deploy --push --update-aliases stable latest
-
-      - name: Deploy docs for dev branch
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          poetry run mike deploy --push dev
+      - name: Build docs
+        run: poetry run mkdocs gh-deploy --force
 
   deploy_mkdocs:
     needs: build_mkdocs
