@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 permissions:
   contents: write
@@ -34,7 +35,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Set up cache
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         id: cached-poetry-dependencies
         with:
           path: .venv
@@ -44,8 +45,23 @@ jobs:
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
-      - name: Build docs
-        run: poetry run mkdocs gh-deploy --force
+      - name: Install mike
+        run: poetry add mike
+
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Deploy docs for main branch (stable)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          poetry run mike deploy --push --update-aliases stable latest
+
+      - name: Deploy docs for dev branch
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          poetry run mike deploy --push dev
 
   deploy_mkdocs:
     needs: build_mkdocs
@@ -67,4 +83,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

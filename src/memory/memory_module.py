@@ -36,7 +36,6 @@ class MemoryModule:
         self.embedding_generator = EmbeddingGenerator()
         # Initialize LLM
         self.llm = LLM()
-
         # Setup the vector store backend
         self.backend: Union[QdrantBackend, ChromaBackend]
         if backend_type == MemoryBackendType.QDRANT:

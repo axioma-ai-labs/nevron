@@ -9,40 +9,45 @@
 
 Learn how to build your first Nevron, an autonomous AI agent in Python.
 
-This framework is designed to be a modular and extensible framework for building autonomous AI agents, which can perform tasks idependently on their own.
+This framework is designed to be a modular and extensible framework for building autonomous AI agents, which can perform tasks independently on their own.
 
 Follow this documentation to learn how to create your first Nevron, build your own tools & workflows, and integrate with external services.
 
-> **Note:** This documentation version is for the latest stable version of Nevron. If you are looking for the documentation for the development version, please refer to the github repository. and build the docs locally. More on that in the [Development Setup](development/setup.md) section.
+> **Documentation Versions**
+> 
+> - **stable**: Latest stable release (from the main branch)
+> - **dev**: Development version (from the dev branch)
+> 
+> You can switch between versions using the version selector in the top navigation bar.
 
 ## Overview
 
-Nevron is an open-source framework that support the development, deployment and management of autonomous AI agents.
+Nevron is an open-source framework that supports the development, deployment, and management of autonomous AI agents.
 
 This framework is built on top of:
 
 - [Python](https://www.python.org/) programming language
-- [Q-learning](https://en.wikipedia.org/wiki/Q-learning) algorithm for decision making
-- State of the art LLM-powered intelligence
-- Modular architecture with planning, feedback, and memory components
+- State-of-the-art LLM-powered intelligence
+- Modular architecture with planning, feedback, execution and memory components
 - Integration with external services (Telegram, Twitter, Discord, etc.)
 - Vector-based memory storage using [Chroma](https://www.trychroma.com/) or [Qdrant](https://qdrant.tech/)
+- Local LLM support with [Ollama](https://ollama.ai)
 
 -----
 
 ## Core Features
 
 - **Autonomous Decision Making**: Nevron uses Q-learning algorithm for intelligent decision making
-- **LLM Integration**: Powered by a wide range of Large Language Models (e.g., OpenAI, Anthropic, xAI, etc.)
+- **LLM Integration**: Powered by a wide range of Large Language Models (e.g., OpenAI, Anthropic, xAI, DeepSeek, etc.)
+- **Local LLM Support**: Run models locally with Ollama integration
 - **Modular Workflows**: Predefined autonomous agent task execution patterns
     - Analyze signal workflow
     - Research news workflow
-- **Memory Management**: Qdrant-based vector storage for context retention
-- **External Integrations**:
-    - Telegram messaging
-    - Twitter interaction
-    - News API integration (in progress)
-    - Perplexity research integration (in progress)
+- **Memory Management**: Vector storage for context retention
+    - ChromaDB (default)
+    - Qdrant (alternative)
+- **External Integrations**: Comprehensive set of tools for various platforms and services
+- **Docker Deployment**: Easy deployment with Docker Compose
 
 -----
 
@@ -55,14 +60,7 @@ This framework is built on top of:
 ## Core Components
 
 ### 1. Planning Module
-Handles decision-making using Q-learning algorithm to determine optimal actions for the agent.
-
-- **Q-Learning**
-    - Uses state-action value mapping for decision making
-    - Configurable parameters:
-        - Learning rate (PLANNING_ALPHA)
-        - Discount factor (PLANNING_GAMMA) 
-        - Exploration rate (PLANNING_EPSILON)
+Handles decision-making using LLM of choice with the context of previous actions and their outcomes.
 
 ### 2. Memory Module
 Manages agent's memory using vector storage for efficient context retrieval, which enables the agent to remember and recall previous interactions and events.
@@ -86,13 +84,12 @@ More about memory module can be found in the [Memory](agent/memory.md) section.
 
 ### 3. Feedback Module
 
-Feedback module is responsible for processing action results and updating the Q-learning model for improved decision making.
+Feedback module is responsible for processing action results and updating the context for future decisions in Planning Module.
 
 - **Functions**
     - Collects feedback from action execution
     - Evaluates action outcomes
-    - Updates Q-learning parameters
-    - Maintains feedback history
+    - Maintains feedback history and context
 
 - **Integration**
     - Direct integration with Planning Module
@@ -100,51 +97,101 @@ Feedback module is responsible for processing action results and updating the Q-
 
 More about feedback module can be found in the [Planning](agent/planning.md) section.
 
-### 4. Tools
+### 4. Tools & Workflows
 
-Nevron supports integrations with external services and APIs for extended functionality & integrations in diferent platforms.
+Nevron supports integrations with external services and APIs for extended functionality & integrations in different platforms.
 
-For development purposes, Nevron comes with a set of tools that can be used as a starting point for building your own tools and integrating more complex functionality to your AI agent.
+For development purposes, Nevron comes with a comprehensive set of tools that can be used as a starting point for building your own tools and integrating more complex functionality to your AI agent.
 
-- **Telegram**
-    - Telegram Bot integration
-    - Channel/group support
-    - HTML message formatting
+#### Workflows
 
-- **Twitter**
-    - Tweet posting
+Nevron allows you to define custom logic of different tools into reusable workflows, which the agent can use.
+
+Nevron comes with two pre-configured workflows:
+
+- `Analyze signal`: Processes and analyzes incoming signal data
+- `Research news`: Gathers and analyzes news using Perplexity API
+
+#### Available Tools
+
+Nevron includes a variety of tools for different purposes:
+
+- **X (Twitter)**
+    - Post tweets
     - Media handling
     - Thread creation
 
-- **Research**
-    - Perplexity API integration (in progress)
-    - News API integration (in progress)
+- **Discord**
+    - Listen to incoming messages
+    - Send messages to channels
 
-More about tools can be found in the [Tools](agent/tools.md) section.
+- **Telegram**
+    - Send telegram messages
+    - Bot integration
+    - Channel/group support
+    - HTML message formatting
+
+- **WhatsApp**
+    - Get messages
+    - Post messages
+
+- **Tavily**
+    - Semantic search
+    - Web search capabilities
+
+- **Perplexity**
+    - Advanced search functionality
+    - Research capabilities
+
+And many more tools for various platforms and services. For a complete list, refer to the [Tools](agent/tools/index.md) section.
 
 ### 5. LLM Integration
 
 Powers the agent's intelligence and natural language capabilities.
 
 - **Supported Providers**
-    - OpenAI (primary)
+    - OpenAI
       - gpt-4o for decision making
       - text-embedding-3-small for embeddings
-    - Anthropic (alternative)
+    - Anthropic (Claude models)
+    - xAI (Grok models)
+    - DeepSeek
+    - Qwen
+    - Venice
+    - Llama
+      - Via API (api.llama-api.com)
+      - Via OpenRouter
+      - Via Fireworks
+      - Locally with Ollama
 
 More about LLM integration can be found in the [LLM](agent/llm.md) section.
+
+### 6. Deployment Options
+
+- **Docker Compose**
+  - Complete stack deployment
+  - Service orchestration
+  - Volume management
+  - Network isolation
+
+- **Local Development**
+  - Python 3.13 with Poetry
+  - Customizable configuration
+  - Easy debugging and extension
+
+More about deployment can be found in the [Deployment](deployment.md) section.
 
 -----
 
 ## Getting Started
 
-For setup and development instructions, please refer to our [Quickstart](quickstart.md) and setup your first AI agent in minutes.
+For setup and development instructions, please refer to our [Quickstart](quickstart.md) and set up your first AI agent in minutes.
 
 -----
 
 ## Creators
 
-Nevron was created by [Neurobro](https://neurobro.ai) team. If you want to learn more about Nevron, our core values & team behind it, please visit [About](about.md) page.
+Nevron was created by the [Neurobro](https://neurobro.ai) team. If you want to learn more about Nevron, our core values & the team behind it, please visit the [About](about.md) page.
 
 Support by upvoting [Nevron](https://www.producthunt.com/posts/nevron) on Product Hunt.
 

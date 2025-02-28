@@ -1,6 +1,7 @@
 site_name: Nevron
-site_description: Official documentation for the Nevron AI Agent | Made by Neurobro
+site_description: Official documentation Agentic Framework - Nevron | Made by Neurobro
 site_author: Neurobro
+site_url: https://axioma-ai-labs.github.io/nevron/
 theme:
   name: material
   palette: 
@@ -28,17 +29,38 @@ theme:
 nav:
   - 🏠 Home: index.md  
   - Quickstart: quickstart.md
-  - Nevron:
+  - Configuration: configuration.md
+  - Agent:
       - Overview: agent/overview.md
-      - Workflows: agent/workflows.md
-      - LLMs: agent/llm.md
-      - Tools: agent/tools.md
-      - Memory: agent/memory.md
       - Planning: agent/planning.md
+      - Execution: agent/execution.md
       - Feedback: agent/feedback.md
+      - Memory: agent/memory.md
+      - LLM Integration: agent/llm.md
+      - Tools:
+          - Overview: agent/tools/index.md
+          - Custom Workflows: agent/tools/workflows.md
+          - Social Media:
+              - X (Twitter): agent/tools/twitter.md
+              - Telegram: agent/tools/telegram.md
+              - Discord: agent/tools/discord.md
+              - Lens: agent/tools/lens_protocol.md
+              - WhatsApp: agent/tools/whatsapp.md
+              - Slack: agent/tools/slack.md
+          - Search & Research:
+              - Perplexity: agent/tools/perplexity.md
+              - Tavily: agent/tools/tavily.md
+              - Coinstats: agent/tools/coinstats.md
+          - Media & Content:
+              - YouTube: agent/tools/youtube.md
+              - Spotify: agent/tools/spotify.md
+          - Development:
+              - GitHub: agent/tools/github.md
+              - Google Drive: agent/tools/google_drive.md
+          - E-commerce:
+              - Shopify: agent/tools/shopify.md
   - Development:
       - Setup: development/setup.md
-      - Environment: development/environment.md
       - Workflow: development/workflow.md
       - Contributing: development/contributing.md
   - Deployment: deployment.md
@@ -51,16 +73,22 @@ plugins:
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
       lang:
         - en
-      prebuild_index: true
-      indexing: 'full'
   - tags
   - macros
   - awesome-pages
+  - mike
 
 extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/axioma-ai-labs/nevron
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/neurobro_ai
   search:
     language: 'en'
     tokenizer: '[\s\-\.]+'
+  version:
+    provider: mike
 
 markdown_extensions:
   - codehilite

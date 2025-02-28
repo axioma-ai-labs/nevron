@@ -7,12 +7,13 @@ This guide will help you get Nevron, your autonomous AI agent, running quickly. 
 
 ## Prerequisites
 
-Common requirements for all installation methods:
-- **OpenAI API key** (or any other API key of an LLM provider of your choice)
-
-Additional requirements:
+General requirements:
 - For Docker setup: **Docker**
 - For local setup: **Python 3.13** and **Poetry**
+
+Additional requirements:
+- API keys for LLM providers your Agent will use
+- API keys for tools your Agent will use
 
 -----
 
@@ -22,58 +23,54 @@ Get Nevron running with Docker in 3 steps:
 
 ### 1. Pull & Setup
 
+First pull the docker image:
+
 ```bash
-# pull the latest image
 docker pull axiomai/nevron:latest
+```
 
-# create directories for volumes
-mkdir -p volumes/.chromadb
+Create volumes:
 
-# copy example environment file
+```bash
+mkdir -p volumes/nevron/logs
+mkdir -p volumes/qdrant/data
+mkdir -p volumes/ollama/models
+```
+
+Create env file:
+
+```bash
 cp .env.example .env
 ```
 
 ### 2. Configure
 
-Edit `.env` file with your settings:
+Edit `.env` file to use local Llama and Qdrant as vector store:
+
 ```bash
-# Required: Choose one of the LLM providers and set its API key
-OPENAI_API_KEY=your_key_here    # For OpenAI
-# ANTHROPIC_API_KEY=your_key_here # For Anthropic
-# XAI_API_KEY=your_key_here      # For xAI
-# LLAMA_API_KEY=your_key_here    # For Llama with Fireworks
-# Or use local Llama with Ollama:
-# LLAMA_PROVIDER=ollama
-# LLAMA_OLLAMA_MODEL=llama3.1:8b
+# LLM configuration
+LLAMA_PROVIDER=ollama
+LLAMA_OLLAMA_MODEL=llama3:8b-instruct
 
-# Optional: Set the environment
-ENVIRONMENT=production          # Recommended for Docker setup
-
-# Optional: Choose memory backend
-MEMORY_BACKEND_TYPE=chroma     # Default memory backend
+# Memory configuration
+MEMORY_BACKEND_TYPE=qdrant
 ```
 
-Also, you can configure the personality, goals and rest time of your agent in `.env`.
+Then configure the personality, goals and rest time of your agent in `.env`:
 
 ```bash
-AGENT_PERSONALITY="A helpful AI assistant focused on research and analysis"
-AGENT_GOAL="To assist with information gathering and analysis"
+AGENT_PERSONALITY="You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That's legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles."
+AGENT_GOAL="You provide high-quality research and analysis on crypto markets."
 AGENT_REST_TIME=300  # seconds between actions
 ```
-
-Note: the full list of available configuration options is available in the [Environment Variables](development/environment.md) documentation.
 
 ### 3. Run
 
 ```bash
-docker run -d \
-  --name nevron \
-  -e .env \
-  -v $(pwd)/volumes/.chromadb:/app/.chromadb \
-  axiomai/nevron:latest
+docker compose up -d
 ```
 
-For production deployments, we recommend using Docker Compose. See our [Deployment Guide](deployment.md) for details.
+This will start Nevron with Ollama running locally in the container, using the small model specified in your `.env` file. Qdrant will be used as the default memory vector store.
 
 -----
 
@@ -83,42 +80,89 @@ Set up Nevron locally in 5 steps:
 
 ### 1. Clone & Install
 
+Clone the repository:
+
 ```bash
-# clone the repository
 git clone https://github.com/axioma-ai-labs/nevron.git
 cd nevron
+```
 
-# install Poetry if you haven't already
+Install Poetry if you haven't already:
+
+```bash
 curl -sSL https://install.python-poetry.org | python3 -
+```
 
-# install dependencies
-poetry install
+Install dependencies:
+
+```bash
+make deps
 ```
 
 ### 2. Configure Environment
 
 ```bash
-# copy example environment file
 cp .env.dev .env
 ```
 
-Required environment variables:
+### 3. Choose LLM Provider
+
+You have two options for the LLM provider:
+
+#### Option 1: Use LLM API
+
+Edit your `.env` file to include one of these LLM providers:
+
 ```bash
-OPENAI_API_KEY=your_key_here    # Required for embeddings
+ANTHROPIC_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here
+XAI_API_KEY=your_key_here
+DEEPSEEK_API_KEY=your_key_here
+QWEN_API_KEY=your_key_here
+VENICE_API_KEY=your_key_here
+LLAMA_API_KEY=your_key_here   # The API key for the api.llama-api.com
 ```
 
-For a complete list of available environment variables, see the [Environment Variables](development/environment.md) documentation.
+You can also use Llama with [openrouter](https://openrouter.ai/api/v1):
 
-### 3. Configure Personality
+```bash
+LLAMA_PROVIDER=openrouter
+LLAMA_API_KEY=your_key_here
+```
+
+Or use Llama with [fireworks](https://api.fireworks.ai/inference):
+
+```bash
+LLAMA_PROVIDER=fireworks
+LLAMA_API_KEY=your_key_here
+```
+
+#### Option 2: Run Ollama locally
+
+First, install Ollama following the instructions at [ollama.ai](https://ollama.ai).
+
+Then, pull a small model:
+```bash
+ollama pull llama3:8b-instruct
+```
+
+Edit your `.env` file:
+```bash
+# Configure Nevron to use local Ollama
+LLAMA_PROVIDER=ollama
+LLAMA_OLLAMA_MODEL=llama3:8b-instruct
+```
+
+### 4. Configure Personality
 
 Setup the personality, goals and rest time of your agent in `.env`:
 ```bash
-AGENT_PERSONALITY="A helpful AI assistant focused on research and analysis"
-AGENT_GOAL="To assist with information gathering and analysis"
+AGENT_PERSONALITY="You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That's legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles."
+AGENT_GOAL="You provide high-quality research and analysis on crypto markets."
 AGENT_REST_TIME=300  # seconds between actions
 ```
 
-### 4. Run
+### 5. Run
 
 ```bash
 make run
@@ -126,28 +170,41 @@ make run
 
 -----
 
-## Available Workflows
+## Available Workflows and Tools
 
 Nevron comes with two pre-configured workflows:
 
 - `Analyze signal`: Processes and analyzes incoming signal data
 - `Research news`: Gathers and analyzes news using Perplexity API
 
-For more information about workflows, see the [Workflows](agent/workflows.md) documentation.
+And with various tools:
 
-## Customization
+- `X`: Post tweets
+- `Discord`: Listen to incoming messages and send messages
+- `Telegram`: Send telegram messages
+- `Lens`: Post to Lens, fetch from Lens
+- `WhatsApp`: Get and post messages
+- `Slack`: Get and post messages
+- `Tavily`: Search with Tavily
+- `Perplexity`: Search with Perplexity
+- `Coinstats`: Get Coinstats news
+- `YouTube`: Search for YouTube videos and playlists
+- `Spotify`: Search for songs and get details of particular songs
+- `GitHub`: Create GitHub Issues or PRs, get the latest GitHub Actions
+- `Google Drive`: Search for files, upload files to Drive
+- `Shopify`: Get products, orders, update product info
 
-You can customize Nevron by:
-- Adding custom [workflows](agent/workflows.md) and [tools](agent/tools.md)
-- Adjusting [planning](agent/planning.md) parameters
-- Switching [LLM providers](agent/llm.md)
+You will see errors in the logs since the agent will try to call these tools, but for their usage, you'll need to configure the appropriate API keys. Refer to the [Configuration](configuration.md) documentation for more details.
 
-See the [Agent Overview](agent/overview.md) for more details.
+## Customizations
+
+Please refer to the [Configuration](configuration.md) documentation for customizing the agent.
 
 ## Troubleshooting
 
 Common issues:
-- Ensure all required API keys are set in `.env`
+- If using OpenAI, ensure your API key is set correctly in `.env`
+- If using Ollama, verify it's running with `ollama list`
 - Check logs in the console for detailed error messages
 - Verify Python version: `python --version` (should be 3.13)
 - Confirm dependencies: `poetry show`

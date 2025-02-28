@@ -6,7 +6,7 @@ Thank you for considering contributing to Nevron! This guide will help you get s
 - [Ways to Contribute](#ways-to-contribute)
 - [Development Process](#development-process)
 - [Code Style and Standards](#code-style-and-standards)
-- [Pull Request Process](#pull-request-process)
+- [Pull Request Guidelines](#pull-request-guidelines)
 - [Getting Help](#getting-help)
 
 ## Ways to Contribute
