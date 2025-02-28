@@ -5,14 +5,23 @@ from loguru import logger
 from src.llm.llm import LLM
 from src.memory.memory_module import MemoryModule, get_memory_module
 from src.tools.get_signal import CoinstatsTool
+from src.tools.link_parser import LinkParserTool
 from src.tools.twitter import TwitterTool
 
 
-async def analyze_signal(memory: MemoryModule = get_memory_module()) -> Optional[str]:
+async def analyze_signal(
+    memory: MemoryModule = get_memory_module(), link: Optional[str] = None
+) -> Optional[str]:
     """Fetch a signal, analyze it with an LLM, and post the result on Twitter."""
     try:
         logger.info("Fetching signal...")
-        signal = await CoinstatsTool().fetch_signal()
+        if link:
+            # Parse link content
+            link_parser = LinkParserTool()
+            signal = link_parser.fetch_signal_link(link)
+        else:
+            # Fetch signal from Coinstats
+            signal = await CoinstatsTool().fetch_signal()
 
         if signal.get("status") == "new_signal" and "content" in signal:
             signal_content = signal["content"]
@@ -50,7 +59,7 @@ async def analyze_signal(memory: MemoryModule = get_memory_module()) -> Optional
             # Store the processed signal in memory
             await memory.store(
                 event=signal_content,
-                action="analyze_signal",
+                action="check_signal",
                 outcome=f"Tweet posted: {tweet_text}",
                 metadata={"tweet_id": result},
             )

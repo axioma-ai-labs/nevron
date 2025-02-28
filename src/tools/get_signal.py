@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Any, Dict
 
 import httpx
 from loguru import logger
@@ -55,7 +55,7 @@ class CoinstatsTool:
             logger.error(f"ERROR RETRIEVING NEWS: {str(e)}")
             raise CoinstatsError("News data currently unavailable")
 
-    async def fetch_signal(self) -> dict:
+    async def fetch_signal(self) -> Dict[str, Any]:
         """
         Fetch a crypto signal from the Coinstats API.
 
@@ -67,10 +67,10 @@ class CoinstatsTool:
         """
         try:
             data = await self.get_coinstats_news()
-            if data and data.get("result") and len(data["result"]) > 0:
+            if data and isinstance(data["result"], list):
                 latest_news = data["result"][0]
                 logger.debug(f"Signal fetched: {latest_news}")
-                signal = latest_news.get("title", None)  # type: ignore
+                signal = latest_news.get("title", None)
                 if not signal:
                     return {"status": "no_data"}
                 return {"status": "new_signal", "content": signal}
