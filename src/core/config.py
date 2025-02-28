@@ -229,6 +229,7 @@ class Settings(BaseSettings):
     JINA_READER_TIMEOUT: int = 0
     JINA_READER_TOKEN_BUDGET: int = 0
     JINA_SEARCH_WEBSITE: str = ""
+
     # ==========================
     # Validators
     # ==========================
