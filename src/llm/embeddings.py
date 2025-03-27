@@ -4,7 +4,6 @@ import numpy as np
 from llama_cpp import Llama
 from loguru import logger
 from openai import AsyncOpenAI
-from llama_cpp import Llama
 
 from src.core.config import settings
 from src.core.defs import EmbeddingProviderType

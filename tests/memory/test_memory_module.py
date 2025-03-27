@@ -147,3 +147,113 @@ async def test_search_memory_chroma(memory_module_chroma, mock_chroma_backend):
         query_vector=[0.1, 0.2, 0.3], top_k=top_k, filters=None
     )
     assert results == [{"event": "result_event"}]
+
+
+@pytest.mark.asyncio
+async def test_llm_filter_with_metadata(memory_module_qdrant):
+    """Test llm_filter with metadata filters."""
+    raw_data = "Project X is progressing well, with 80% completion."
+    metadata_filters = {"project": "Project X", "status": "progress"}
+
+    with patch.object(
+        memory_module_qdrant.llm,
+        "generate_response",
+        AsyncMock(return_value="Project X is 80% complete"),
+    ):
+        result = await memory_module_qdrant.llm_filter(raw_data, metadata_filters)
+        assert result == "Project X is 80% complete"
+
+
+@pytest.mark.asyncio
+async def test_llm_filter_no_metadata(memory_module_qdrant):
+    """Test llm_filter without metadata filters."""
+    raw_data = "Project X is progressing well, with 80% completion."
+
+    with patch.object(
+        memory_module_qdrant.llm,
+        "generate_response",
+        AsyncMock(return_value="Project X is 80% complete"),
+    ):
+        result = await memory_module_qdrant.llm_filter(raw_data)
+        assert result == "Project X is 80% complete"
+
+
+@pytest.mark.asyncio
+async def test_llm_filter_irrelevant_data(memory_module_qdrant):
+    """Test llm_filter with irrelevant data."""
+    raw_data = "The weather is nice today."
+
+    with patch.object(
+        memory_module_qdrant.llm, "generate_response", AsyncMock(return_value="None")
+    ):
+        result = await memory_module_qdrant.llm_filter(raw_data)
+        assert result is None
+
+
+@pytest.mark.asyncio
+async def test_filter_and_store_relevant(memory_module_qdrant, mock_qdrant_backend):
+    """Test filter_and_store with relevant data."""
+    raw_data = "Project X is progressing well, with 80% completion."
+    data_type = "project_update"
+    metadata = {"project": "Project X"}
+
+    with patch.object(
+        memory_module_qdrant.llm,
+        "generate_response",
+        AsyncMock(return_value="Project X is 80% complete"),
+    ):
+        await memory_module_qdrant.filter_and_store(raw_data, data_type, metadata)
+
+        mock_qdrant_backend.store.assert_called_once()
+        stored_metadata = mock_qdrant_backend.store.call_args[1]["metadata"]
+        assert stored_metadata["project"] == "Project X"
+        assert stored_metadata["type"] == "project_update"
+        assert "timestamp" in stored_metadata
+
+
+@pytest.mark.asyncio
+async def test_filter_and_store_irrelevant(memory_module_qdrant, mock_qdrant_backend):
+    """Test filter_and_store with irrelevant data."""
+    raw_data = "The weather is nice today."
+    data_type = "weather_update"
+
+    with patch.object(
+        memory_module_qdrant.llm, "generate_response", AsyncMock(return_value="None")
+    ):
+        await memory_module_qdrant.filter_and_store(raw_data, data_type)
+
+        mock_qdrant_backend.store.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_search_memory_qdrant_with_filters(memory_module_qdrant, mock_qdrant_backend):
+    """Test searching memory with QdrantBackend with filters."""
+    query = "Test Query"
+    top_k = 5
+    filters = {"type": "project_update", "project": "Project X"}
+    mock_qdrant_backend.search.return_value = [{"event": "result_event"}]
+
+    results = await memory_module_qdrant.search(query, top_k, filters)
+
+    memory_module_qdrant.embedding_generator.get_embedding.assert_called_once_with(query)
+    mock_qdrant_backend.search.assert_called_once_with(
+        query_vector=[0.1, 0.2, 0.3], top_k=top_k, filters=filters
+    )
+    assert results == [{"event": "result_event"}]
+
+
+@pytest.mark.asyncio
+async def test_search_memory_chroma_with_filters(memory_module_chroma, mock_chroma_backend):
+    """Test searching memory with ChromaBackend with filters."""
+    query = "Test Query"
+    top_k = 5
+    filters = {"type": "project_update", "project": "Project X"}
+    mock_chroma_backend.search.return_value = [{"event": "result_event"}]
+
+    results = await memory_module_chroma.search(query, top_k, filters)
+
+    memory_module_chroma.embedding_generator.get_embedding.assert_called_once_with(query)
+    mock_chroma_backend.search.assert_called_once_with(
+        query_vector=[0.1, 0.2, 0.3], top_k=top_k, filters=filters
+    )
+    assert results == [{"event": "result_event"}]

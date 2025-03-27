@@ -54,7 +54,7 @@ def create_mock_embedding_response(embeddings_data):
     return mock_response
 
 
-def test_init_custom_values(mock_openai_client):
+def test_init_with_provided_client(mock_openai_client):
     """Test EmbeddingGenerator initialization with custom values."""
     generator = EmbeddingGenerator(
         provider=EmbeddingProviderType.OPENAI,
@@ -64,7 +64,7 @@ def test_init_custom_values(mock_openai_client):
     assert generator.model_name == settings.OPENAI_EMBEDDING_MODEL
 
 
-@pytest.mark.skip(reason="Skipping test_get_embedding_single_text")
+# @pytest.mark.skip(reason="Skipping test_get_embedding_single_text")
 @pytest.mark.asyncio
 async def test_get_embedding_single_text(embedding_generator, mock_logger):
     """Test getting embeddings for a single text."""
@@ -88,26 +88,26 @@ async def test_get_embedding_single_text(embedding_generator, mock_logger):
     np.testing.assert_array_equal(result, np.array([mock_embedding]))
 
 
-@pytest.mark.skip(reason="Skipping test_get_embedding_multiple_texts")
+# @pytest.mark.skip(reason="Skipping test_get_embedding_multiple_texts")
 @pytest.mark.asyncio
-async def test_get_embedding_multiple_texts(embedding_generator, mock_logger):
+async def test_get_embedding_multiple_texts(embedding_generator, mock_logger, monkeypatch):
     """Test getting embeddings for multiple texts."""
     # arrange:
     mock_debug, _ = mock_logger
     texts = ["text1", "text2", "text3"]
     mock_embeddings = [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]]
-    embedding_generator.client.embeddings.create.return_value = create_mock_embedding_response(
-        mock_embeddings
-    )
+
+    # Set up mocking for the generate_embedding_api function instead of directly mocking client
+    mock_generate_api = AsyncMock(return_value=np.array(mock_embeddings))
+    monkeypatch.setattr("src.llm.embeddings.generate_embedding_api", mock_generate_api)
 
     # act:
     result = await embedding_generator.get_embedding(texts)
 
     # assert:
-    embedding_generator.client.embeddings.create.assert_called_once_with(
-        model=embedding_generator.model_name, input=texts
+    mock_generate_api.assert_called_once_with(
+        embedding_generator.client, texts, embedding_generator.model_name
     )
-    mock_debug.assert_called_once_with("Getting embeddings for 3 texts")
     assert isinstance(result, np.ndarray)
     np.testing.assert_array_equal(result, np.array(mock_embeddings))
 
@@ -160,3 +160,58 @@ async def test_get_embedding_response_processing(embedding_generator):
     assert isinstance(result, np.ndarray)
     assert result.shape == (1, len(mock_embedding))
     np.testing.assert_array_equal(result[0], np.array(mock_embedding))
+
+
+@pytest.mark.asyncio
+async def test_init_without_embedding_client(monkeypatch):
+    """Test EmbeddingGenerator initialization without providing embedding_client."""
+
+    # Use the provider from settings
+    provider = settings.EMBEDDING_PROVIDER
+
+    # Skip test if provider is LLAMA_LOCAL as it's tested separately
+    if provider == EmbeddingProviderType.LLAMA_LOCAL:
+        pytest.skip("LLAMA_LOCAL provider is tested separately")
+
+    # Mock the get_embedding_client function
+    mock_client = AsyncMock(spec=AsyncOpenAI)
+    mock_get_client = MagicMock(return_value=mock_client)
+    monkeypatch.setattr("src.llm.embeddings.get_embedding_client", mock_get_client)
+
+    # Create generator without providing client
+    generator = EmbeddingGenerator(provider=provider)
+
+    # Assert get_embedding_client was called with correct provider
+    mock_get_client.assert_called_once_with(provider)
+    # Assert the client was set correctly
+    assert generator.client == mock_client
+    # Assert the model name was set correctly based on provider
+    if provider == EmbeddingProviderType.OPENAI:
+        assert generator.model_name == settings.OPENAI_EMBEDDING_MODEL
+    elif provider == EmbeddingProviderType.LLAMA_API:
+        assert generator.model_name == settings.LLAMA_EMBEDDING_MODEL
+
+
+def test_init_with_unsupported_provider(monkeypatch):
+    """Test EmbeddingGenerator initialization with unsupported provider."""
+
+    # Use the invalid provider
+    with pytest.raises(ValueError, match="Unsupported embedding provider"):
+        EmbeddingGenerator(provider=EmbeddingProviderType.UNSUPPORTED_PROVIDER)
+
+
+@pytest.mark.asyncio
+async def test_init_with_llama_local_provider(monkeypatch):
+    """Test EmbeddingGenerator initialization with LLAMA_LOCAL provider."""
+    # Mock the get_llama_model function
+    mock_llama_model = MagicMock()
+    mock_get_llama_model = MagicMock(return_value=mock_llama_model)
+    monkeypatch.setattr("src.llm.embeddings.get_llama_model", mock_get_llama_model)
+
+    # Create generator with LLAMA_LOCAL provider
+    generator = EmbeddingGenerator(provider=EmbeddingProviderType.LLAMA_LOCAL)
+
+    # Assert get_llama_model was called with correct path
+    mock_get_llama_model.assert_called_once_with(settings.LLAMA_MODEL_PATH)
+    # Assert the llama_model was set correctly
+    assert generator.llama_model == mock_llama_model

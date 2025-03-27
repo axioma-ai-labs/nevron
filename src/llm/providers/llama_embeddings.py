@@ -40,6 +40,7 @@ async def generate_embedding_api(
     """
     try:
         texts = [text] if isinstance(text, str) else text
+        logger.debug(f"Getting embeddings for {len(texts)} texts")
 
         # Generate embeddings
         response = await client.embeddings.create(

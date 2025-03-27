@@ -1,13 +1,13 @@
 from typing import Dict, List
 
-import aiohttp
+import requests
 from loguru import logger
 
 from src.core.config import settings
 from src.core.exceptions import LLMError
 
 
-async def call_venice(messages: List[Dict[str, str]], **kwargs) -> str:
+def call_venice(messages: List[Dict[str, str]], **kwargs) -> str:
     """
     Call the Venice AI API to generate a response.
 
@@ -33,19 +33,16 @@ async def call_venice(messages: List[Dict[str, str]], **kwargs) -> str:
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=payload) as response:
-                if response.status != 200:
-                    error = await response.text()
-                    raise LLMError(f"Venice API returned status {response.status}: {error}")
+        response = requests.post(url, headers=headers, json=payload)
 
-                data = await response.json()
-                if not data.get("choices") or not data["choices"][0].get("message", {}).get(
-                    "content"
-                ):
-                    raise LLMError("Venice AI returned empty response")
+        if response.status_code != 200:
+            raise LLMError(f"Venice API returned status {response.status_code}: {response.text}")
 
-                return data["choices"][0]["message"]["content"].strip()
+        data = response.json()
+        if not data.get("choices") or not data["choices"][0].get("message", {}).get("content"):
+            raise LLMError("Venice AI returned empty response")
+
+        return data["choices"][0]["message"]["content"].strip()
 
     except Exception as e:
         logger.error(f"Error during Venice AI API call: {str(e)}")

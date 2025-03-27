@@ -67,7 +67,7 @@ class CoinstatsTool:
         """
         try:
             data = await self.get_coinstats_news()
-            if data and isinstance(data["result"], list):
+            if data and isinstance(data["result"], list) and len(data["result"]) > 0:
                 latest_news = data["result"][0]
                 logger.debug(f"Signal fetched: {latest_news}")
                 signal = latest_news.get("title", None)
