@@ -1,135 +1,113 @@
-# from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
-# import pytest
-# from loguru import logger
+import pytest
 
-# from src.workflows.research_news import analyze_news_workflow
-
-
-# @pytest.fixture
-# def mock_workflow_logger(monkeypatch):
-#     """Mock logger for workflow testing."""
-#     mock_info = MagicMock()
-#     mock_error = MagicMock()
-#     monkeypatch.setattr(logger, "info", mock_info)
-#     monkeypatch.setattr(logger, "error", mock_error)
-#     return mock_info, mock_error
+from src.memory.memory_module import MemoryModule
+from src.workflows.research_news import analyze_news_workflow
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_news_success(mock_workflow_logger):
-#     """Test successful news analysis and tweet posting."""
-#     # arrange:
-#     mock_info, mock_error = mock_workflow_logger
-#     news_content = "Test news content"
-#     tweet_text = "Breaking News:\nTest analysis\n#StayInformed"
-#     tweet_id = "123456789"
-
-#     # Mock Perplexity search
-#     mock_perplexity = AsyncMock(return_value="Recent crypto news context")
-
-#     # Mock LLM
-#     mock_llm = AsyncMock()
-#     mock_llm.generate_response = AsyncMock(return_value="Test analysis")
-
-#     # Mock Twitter post
-#     mock_post = AsyncMock(return_value=[tweet_id])
-
-#     with (
-#         patch("src.workflows.research_news.search_with_perplexity", mock_perplexity),
-#         patch("src.workflows.research_news.LLM", return_value=mock_llm),
-#         patch("src.workflows.research_news.post_twitter_thread", mock_post),
-#     ):
-#         # act:
-#         result = await analyze_news_workflow(news_content)
-
-#     # assert:
-#     assert result == tweet_id
-#     mock_perplexity.assert_called_once_with("Latest crypto news")
-#     mock_llm.generate_response.assert_called_once()
-#     mock_post.assert_called_once_with(tweets={"tweet1": tweet_text})
-#     mock_info.assert_any_call("Analyzing news...")
-#     mock_info.assert_any_call(f"Publishing tweet:\n{tweet_text}")
-#     mock_info.assert_any_call("Tweet posted successfully!")
-#     mock_error.assert_not_called()
+@pytest.fixture
+def mock_memory_module():
+    memory = AsyncMock(spec=MemoryModule)
+    memory.store = AsyncMock()
+    return memory
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_news_perplexity_error(mock_workflow_logger):
-#     """Test error handling when Perplexity search fails."""
-#     # arrange:
-#     mock_info, mock_error = mock_workflow_logger
-#     news_content = "Test news content"
-
-#     # Mock Perplexity with error
-#     mock_perplexity = AsyncMock(side_effect=Exception("Perplexity error"))
-
-#     with patch("src.workflows.research_news.search_with_perplexity", mock_perplexity):
-#         # act:
-#         result = await analyze_news_workflow(news_content)
-
-#     # assert:
-#     assert result is None
-#     mock_perplexity.assert_called_once()
-#     mock_error.assert_called_once_with("Error in analyze_news_workflow: Perplexity error")
+@pytest.fixture
+def mock_link_parser():
+    with patch("src.workflows.research_news.LinkParserTool") as mock:
+        link_parser_instance = MagicMock()
+        link_parser_instance.search_links.return_value = [
+            {
+                "title": "Test Crypto News",
+                "description": "This is a test description",
+                "content": "This is test content for crypto news",
+            }
+        ]
+        mock.return_value = link_parser_instance
+        yield mock
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_news_llm_error(mock_workflow_logger):
-#     """Test error handling when LLM fails."""
-#     # arrange:
-#     mock_info, mock_error = mock_workflow_logger
-#     news_content = "Test news content"
-
-#     # Mock Perplexity search
-#     mock_perplexity = AsyncMock(return_value="Recent crypto news context")
-
-#     # Mock LLM with error
-#     mock_llm = AsyncMock()
-#     mock_llm.generate_response = AsyncMock(side_effect=Exception("LLM error"))
-
-#     with (
-#         patch("src.workflows.research_news.search_with_perplexity", mock_perplexity),
-#         patch("src.workflows.research_news.LLM", return_value=mock_llm),
-#     ):
-#         # act:
-#         result = await analyze_news_workflow(news_content)
-
-#     # assert:
-#     assert result is None
-#     mock_perplexity.assert_called_once()
-#     mock_llm.generate_response.assert_called_once()
-#     mock_error.assert_called_once_with("Error in analyze_news_workflow: LLM error")
+@pytest.fixture
+def mock_perplexity():
+    with patch("src.workflows.research_news.PerplexityTool") as mock:
+        perplexity_instance = MagicMock()
+        perplexity_instance.search = AsyncMock(return_value="Test perplexity search results")
+        mock.return_value = perplexity_instance
+        yield mock
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_news_twitter_error(mock_workflow_logger):
-#     """Test error handling when Twitter posting fails."""
-#     # arrange:
-#     mock_info, mock_error = mock_workflow_logger
-#     news_content = "Test news content"
+@pytest.fixture
+def mock_llm():
+    with patch("src.workflows.research_news.LLM") as mock:
+        llm_instance = MagicMock()
+        llm_instance.generate_response = AsyncMock(return_value="Test analysis of crypto news")
+        mock.return_value = llm_instance
+        yield mock
 
-#     # Mock Perplexity search
-#     mock_perplexity = AsyncMock(return_value="Recent crypto news context")
 
-#     # Mock LLM
-#     mock_llm = AsyncMock()
-#     mock_llm.generate_response = AsyncMock(return_value="Test analysis")
+@pytest.fixture
+def mock_twitter():
+    with patch("src.workflows.research_news.TwitterTool") as mock:
+        twitter_instance = MagicMock()
+        twitter_instance.post_thread = AsyncMock(return_value=["12345"])
+        mock.return_value = twitter_instance
+        yield mock
 
-#     # Mock Twitter post with error
-#     mock_post = AsyncMock(side_effect=Exception("Twitter error"))
 
-#     with (
-#         patch("src.workflows.research_news.search_with_perplexity", mock_perplexity),
-#         patch("src.workflows.research_news.LLM", return_value=mock_llm),
-#         patch("src.workflows.research_news.post_twitter_thread", mock_post),
-#     ):
-#         # act:
-#         result = await analyze_news_workflow(news_content)
+@pytest.mark.asyncio
+async def test_analyze_news_with_link(mock_memory_module, mock_link_parser, mock_llm, mock_twitter):
+    """Test analyze_news_workflow with a link provided."""
 
-#     # assert:
-#     assert result is None
-#     mock_perplexity.assert_called_once()
-#     mock_llm.generate_response.assert_called_once()
-#     mock_post.assert_called_once()
-#     mock_error.assert_called_once_with("Error in analyze_news_workflow: Twitter error")
+    # Test data
+    news = "Important crypto news happened today"
+    link = "https://example.com/crypto-news"
+
+    # Run the workflow
+    result = await analyze_news_workflow(news=news, memory=mock_memory_module, link=link)
+
+    # Assertions
+    assert result == "12345"
+    mock_link_parser.return_value.search_links.assert_called_once_with(
+        "Latest crypto news", gl="DE", hl="de", num=5
+    )
+    mock_llm.return_value.generate_response.assert_called_once()
+    mock_twitter.return_value.post_thread.assert_called_once()
+    mock_memory_module.store.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_analyze_news_without_link(
+    mock_memory_module, mock_perplexity, mock_llm, mock_twitter
+):
+    """Test analyze_news_workflow without a link."""
+
+    # Test data
+    news = "Important crypto news happened today"
+
+    # Run the workflow
+    result = await analyze_news_workflow(news=news, memory=mock_memory_module)
+
+    # Assertions
+    assert result == "12345"
+    mock_perplexity.return_value.search.assert_called_once_with("Latest crypto news")
+    mock_llm.return_value.generate_response.assert_called_once()
+    mock_twitter.return_value.post_thread.assert_called_once()
+    mock_memory_module.store.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_analyze_news_error_handling(mock_memory_module):
+    """Test error handling in analyze_news_workflow."""
+
+    # Create a mock that raises an exception
+    with patch("src.workflows.research_news.PerplexityTool") as mock_perplexity:
+        perplexity_instance = MagicMock()
+        perplexity_instance.search = AsyncMock(side_effect=Exception("Test error"))
+        mock_perplexity.return_value = perplexity_instance
+
+        # Run the workflow with an error
+        result = await analyze_news_workflow(news="Test news", memory=mock_memory_module)
+
+        # Assertions
+        assert result is None

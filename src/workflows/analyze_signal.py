@@ -55,6 +55,13 @@ async def analyze_signal(
             logger.info(f"Publishing tweet:\n{tweet_text}")
             result = await TwitterTool().post_thread(tweets={"tweet1": tweet_text})
             logger.info("Tweet posted successfully!")
+            logger.info(
+                f"Storing in memory:\n"
+                f"Event: {signal_content[:100]}...\n"  # Truncate for readability
+                f"Action: check_signal\n"
+                f"Outcome: Tweet posted: {tweet_text}\n"
+                f"Metadata: tweet_id={result}"
+            )
 
             # Store the processed signal in memory
             await memory.store(

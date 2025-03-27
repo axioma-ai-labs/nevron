@@ -19,11 +19,16 @@ async def analyze_news_workflow(
         if link:
             # Parse link content
             link_parser = LinkParserTool()
-            search_results = link_parser.search_links("Latest crypto news")
+            search_results = link_parser.search_links(
+                "Latest crypto news",
+                gl="DE",  # Country code for Germany
+                hl="de",  # Language code for German
+                num=5,  # Number of results to return
+            )
             context = "\n\n".join(
                 f"Title: {result['title']}\n"
                 f"Description: {result['description']}\n"
-                f"Content: {result['text_data'][:500]}..."  # Limit content length temporarily
+                f"Content: {result['content']}"
                 for result in search_results
             )
         else:
@@ -46,7 +51,15 @@ async def analyze_news_workflow(
         # Publish tweet
         logger.info(f"Publishing tweet:\n{tweet_text}")
         result = await TwitterTool().post_thread(tweets={"tweet1": tweet_text})
-        logger.info("Tweet posted successfully!")
+        logger.info("X thread posted successfully!")
+        logger.info(
+            f"Storing in memory:\n"
+            f"Event: {context[:200]}...\n"  # Truncate for readability
+            f"Action: analyze_news\n"
+            f"Outcome: Tweet posted: {tweet_text}\n"
+            f"Metadata: tweet_id={result}"
+        )
+
         # Store the processed signal in memory
         await memory.store(
             event=context,

@@ -8,7 +8,6 @@ from loguru import logger
 
 class FeedbackType(Enum):
     BINARY = "binary"  # Default -1.0, 0.0, 1.0 scoring
-
     CUSTOM = "custom"  # Custom scoring logic
     WEIGHTED = "weighted"  # Weighted scoring based on action importance
 

@@ -52,12 +52,6 @@ class Settings(BaseSettings):
     #: Memory persist directory. Used only for ChromaDB.
     MEMORY_PERSIST_DIRECTORY: str = ".chromadb"
 
-    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
-    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
-    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
-
     # --- LLMs settings ---
 
     LLM_PROVIDER: LLMProviderType = LLMProviderType.OPENAI
@@ -102,9 +96,9 @@ class Settings(BaseSettings):
 
     EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
     LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b" # llama2-7b 
+    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
     # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN 
+    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
 
     # ==========================
     # Agent settings
@@ -168,7 +162,7 @@ class Settings(BaseSettings):
     PERPLEXITY_NEWS_CATEGORY_LIST: List[str] = [
         "Finance",
         "Regulatory",
-        "Market capitalzation",
+        "Market capitalization",
         "Technical analysis",
         "Price movements",
     ]
