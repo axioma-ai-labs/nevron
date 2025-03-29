@@ -58,7 +58,7 @@ class LLM:
         elif self.provider == LLMProviderType.DEEPSEEK:
             return await call_deepseek(messages, **kwargs)
         elif self.provider == LLMProviderType.VENICE:
-            return await call_venice(messages, **kwargs)
+            return call_venice(messages, **kwargs)
         else:
             raise LLMError(f"Unknown LLM provider: {self.provider}")
 

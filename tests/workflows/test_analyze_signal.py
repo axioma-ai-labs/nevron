@@ -1,164 +1,110 @@
-# from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
-# import pytest
-# from loguru import logger
+import pytest
 
-# from src.workflows.analyze_signal import analyze_signal
-
-
-# @pytest.fixture
-# def mock_workflow_logger(monkeypatch):
-#     """Mock logger for workflow testing."""
-#     mock_info = MagicMock()
-#     mock_warning = MagicMock()
-#     mock_error = MagicMock()
-#     monkeypatch.setattr(logger, "info", mock_info)
-#     monkeypatch.setattr(logger, "warning", mock_warning)
-#     monkeypatch.setattr(logger, "error", mock_error)
-#     return mock_info, mock_warning, mock_error
+from src.memory.memory_module import MemoryModule
+from src.workflows.analyze_signal import analyze_signal
 
 
-# @pytest.fixture
-# def mock_memory():
-#     """Create a mock memory module."""
-#     memory = MagicMock()
-#     memory.search = AsyncMock()
-#     memory.store = AsyncMock()
-#     return memory
+@pytest.fixture
+def mock_memory():
+    memory = AsyncMock(spec=MemoryModule)
+    memory.search.return_value = []
+    return memory
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_signal_success(mock_workflow_logger, mock_memory):
-#     """Test successful signal analysis and tweet posting."""
-#     # arrange:
-#     mock_info, mock_warning, mock_error = mock_workflow_logger
-#     signal_content = "Test signal content"
-#     tweet_text = "Breaking News:\nTest analysis\n#CryptoNews"
-#     tweet_id = "123456789"
+@pytest.mark.asyncio
+async def test_analyze_signal_new_signal(mock_memory):
+    # Mock dependencies
+    mock_signal = {"status": "new_signal", "content": "Test signal content"}
 
-#     # Mock fetch_signal
-#     mock_fetch = AsyncMock(return_value={"status": "new_signal", "content": signal_content})
-#     # Mock memory search (no recent signals)
-#     mock_memory.search.side_effect = [
-#         [],  # No recent signals
-#         [  # Recent memories for context
-#             {"event": "event1", "outcome": "outcome1"},
-#             {"event": "event2", "outcome": "outcome2"},
-#         ],
-#     ]
-#     # Mock LLM
-#     mock_llm = AsyncMock()
-#     mock_llm.generate_response = AsyncMock(return_value="Test analysis")
-#     # Mock Twitter post
-#     mock_post = AsyncMock(return_value=[tweet_id])
+    with (
+        patch("src.workflows.analyze_signal.CoinstatsTool") as mock_coinstats,
+        patch("src.workflows.analyze_signal.TwitterTool") as mock_twitter,
+        patch("src.workflows.analyze_signal.LLM") as mock_llm,
+    ):
+        # Setup mocks with proper async handling
+        mock_coinstats_instance = mock_coinstats.return_value
+        mock_coinstats_instance.fetch_signal = AsyncMock(return_value=mock_signal)
 
-#     with (
-#         patch("src.workflows.analyze_signal.fetch_signal", mock_fetch),
-#         patch("src.workflows.analyze_signal.LLM", return_value=mock_llm),
-#         patch("src.workflows.analyze_signal.post_twitter_thread", mock_post),
-#     ):
-#         # act:
-#         result = await analyze_signal(memory=mock_memory)
+        mock_twitter_instance = mock_twitter.return_value
+        mock_twitter_instance.post_thread = AsyncMock(return_value=[12345])
 
-#     # assert:
-#     assert result == tweet_id
-#     mock_fetch.assert_called_once()
-#     mock_memory.search.assert_has_calls(
-#         [call(signal_content, top_k=1), call("recent events", top_k=3)]
-#     )
-#     mock_llm.generate_response.assert_called_once()
-#     mock_post.assert_called_once_with(tweets={"tweet1": tweet_text})
-#     mock_memory.store.assert_called_once()
-#     mock_info.assert_any_call(f"Received signal: {signal_content}")
-#     mock_info.assert_any_call("Tweet posted successfully!")
-#     mock_warning.assert_not_called()
-#     mock_error.assert_not_called()
+        mock_llm_instance = mock_llm.return_value
+        mock_llm_instance.generate_response = AsyncMock(return_value="Test analysis")
+
+        # Execute
+        result = await analyze_signal(memory=mock_memory)
+
+        # Assertions
+        assert result == "12345"
+        mock_memory.store.assert_called_once()
+        mock_twitter_instance.post_thread.assert_called_once()
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_signal_already_processed(mock_workflow_logger, mock_memory):
-#     """Test when signal was already processed."""
-#     # arrange:
-#     mock_info, mock_warning, mock_error = mock_workflow_logger
-#     signal_content = "Test signal content"
+@pytest.mark.asyncio
+async def test_analyze_signal_already_processed(mock_memory):
+    # Mock dependencies
+    mock_signal = {"status": "new_signal", "content": "Test signal content"}
+    mock_memory.search.return_value = [{"event": "Test signal content"}]
 
-#     # Mock fetch_signal
-#     mock_fetch = AsyncMock(return_value={"status": "new_signal", "content": signal_content})
-#     # Mock memory search (signal already exists)
-#     mock_memory.search.return_value = [{"event": signal_content}]
+    with patch("src.workflows.analyze_signal.CoinstatsTool") as mock_coinstats:
+        # Setup mocks
+        mock_coinstats.return_value.fetch_signal.return_value = mock_signal
 
-#     with patch("src.workflows.analyze_signal.fetch_signal", mock_fetch):
-#         # act:
-#         result = await analyze_signal(memory=mock_memory)
+        # Execute
+        result = await analyze_signal(memory=mock_memory)
 
-#     # assert:
-#     assert result is None
-#     mock_fetch.assert_called_once()
-#     mock_memory.search.assert_called_once_with(signal_content, top_k=1)
-#     mock_info.assert_any_call("Signal already processed, skipping analysis")
-#     mock_warning.assert_not_called()
-#     mock_error.assert_not_called()
+        # Assertions
+        assert result is None
+        mock_memory.store.assert_not_called()
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_signal_no_data(mock_workflow_logger, mock_memory):
-#     """Test when no signal is available."""
-#     # arrange:
-#     mock_info, mock_warning, mock_error = mock_workflow_logger
+@pytest.mark.asyncio
+async def test_analyze_signal_no_data(mock_memory):
+    # Mock dependencies
+    mock_signal = {"status": "no_data"}
 
-#     # Mock fetch_signal
-#     mock_fetch = AsyncMock(return_value={"status": "no_data"})
+    with patch("src.workflows.analyze_signal.CoinstatsTool") as mock_coinstats:
+        # Setup mocks
+        mock_coinstats.return_value.fetch_signal.return_value = mock_signal
 
-#     with patch("src.workflows.analyze_signal.fetch_signal", mock_fetch):
-#         # act:
-#         result = await analyze_signal(memory=mock_memory)
+        # Execute
+        result = await analyze_signal(memory=mock_memory)
 
-#     # assert:
-#     assert result is None
-#     mock_fetch.assert_called_once()
-#     mock_memory.search.assert_not_called()
-#     mock_info.assert_any_call("No actionable signal detected.")
-#     mock_warning.assert_not_called()
-#     mock_error.assert_not_called()
+        # Assertions
+        assert result is None
+        mock_memory.store.assert_not_called()
 
 
-# @pytest.mark.asyncio
-# async def test_analyze_signal_unknown_format(mock_workflow_logger, mock_memory):
-#     """Test handling of unknown signal format."""
-#     # arrange:
-#     mock_info, mock_warning, mock_error = mock_workflow_logger
+@pytest.mark.asyncio
+async def test_analyze_signal_with_link(mock_memory):
+    # Mock dependencies
+    mock_signal = {"status": "new_signal", "content": "Test link content"}
 
-#     # Mock fetch_signal
-#     mock_fetch = AsyncMock(return_value={"status": "unknown"})
+    with (
+        patch("src.workflows.analyze_signal.LinkParserTool") as mock_link_parser,
+        patch("src.workflows.analyze_signal.TwitterTool") as mock_twitter,
+        patch("src.workflows.analyze_signal.LLM") as mock_llm,
+    ):
+        # Setup mocks with proper async handling
+        mock_link_parser_instance = mock_link_parser.return_value
+        mock_link_parser_instance.fetch_signal_link = MagicMock(return_value=mock_signal)
 
-#     with patch("src.workflows.analyze_signal.fetch_signal", mock_fetch):
-#         # act:
-#         result = await analyze_signal(memory=mock_memory)
+        mock_twitter_instance = mock_twitter.return_value
+        mock_twitter_instance.post_thread = AsyncMock(return_value=[12345])
 
-#     # assert:
-#     assert result is None
-#     mock_fetch.assert_called_once()
-#     mock_memory.search.assert_not_called()
-#     mock_warning.assert_called_once_with("Received an unknown signal format or an error occurred.")
-#     mock_error.assert_not_called()
+        mock_llm_instance = mock_llm.return_value
+        mock_llm_instance.generate_response = AsyncMock(return_value="Test analysis")
 
+        # Mock memory search to return empty list (indicating new signal)
+        mock_memory.search.return_value = []
 
-# @pytest.mark.asyncio
-# async def test_analyze_signal_error(mock_workflow_logger, mock_memory):
-#     """Test error handling in signal analysis."""
-#     # arrange:
-#     mock_info, mock_warning, mock_error = mock_workflow_logger
+        # Execute
+        result = await analyze_signal(memory=mock_memory, link="http://test.com")
 
-#     # Mock fetch_signal to raise an exception
-#     mock_fetch = AsyncMock(side_effect=Exception("Test error"))
-
-#     with patch("src.workflows.analyze_signal.fetch_signal", mock_fetch):
-#         # act:
-#         result = await analyze_signal(memory=mock_memory)
-
-#     # assert:
-#     assert result is None
-#     mock_fetch.assert_called_once()
-#     mock_memory.search.assert_not_called()
-#     mock_error.assert_called_once_with("Error in analyze_and_post_signal workflow: Test error")
-#     mock_warning.assert_not_called()
+        # Assertions
+        assert result == "12345"
+        mock_memory.store.assert_called_once()
+        mock_twitter_instance.post_thread.assert_called_once()
+        mock_link_parser_instance.fetch_signal_link.assert_called_once_with("http://test.com")

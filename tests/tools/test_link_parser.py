@@ -47,7 +47,7 @@ def test_parse_link_success(link_parser, mock_tool_logger):
         "url": "https://example.com",
         "title": "Test Page",
         "description": "Test Description",
-        "text_data": "Test Content",
+        "content": "Test Content",
         "images": "image.jpg",
         "timestamp": "2023-01-01",
         "tokens": 100,
@@ -130,7 +130,7 @@ def test_fetch_signal_link_no_data(link_parser, mock_tool_logger):
             "url": "https://example.com",
             "title": "",
             "description": "",
-            "text_data": "",
+            "content": "",
             "images": {},
             "timestamp": "",
             "tokens": 0,
@@ -147,7 +147,7 @@ def test_fetch_signal_link_no_data(link_parser, mock_tool_logger):
             "url": "https://example.com",
             "title": "",
             "description": "",
-            "text_data": "",
+            "content": "",
             "images": {},
             "tokens": 0,
         },
@@ -162,38 +162,61 @@ def test_search_links_success(link_parser, mock_tool_logger):
     """Test successful link search"""
     mock_debug, mock_error = mock_tool_logger
     mock_response = {
-        "data": {
-            "result": [
-                {
-                    "url": "https://example.com",
-                    "title": "Test Page",
-                    "snippet": "Test Description",
-                    "domain": "https://example.com",
-                    "favicon": "image.jpg",
-                }
-            ],
-            "usage": {"tokens": 10000},
-        }
+        "data": [
+            {
+                "url": "https://example.com",
+                "title": "Test Page",
+                "description": "Test Description",
+                "content": "Example content",
+            }
+        ],
+        "meta": {"usage": {"tokens": 10000}},
     }
 
     with patch("requests.get") as mock_get:
         mock_get.return_value = MagicMock(
             status_code=200, json=MagicMock(return_value=mock_response)
         )
+
+        # Call with basic query
         data = link_parser.search_links("test query")
+
+        # Verify params in the first call
+        args, kwargs = mock_get.call_args_list[0]
+        assert kwargs["params"] == {"q": "test query"}
+        assert kwargs["headers"] == link_parser.search_request_headers
+        assert args[0] == "https://s.jina.ai/"
+
+        # Reset mock and test with custom parameters
+        mock_get.reset_mock()
+        mock_get.return_value = MagicMock(
+            status_code=200, json=MagicMock(return_value=mock_response)
+        )
+
+        # Call with custom parameters
+        data = link_parser.search_links("test query", gl="US", hl="en", num=10)
+
+        # Verify params in the second call
+        args, kwargs = mock_get.call_args_list[0]
+        assert kwargs["params"] == {"q": "test query", "gl": "US", "hl": "en", "num": 10}
+        assert kwargs["headers"] == link_parser.search_request_headers
+        assert args[0] == "https://s.jina.ai/"
 
     # Verify all elements in the result list
     for item in data:
         assert item == {
             "url": "https://example.com",
             "title": "Test Page",
-            "snippet": "Test Description",
-            "domain": "https://example.com",
-            "favicon": "image.jpg",
+            "description": "Test Description",
+            "content": "Example content",
             "total_tokens": 10000,
         }
 
-    mock_debug.assert_called_once_with("Searching with URL: https://s.jina.ai/test%20query")
+    # Check that debug was called (note: this will only show the last call's debug)
+    mock_debug.assert_called_with(
+        "Searching with URL: https://s.jina.ai/ and params: "
+        + "{'q': 'test query', 'gl': 'US', 'hl': 'en', 'num': 10}"
+    )
     mock_error.assert_not_called()
 
 

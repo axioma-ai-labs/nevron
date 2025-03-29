@@ -112,3 +112,4 @@ class EmbeddingProviderType(str, Enum):
     OPENAI = LLMProviderType.OPENAI
     LLAMA_LOCAL = LlamaProviderType.LLAMA_LOCAL
     LLAMA_API = LlamaProviderType.LLAMA_API
+    UNSUPPORTED_PROVIDER = "unsupported provider"

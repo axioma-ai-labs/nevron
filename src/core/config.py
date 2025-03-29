@@ -162,7 +162,7 @@ class Settings(BaseSettings):
     PERPLEXITY_NEWS_CATEGORY_LIST: List[str] = [
         "Finance",
         "Regulatory",
-        "Market capitalzation",
+        "Market capitalization",
         "Technical analysis",
         "Price movements",
     ]

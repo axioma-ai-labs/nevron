@@ -2,7 +2,6 @@ from typing import Any, Dict, List
 
 import requests
 from loguru import logger
-from requests.utils import requote_uri
 
 from src.core.config import settings
 
@@ -79,7 +78,7 @@ class LinkParserTool:
                 "url": result_data.get("url", ""),
                 "title": result_data.get("title", ""),
                 "description": result_data.get("description", ""),
-                "text_data": result_data.get("content", ""),
+                "content": result_data.get("content", ""),
                 "images": result_data.get("images", {}),
                 "timestamp": result_data.get("publishedTime", ""),
                 "tokens": result_data.get("usage", {}).get("tokens", 0),
@@ -92,12 +91,22 @@ class LinkParserTool:
             logger.error(f"Unexpected error while parsing content from {url}: {e}")
             raise
 
-    def search_links(self, query: str) -> List[Dict[str, Any]]:
+    def search_links(self, query: str, **custom_params: Any) -> List[Dict[str, Any]]:
         """
         Search for content using Jina Reader's search mode.
 
         Args:
-            query: Search query string
+            query: Search query string (required)
+            **custom_params: Optional keyword arguments that will be added as URL parameters.
+                Examples:
+                - gl: Country code (e.g., "DE" for Germany)
+                - location: Location for search (e.g., "Berlin")
+                - hl: Language code (e.g., "en" for English)
+                - num: Number of results to return
+
+                Usage:
+                search_links(query="search term", gl="US", hl="en", num=10)
+                This will create URL: https://s.jina.ai/?q=search+term&gl=US&hl=en&num=10
 
         Returns:
             List of Dicts, each containing:
@@ -105,10 +114,7 @@ class LinkParserTool:
             - title: str
             - description: str
             - content: str
-            - images: Dict
-            - timestamp: Optional[str]
-            - tokens: int
-
+            - total_tokens: int
         """
         try:
             # Validate query
@@ -116,15 +122,17 @@ class LinkParserTool:
                 logger.error("Empty search query")
                 raise ValueError("Search query cannot be empty")
 
-            # URL encode the query and construct the search URL
-            search_url = f"https://s.jina.ai/{requote_uri(query)}"
-            logger.debug(f"Searching with URL: {search_url}")
-            # Fetch the content
+            # Build query parameters
+            params = {"q": query}
+            # Add all custom parameters
+            params.update(custom_params)
 
-            response = requests.get(
-                search_url,
-                headers=self.search_request_headers,
-            )
+            # Construct the search URL
+            search_url = "https://s.jina.ai/"
+            logger.debug(f"Searching with URL: {search_url} and params: {params}")
+
+            # Fetch the content
+            response = requests.get(search_url, headers=self.search_request_headers, params=params)
             response.raise_for_status()
 
             # Parse JSON response
@@ -142,18 +150,16 @@ class LinkParserTool:
                 raise ValueError("Malformed response structure")
 
             # Extract relevant data from the response
-            data = data.get("data", {})
-            result_data = data.get("result", [{}])
+            result_data = data.get("data", [{}])
 
             # Return list of search results
             return [
                 {
                     "url": item.get("url", ""),
                     "title": item.get("title", ""),
-                    "snippet": item.get("snippet", ""),
-                    "domain": item.get("domain", ""),
-                    "favicon": item.get("favicon", ""),
-                    "total_tokens": data.get("usage", {}).get("tokens", 0),
+                    "description": item.get("description", ""),
+                    "content": item.get("content", ""),
+                    "total_tokens": data.get("meta", {}).get("usage", {}).get("tokens", 0),
                 }
                 for item in result_data
             ]
@@ -176,28 +182,25 @@ class LinkParserTool:
         """
         try:
             parsed_content = self.parse_link(url)
-            if not parsed_content.get("text_data"):
+
+            # Check if any meaningful content was parsed
+            if not parsed_content or not any(
+                [
+                    parsed_content.get("title"),
+                    parsed_content.get("description"),
+                    parsed_content.get("content"),
+                ]
+            ):
                 return {"status": "no_data"}
+
             return {
                 "status": "new_signal",
                 "content": (
-                    f"Title:{str(parsed_content.get('title'))}\n"
-                    f"Description:{str(parsed_content.get('description'))}\n"
-                    f"Content:{str(parsed_content.get('text_data'))}\n"
-                    f"Timestamp:{str(parsed_content.get('timestamp'))}\n"
+                    f"Title:{str(parsed_content.get('title', ''))}\n"
+                    f"Description:{str(parsed_content.get('description', ''))}\n"
+                    f"Content:{str(parsed_content.get('content', ''))}\n"
+                    f"Timestamp:{str(parsed_content.get('timestamp', ''))}\n"
                 ),
-                # "content": "Title:"
-                # + str(parsed_content.get("title"))
-                # + "\n"
-                # + "Description:"
-                # + str(parsed_content.get("description"))
-                # + "\n"
-                # + "Content:"
-                # + str(parsed_content.get("text_data"))
-                # + "\n"
-                # + "Timestamp:"
-                # + str(parsed_content.get("timestamp"))
-                # + "\n",
             }
         except Exception as e:
             logger.error(f"Error in fetch_link_signal: {e}")
