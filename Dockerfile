@@ -44,9 +44,8 @@ RUN mkdir logs
 
 COPY pyproject.toml poetry.lock ./
 
-
-
 # Install dependencies with Poetry
+
 RUN poetry install --no-interaction --no-ansi --no-root --only main
 
 

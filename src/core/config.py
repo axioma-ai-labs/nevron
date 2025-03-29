@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     #: Memory persist directory. Used only for ChromaDB.
     MEMORY_PERSIST_DIRECTORY: str = ".chromadb"
 
+    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
+    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
+    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
+    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
+
     # --- LLMs settings ---
 
     LLM_PROVIDER: LLMProviderType = LLMProviderType.OPENAI
@@ -88,17 +93,13 @@ class Settings(BaseSettings):
     LLAMA_PROVIDER: LlamaProviderType = LlamaProviderType.LLAMA_API
     LLAMA_MODEL_NAME: str = "llama3-8b-8192"  # Model name is usually unique for each provider
     LLAMA_API_KEY: str = ""  # API key for your provider
+    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
 
     LLAMA_FIREWORKS_URL: str = "https://api.fireworks.ai/inference"
     LLAMA_OLLAMA_URL: str = "http://localhost:11434"
     LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
     LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-
-    EMBEDDING_PROVIDER: EmbeddingProviderType = EmbeddingProviderType.OPENAI
     LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
-    LLAMA_EMBEDDING_MODEL: str = "llama3.1-8b"  # llama2-7b
-    # Embedding pooling type for local Llama models (NONE, MEAN, CLS, LAST, RANK), defaults to MEAN pooling
-    EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
 
     # ==========================
     # Agent settings
