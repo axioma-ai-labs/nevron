@@ -99,7 +99,6 @@ class Settings(BaseSettings):
     LLAMA_OLLAMA_URL: str = "http://localhost:11434"
     LLAMA_API_BASE_URL: str = "https://api.llama-api.com"
     LLAMA_OPENROUTER_URL: str = "https://openrouter.ai/api/v1"
-    LLAMA_MODEL_PATH: str = "/path/to/your/local/llama/model"
 
     # ==========================
     # Agent settings
