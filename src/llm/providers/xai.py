@@ -18,7 +18,7 @@ async def call_xai(messages: List[Dict[str, str]], **kwargs) -> str:
     Returns:
         str: Response content from xAI.
     """
-    #: OpenAI client
+    #: OpenAI client (since )
     client = openai.AsyncOpenAI(api_key=settings.XAI_API_KEY)
 
     model = kwargs.get("model", settings.XAI_MODEL)
