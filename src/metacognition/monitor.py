@@ -38,9 +38,7 @@ class MonitoringState:
             "confidence_level": self.confidence_level,
             "failure_risk": self.failure_risk,
             "last_intervention": (
-                self.last_intervention.to_dict()
-                if self.last_intervention
-                else None
+                self.last_intervention.to_dict() if self.last_intervention else None
             ),
             "intervention_count": self.intervention_count,
             "actions_since_intervention": self.actions_since_intervention,
@@ -81,9 +79,7 @@ class MetacognitiveMonitor:
             handoff_channel: Default channel for human communication
         """
         # Initialize components
-        self._loop_detector = LoopDetector(
-            repetition_threshold=self.LOOP_BREAK_THRESHOLD
-        )
+        self._loop_detector = LoopDetector(repetition_threshold=self.LOOP_BREAK_THRESHOLD)
         self._failure_predictor = FailurePredictor(action_tracker=action_tracker)
         self._confidence_estimator = ConfidenceEstimator()
         self._human_handoff = HumanHandoff(default_channel=handoff_channel)
@@ -142,9 +138,7 @@ class MetacognitiveMonitor:
             return self._record_intervention(failure_intervention)
 
         # 3. Check confidence
-        confidence_intervention = await self._check_confidence(
-            action, goal, plan, context
-        )
+        confidence_intervention = await self._check_confidence(action, goal, plan, context)
         if confidence_intervention.type != InterventionType.CONTINUE:
             return self._record_intervention(confidence_intervention)
 

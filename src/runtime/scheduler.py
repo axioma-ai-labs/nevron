@@ -114,15 +114,11 @@ class ScheduledTask:
             next_run=datetime.fromisoformat(data["next_run"]),
             recurrence=RecurrencePattern(data.get("recurrence", "once")),
             custom_interval=(
-                timedelta(seconds=data["custom_interval"])
-                if data.get("custom_interval")
-                else None
+                timedelta(seconds=data["custom_interval"]) if data.get("custom_interval") else None
             ),
             priority=EventPriority(data.get("priority", EventPriority.LOW.value)),
             enabled=data.get("enabled", True),
-            last_run=(
-                datetime.fromisoformat(data["last_run"]) if data.get("last_run") else None
-            ),
+            last_run=(datetime.fromisoformat(data["last_run"]) if data.get("last_run") else None),
             run_count=data.get("run_count", 0),
             max_runs=data.get("max_runs"),
             created_at=(

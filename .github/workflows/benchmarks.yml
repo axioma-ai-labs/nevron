@@ -1,0 +1,210 @@
+name: Autonomy Benchmarks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      run_stability:
+        description: 'Run stability tests'
+        required: false
+        default: 'true'
+      run_autonomy:
+        description: 'Run autonomy benchmarks'
+        required: false
+        default: 'true'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Run Autonomy Benchmarks
+        if: github.event.inputs.run_autonomy != 'false'
+        run: |
+          poetry run python -m tests.benchmarks.benchmark_runner \
+            --output-dir benchmarks/results \
+            --format json \
+            --verbose \
+            --autonomy-only \
+            --seed 42
+
+      - name: Run Stability Tests
+        if: github.event.inputs.run_stability != 'false'
+        run: |
+          poetry run python -m tests.benchmarks.benchmark_runner \
+            --output-dir benchmarks/results \
+            --format json \
+            --verbose \
+            --stability-only \
+            --seed 42
+
+      - name: Run Full Benchmark Suite
+        if: github.event_name == 'schedule'
+        run: |
+          poetry run python -m tests.benchmarks.benchmark_runner \
+            --output-dir benchmarks/results \
+            --format markdown \
+            --verbose \
+            --seed 42
+
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: benchmarks/results/
+          retention-days: 30
+
+      - name: Comment on PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find the latest result file
+            const resultsDir = 'benchmarks/results';
+            if (!fs.existsSync(resultsDir)) {
+              console.log('No results directory found');
+              return;
+            }
+
+            const files = fs.readdirSync(resultsDir)
+              .filter(f => f.endsWith('.json'))
+              .sort()
+              .reverse();
+
+            if (files.length === 0) {
+              console.log('No result files found');
+              return;
+            }
+
+            const latestFile = path.join(resultsDir, files[0]);
+            const results = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
+
+            // Format the comment
+            let comment = '## Benchmark Results\n\n';
+            comment += `**Status:** ${results.overall_passed ? '✅ PASSED' : '❌ FAILED'}\n\n`;
+
+            if (results.autonomy) {
+              comment += '### Autonomy Benchmarks\n\n';
+              comment += `Pass Rate: ${(results.autonomy.pass_rate * 100).toFixed(1)}%\n\n`;
+              comment += '| Benchmark | Value | Target | Status |\n';
+              comment += '|-----------|-------|--------|--------|\n';
+
+              for (const r of results.autonomy.results) {
+                const status = r.passed ? '✅' : '❌';
+                comment += `| ${r.benchmark} | ${r.value.toFixed(2)} | ${r.target.toFixed(2)} | ${status} |\n`;
+              }
+              comment += '\n';
+            }
+
+            if (results.stability && results.stability.length > 0) {
+              comment += '### Stability Tests\n\n';
+              comment += '| Test | Duration | Success Rate | Status |\n';
+              comment += '|------|----------|--------------|--------|\n';
+
+              for (const r of results.stability) {
+                const status = r.passed ? '✅' : '❌';
+                comment += `| ${r.test_name} | ${r.duration_seconds.toFixed(1)}s | ${(r.success_rate * 100).toFixed(1)}% | ${status} |\n`;
+              }
+            }
+
+            // Post the comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Run Integration Tests
+        run: |
+          poetry run pytest tests/integration/ -v --tb=short
+
+      - name: Upload Integration Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results-${{ github.sha }}
+          path: |
+            .pytest_cache/
+            htmlcov/
+          retention-days: 7

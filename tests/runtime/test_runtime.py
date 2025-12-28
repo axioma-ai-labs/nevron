@@ -373,18 +373,24 @@ class TestAutonomousRuntime:
         runtime.register_handler(EventType.MESSAGE_RECEIVED, tracking_handler)
 
         # Queue events before starting (callback listener not running yet)
-        await runtime._queue.put(Event(
-            type=EventType.MESSAGE_RECEIVED,
-            priority=EventPriority.LOW,
-        ))
-        await runtime._queue.put(Event(
-            type=EventType.MESSAGE_RECEIVED,
-            priority=EventPriority.HIGH,
-        ))
-        await runtime._queue.put(Event(
-            type=EventType.MESSAGE_RECEIVED,
-            priority=EventPriority.NORMAL,
-        ))
+        await runtime._queue.put(
+            Event(
+                type=EventType.MESSAGE_RECEIVED,
+                priority=EventPriority.LOW,
+            )
+        )
+        await runtime._queue.put(
+            Event(
+                type=EventType.MESSAGE_RECEIVED,
+                priority=EventPriority.HIGH,
+            )
+        )
+        await runtime._queue.put(
+            Event(
+                type=EventType.MESSAGE_RECEIVED,
+                priority=EventPriority.NORMAL,
+            )
+        )
 
         await runtime.start()
         await asyncio.sleep(0.5)
@@ -467,10 +473,7 @@ class TestRuntimeIntegration:
         await runtime.stop()
 
         # Should have received the message
-        message_events = [
-            e for e in events_received
-            if e.type == EventType.MESSAGE_RECEIVED
-        ]
+        message_events = [e for e in events_received if e.type == EventType.MESSAGE_RECEIVED]
         assert len(message_events) >= 1
         assert message_events[0].payload["content"] == "Hello"
 

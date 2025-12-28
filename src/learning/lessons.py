@@ -423,19 +423,15 @@ class LessonRepository:
         """
         # Check cache first
         if action in self._by_action:
-            lessons = [
-                self._cache[lid]
-                for lid in self._by_action[action]
-                if lid in self._cache
-            ]
+            lessons = [self._cache[lid] for lid in self._by_action[action] if lid in self._cache]
             lessons.sort(key=lambda lesson: lesson.reliability, reverse=True)
             return lessons[:top_k]
 
         # Search backend
         results = await self._backend.search(
-            query_vector=(
-                await self._embedding_generator.get_embedding(f"Action: {action}")
-            )[0].tolist(),
+            query_vector=(await self._embedding_generator.get_embedding(f"Action: {action}"))[
+                0
+            ].tolist(),
             top_k=top_k,
             filters={"memory_type": "lesson"},
         )
@@ -466,9 +462,7 @@ class LessonRepository:
         """
         if context_key in self._by_context:
             lessons = [
-                self._cache[lid]
-                for lid in self._by_context[context_key]
-                if lid in self._cache
+                self._cache[lid] for lid in self._by_context[context_key] if lid in self._cache
             ]
             lessons.sort(key=lambda lesson: lesson.reliability, reverse=True)
             return lessons[:top_k]
@@ -503,9 +497,7 @@ class LessonRepository:
         Returns:
             List of lessons with this tag
         """
-        return [
-            lesson for lesson in self._cache.values() if tag in lesson.tags
-        ]
+        return [lesson for lesson in self._cache.values() if tag in lesson.tags]
 
     async def reinforce_lesson(self, lesson_id: str) -> bool:
         """Reinforce a lesson (mark as validated).

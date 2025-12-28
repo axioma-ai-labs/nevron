@@ -97,6 +97,8 @@ check_untyped_defs = true
 follow_imports = "silent"
 warn_redundant_casts = true
 no_implicit_reexport = true
+# Exclude integration and benchmark tests (they test future API patterns)
+exclude = ["tests/integration/", "tests/benchmarks/"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

@@ -1,6 +1,5 @@
 """Tests for EventProcessor module."""
 
-
 import pytest
 
 from src.runtime.event import Event, EventType
@@ -52,7 +51,7 @@ class TestProcessingResult:
             result={"count": 10},
         )
 
-        assert result.result["count"] == 10
+        assert result.result is not None and result.result["count"] == 10
 
 
 class TestEventProcessor:
@@ -146,7 +145,7 @@ class TestEventProcessor:
         result = await processor.process(event)
 
         assert result.success is False
-        assert "Handler error" in result.error
+        assert result.error is not None and "Handler error" in result.error
 
     @pytest.mark.asyncio
     async def test_middleware(self):
@@ -187,7 +186,7 @@ class TestEventProcessor:
         event = Event(type=EventType.MESSAGE_RECEIVED, payload={})
         result = await processor.process(event)
 
-        assert result.result["was_enriched"] is True
+        assert result.result is not None and result.result["was_enriched"] is True
 
     @pytest.mark.asyncio
     async def test_middleware_skip_event(self):

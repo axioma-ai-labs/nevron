@@ -249,7 +249,7 @@ class SelfCritic:
 Action taken: {action}
 Context: {context_summary}
 Outcome: {outcome_summary}
-Error: {error_message or 'No specific error'}
+Error: {error_message or "No specific error"}
 
 Please analyze:
 1. Why did this fail? (failure_reason)

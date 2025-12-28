@@ -381,9 +381,7 @@ class StrategyAdapter:
             List of action names to avoid
         """
         biases = self.get_action_biases(context)
-        return [
-            action for action, bias in biases.items() if bias.bias < threshold
-        ]
+        return [action for action, bias in biases.items() if bias.bias < threshold]
 
     def extract_context_features(self, context: Dict[str, Any]) -> str:
         """Extract a context key from raw context dict.
@@ -428,9 +426,7 @@ class StrategyAdapter:
         """
         return {
             "overrides": {k: v.to_dict() for k, v in self._overrides.items()},
-            "context_modifiers": {
-                f"{k[0]}:{k[1]}": v for k, v in self._context_modifiers.items()
-            },
+            "context_modifiers": {f"{k[0]}:{k[1]}": v for k, v in self._context_modifiers.items()},
         }
 
     def from_dict(self, data: Dict[str, Any]) -> None:

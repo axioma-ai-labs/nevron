@@ -146,9 +146,7 @@ class Event:
             priority=EventPriority(data.get("priority", EventPriority.NORMAL.value)),
             source=EventSource(data.get("source", EventSource.INTERNAL.value)),
             payload=data.get("payload", {}),
-            deadline=(
-                datetime.fromisoformat(data["deadline"]) if data.get("deadline") else None
-            ),
+            deadline=(datetime.fromisoformat(data["deadline"]) if data.get("deadline") else None),
             created_at=(
                 datetime.fromisoformat(data["created_at"])
                 if data.get("created_at")

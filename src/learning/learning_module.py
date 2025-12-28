@@ -187,9 +187,7 @@ class AdaptiveLearningModule:
                 # 3. Create lesson from critique
                 if self.config.auto_create_lessons and self._lessons:
                     if critique.confidence >= self.config.min_confidence_for_lesson:
-                        lesson = await self._create_lesson_from_critique(
-                            critique, context_key
-                        )
+                        lesson = await self._create_lesson_from_critique(critique, context_key)
                         learning.lesson_created = lesson
 
                         # Apply lesson to adapter
@@ -296,10 +294,7 @@ class AdaptiveLearningModule:
             if lesson.better_approach:
                 # Simple check - could be more sophisticated
                 context_str = str(context).lower()
-                if any(
-                    word in context_str
-                    for word in lesson.better_approach.lower().split()[:3]
-                ):
+                if any(word in context_str for word in lesson.better_approach.lower().split()[:3]):
                     await self._lessons.reinforce_lesson(lesson.id)
                     return lesson.id
 
@@ -357,9 +352,7 @@ class AdaptiveLearningModule:
         if len(self._recent_failures) < self.config.analyze_patterns_threshold:
             return []
 
-        return await self._critic.generate_improvement_suggestions(
-            self._recent_failures
-        )
+        return await self._critic.generate_improvement_suggestions(self._recent_failures)
 
     def get_action_stats(self, action: str) -> Optional[ActionStats]:
         """Get statistics for an action.
@@ -403,9 +396,7 @@ class AdaptiveLearningModule:
             environment=context.get("environment"),
         )
 
-        return self._adapter.get_preferred_action(
-            adaptation_context, available_actions or []
-        )
+        return self._adapter.get_preferred_action(adaptation_context, available_actions or [])
 
     def get_actions_to_avoid(
         self,
@@ -515,14 +506,10 @@ class AdaptiveLearningModule:
             "total_actions_tracked": len(all_stats),
             "total_outcomes": total_outcomes,
             "overall_success_rate": total_success / total_outcomes if total_outcomes else 0,
-            "best_performing": max(
-                all_stats.items(), key=lambda x: x[1].success_rate
-            )[0]
+            "best_performing": max(all_stats.items(), key=lambda x: x[1].success_rate)[0]
             if all_stats
             else None,
-            "worst_performing": min(
-                all_stats.items(), key=lambda x: x[1].success_rate
-            )[0]
+            "worst_performing": min(all_stats.items(), key=lambda x: x[1].success_rate)[0]
             if all_stats
             else None,
         }
@@ -586,7 +573,5 @@ def get_learning_module(
     """
     global _learning_module
     if _learning_module is None:
-        _learning_module = AdaptiveLearningModule(
-            config=config, llm_provider=llm_provider
-        )
+        _learning_module = AdaptiveLearningModule(config=config, llm_provider=llm_provider)
     return _learning_module

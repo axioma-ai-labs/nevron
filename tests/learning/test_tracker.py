@@ -1,6 +1,5 @@
 """Tests for ActionTracker module."""
 
-
 from src.learning.tracker import ActionOutcome, ActionStats, ActionTracker
 
 
