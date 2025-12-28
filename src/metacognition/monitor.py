@@ -13,7 +13,7 @@ from loguru import logger
 from src.core.defs import AgentAction, AgentState
 from src.learning.tracker import ActionTracker
 from src.metacognition.confidence_estimator import ConfidenceEstimate, ConfidenceEstimator
-from src.metacognition.failure_predictor import FailurePredictor, FailurePrediction
+from src.metacognition.failure_predictor import FailurePrediction, FailurePredictor
 from src.metacognition.human_handoff import HandoffChannel, HumanHandoff, HumanResponse
 from src.metacognition.intervention import Intervention, InterventionType
 from src.metacognition.loop_detector import LoopDetector

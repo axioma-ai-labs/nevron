@@ -16,11 +16,7 @@ from src.metacognition.confidence_estimator import (
     ConfidenceEstimator,
     ConfidenceFactor,
 )
-from src.metacognition.failure_predictor import (
-    FailurePredictor,
-    FailurePrediction,
-    FailureReason,
-)
+from src.metacognition.failure_predictor import FailurePrediction, FailurePredictor, FailureReason
 from src.metacognition.human_handoff import (
     HandoffChannel,
     HumanHandoff,
@@ -30,6 +26,7 @@ from src.metacognition.human_handoff import (
 from src.metacognition.intervention import Intervention, InterventionType
 from src.metacognition.loop_detector import LoopDetector, LoopPattern, LoopType
 from src.metacognition.monitor import MetacognitiveMonitor
+
 
 __all__ = [
     # Loop Detection

@@ -1,11 +1,7 @@
 """Tests for FailurePredictor module."""
 
 from src.learning.tracker import ActionTracker
-from src.metacognition.failure_predictor import (
-    FailurePredictor,
-    FailurePrediction,
-    FailureReason,
-)
+from src.metacognition.failure_predictor import FailurePrediction, FailurePredictor, FailureReason
 
 
 class TestFailurePrediction:
