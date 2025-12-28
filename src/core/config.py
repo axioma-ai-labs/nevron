@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -229,6 +229,25 @@ class Settings(BaseSettings):
     JINA_READER_TIMEOUT: int = 0
     JINA_READER_TOKEN_BUDGET: int = 0
     JINA_SEARCH_WEBSITE: str = ""
+
+    # ==========================
+    # MCP (Model Context Protocol) settings
+    # ==========================
+
+    #: Enable MCP integration
+    MCP_ENABLED: bool = True
+
+    #: Path to MCP servers configuration file (YAML)
+    MCP_CONFIG_FILE: Optional[str] = None
+
+    #: Auto-connect to MCP servers on startup
+    MCP_AUTO_CONNECT: bool = True
+
+    #: Attempt to reconnect on connection failure
+    MCP_RECONNECT_ON_FAILURE: bool = True
+
+    #: Maximum reconnection attempts
+    MCP_MAX_RECONNECT_ATTEMPTS: int = 3
 
     # ==========================
     # Validators

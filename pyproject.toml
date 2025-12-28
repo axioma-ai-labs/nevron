@@ -66,6 +66,7 @@ qdrant-client = "^1.13.2"
 discord-py = {extras = ["voice"], version = "^2.4.0"}
 audioop-lts = { version = "^0.2.1", python = ">=3.13" }
 requests-toolbelt = "^1.0.0"
+mcp = "^1.25.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
@@ -77,6 +78,7 @@ pytest-cov = "^6.0.0"
 types-requests = "^2.32.0.20241016"
 freezegun = "^1.5.1"
 llama-cpp-python = "^0.3.7"
+types-pyyaml = "^6.0.12.20250915"
 
 [[tool.poetry.source]]
 name = "llama-cpp-python-cpu"

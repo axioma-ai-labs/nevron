@@ -85,9 +85,10 @@ def test_create_planning_prompt(planning_module, mock_context_manager):
         assert f"\nAvailable Actions: {available_actions}" in prompt
 
         # Assert response format instructions
-        assert "\nChoose exactly one action from the available actions." in prompt
+        assert "Choose exactly one action from the available actions." in prompt
         assert "Respond with just the action name, nothing else." in prompt
-        assert "For example: analyze_news" in prompt
+        # Check for example format - either legacy format or new format with MCP tools
+        assert "(e.g., analyze_news)" in prompt or "For example: analyze_news" in prompt
 
 
 @pytest.mark.asyncio
