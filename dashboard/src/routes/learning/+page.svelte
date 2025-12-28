@@ -73,13 +73,13 @@
 	}
 
 	function getSuccessColor(success: boolean): string {
-		return success ? 'text-green-400' : 'text-red-400';
+		return success ? 'text-apple-green' : 'text-apple-red';
 	}
 
 	function getConfidenceColor(confidence: number): string {
-		if (confidence >= 0.8) return 'text-green-400';
-		if (confidence >= 0.5) return 'text-yellow-400';
-		return 'text-red-400';
+		if (confidence >= 0.8) return 'text-apple-green';
+		if (confidence >= 0.5) return 'text-apple-orange';
+		return 'text-apple-red';
 	}
 
 	const tabs = [
@@ -108,31 +108,32 @@
 			<div class="flex items-center gap-6">
 				{#if stats?.best_performing}
 					<div>
-						<span class="text-sm text-slate-400">Best Performing:</span>
+						<span class="text-sm text-apple-text-tertiary">Best Performing:</span>
 						<span class="ml-2 badge badge-success">{stats.best_performing}</span>
 					</div>
 				{/if}
 				{#if stats?.worst_performing}
 					<div>
-						<span class="text-sm text-slate-400">Needs Improvement:</span>
+						<span class="text-sm text-apple-text-tertiary">Needs Improvement:</span>
 						<span class="ml-2 badge badge-danger">{stats.worst_performing}</span>
 					</div>
 				{/if}
 			</div>
 			<button class="btn btn-secondary" onclick={analyzeFailures} disabled={analyzing}>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+				</svg>
 				{analyzing ? 'Analyzing...' : 'Analyze Failures'}
 			</button>
 		</div>
 	</Card>
 
 	<!-- Tab Navigation -->
-	<div class="flex gap-2 border-b border-surface-700">
+	<div class="flex gap-1 border-b border-apple-border-subtle">
 		{#each tabs as tab}
 			<button
-				class="px-4 py-2 text-sm font-medium transition-colors
-					{activeTab === tab.id
-					? 'text-accent-400 border-b-2 border-accent-400'
-					: 'text-slate-400 hover:text-white'}"
+				class="tab"
+				class:active={activeTab === tab.id}
 				onclick={() => (activeTab = tab.id)}
 			>
 				{tab.label}
@@ -143,9 +144,9 @@
 	<!-- Tab Content -->
 	<Card>
 		{#if loading}
-			<div class="animate-pulse space-y-4">
+			<div class="space-y-4">
 				{#each Array(5) as _}
-					<div class="h-16 bg-surface-700 rounded"></div>
+					<div class="skeleton h-16"></div>
 				{/each}
 			</div>
 		{:else if activeTab === 'history'}
@@ -153,46 +154,46 @@
 				<div class="overflow-x-auto">
 					<table class="w-full">
 						<thead>
-							<tr class="text-left border-b border-surface-700">
-								<th class="pb-3 text-sm text-slate-400 font-medium">Time</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Action</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Result</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Reward</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Success Rate</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Critique</th>
-								<th class="pb-3 text-sm text-slate-400 font-medium">Lesson</th>
+							<tr class="text-left border-b border-apple-border-subtle">
+								<th class="table-header">Time</th>
+								<th class="table-header">Action</th>
+								<th class="table-header">Result</th>
+								<th class="table-header">Reward</th>
+								<th class="table-header">Success Rate</th>
+								<th class="table-header">Critique</th>
+								<th class="table-header">Lesson</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each history as outcome (outcome.timestamp)}
-								<tr class="border-b border-surface-800">
-									<td class="py-3 text-sm text-slate-400">{formatTime(outcome.timestamp)}</td>
-									<td class="py-3 font-medium text-white">{outcome.action}</td>
-									<td class="py-3">
+								<tr class="table-row">
+									<td class="table-cell text-apple-text-quaternary font-mono text-xs">{formatTime(outcome.timestamp)}</td>
+									<td class="table-cell font-medium text-apple-text-primary">{outcome.action}</td>
+									<td class="table-cell">
 										<span class={getSuccessColor(outcome.success)}>
 											{outcome.success ? 'Success' : 'Failed'}
 										</span>
 									</td>
-									<td class="py-3">
-										<span class={outcome.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
+									<td class="table-cell font-mono">
+										<span class={outcome.reward >= 0 ? 'text-apple-green' : 'text-apple-red'}>
 											{outcome.reward >= 0 ? '+' : ''}{outcome.reward.toFixed(2)}
 										</span>
 									</td>
-									<td class="py-3 text-slate-300">
+									<td class="table-cell text-apple-text-secondary font-mono">
 										{(outcome.new_success_rate * 100).toFixed(1)}%
 									</td>
-									<td class="py-3">
+									<td class="table-cell">
 										{#if outcome.critique_generated}
 											<span class="badge badge-info">Yes</span>
 										{:else}
-											<span class="text-slate-500">-</span>
+											<span class="text-apple-text-quaternary">-</span>
 										{/if}
 									</td>
-									<td class="py-3">
+									<td class="table-cell">
 										{#if outcome.lesson_created}
 											<span class="badge badge-success">Yes</span>
 										{:else}
-											<span class="text-slate-500">-</span>
+											<span class="text-apple-text-quaternary">-</span>
 										{/if}
 									</td>
 								</tr>
@@ -201,33 +202,41 @@
 					</table>
 				</div>
 			{:else}
-				<p class="text-slate-500 text-center py-8">No learning history available</p>
+				<div class="flex flex-col items-center justify-center py-12 text-center">
+					<div class="w-12 h-12 rounded-full bg-apple-bg-tertiary flex items-center justify-center mb-4">
+						<svg class="w-6 h-6 text-apple-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+						</svg>
+					</div>
+					<p class="text-apple-text-secondary font-medium">No learning history available</p>
+					<p class="text-sm text-apple-text-tertiary mt-1">Learning outcomes will appear here as the agent learns</p>
+				</div>
 			{/if}
 		{:else if activeTab === 'critiques'}
 			{#if critiques.length > 0}
 				<div class="space-y-4">
 					{#each critiques as critique (critique.timestamp)}
-						<div class="p-4 bg-surface-800 rounded-lg border-l-2 border-yellow-500">
-							<div class="flex items-center justify-between mb-2">
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md border-l-2 border-l-apple-orange transition-all duration-150 hover:bg-apple-bg-elevated">
+							<div class="flex items-center justify-between mb-3">
 								<span class="badge badge-warning">{critique.action}</span>
-								<span class="text-sm text-slate-500">{formatTime(critique.timestamp)}</span>
+								<span class="text-xs text-apple-text-quaternary font-mono">{formatTime(critique.timestamp)}</span>
 							</div>
-							<div class="space-y-2">
+							<div class="space-y-3">
 								<div>
-									<p class="text-xs text-slate-500 uppercase">What went wrong</p>
-									<p class="text-slate-300">{critique.what_went_wrong}</p>
+									<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">What went wrong</p>
+									<p class="text-apple-text-secondary mt-1">{critique.what_went_wrong}</p>
 								</div>
 								<div>
-									<p class="text-xs text-slate-500 uppercase">Better approach</p>
-									<p class="text-slate-300">{critique.better_approach}</p>
+									<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Better approach</p>
+									<p class="text-apple-text-secondary mt-1">{critique.better_approach}</p>
 								</div>
 								<div>
-									<p class="text-xs text-slate-500 uppercase">Lesson learned</p>
-									<p class="text-white font-medium">{critique.lesson_learned}</p>
+									<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Lesson learned</p>
+									<p class="text-apple-text-primary font-medium mt-1">{critique.lesson_learned}</p>
 								</div>
 							</div>
-							<div class="mt-2 text-right">
-								<span class={getConfidenceColor(critique.confidence)}>
+							<div class="mt-3 text-right">
+								<span class="font-mono {getConfidenceColor(critique.confidence)}">
 									{(critique.confidence * 100).toFixed(0)}% confidence
 								</span>
 							</div>
@@ -235,22 +244,30 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-slate-500 text-center py-8">No critiques available</p>
+				<div class="flex flex-col items-center justify-center py-12 text-center">
+					<div class="w-12 h-12 rounded-full bg-apple-bg-tertiary flex items-center justify-center mb-4">
+						<svg class="w-6 h-6 text-apple-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+						</svg>
+					</div>
+					<p class="text-apple-text-secondary font-medium">No critiques available</p>
+					<p class="text-sm text-apple-text-tertiary mt-1">Self-critiques will appear here when the agent reflects on failures</p>
+				</div>
 			{/if}
 		{:else if activeTab === 'suggestions'}
 			{#if suggestions.length > 0}
 				<div class="space-y-4">
 					{#each suggestions as suggestion, i}
-						<div class="p-4 bg-surface-800 rounded-lg border-l-2 border-accent-500">
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md border-l-2 border-l-apple-blue transition-all duration-150 hover:bg-apple-bg-elevated">
 							<div class="flex items-start justify-between">
 								<div class="flex-1">
-									<p class="text-xs text-slate-500 uppercase">Pattern Detected</p>
-									<p class="text-white font-medium">{suggestion.pattern}</p>
-									<p class="text-sm text-slate-300 mt-2">{suggestion.suggestion}</p>
+									<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Pattern Detected</p>
+									<p class="text-apple-text-primary font-medium mt-1">{suggestion.pattern}</p>
+									<p class="text-sm text-apple-text-secondary mt-2">{suggestion.suggestion}</p>
 									{#if suggestion.affected_actions.length > 0}
-										<div class="mt-2">
-											<span class="text-xs text-slate-500">Affected actions:</span>
-											<div class="flex gap-1 mt-1 flex-wrap">
+										<div class="mt-3">
+											<span class="text-xs text-apple-text-tertiary uppercase tracking-wider">Affected actions:</span>
+											<div class="flex gap-1.5 mt-2 flex-wrap">
 												{#each suggestion.affected_actions as action}
 													<span class="badge badge-info text-xs">{action}</span>
 												{/each}
@@ -258,7 +275,7 @@
 										</div>
 									{/if}
 								</div>
-								<span class={getConfidenceColor(suggestion.confidence)}>
+								<span class="font-mono {getConfidenceColor(suggestion.confidence)}">
 									{(suggestion.confidence * 100).toFixed(0)}%
 								</span>
 							</div>
@@ -266,10 +283,16 @@
 					{/each}
 				</div>
 			{:else}
-				<div class="text-center py-8">
-					<p class="text-slate-500">No improvement suggestions available</p>
-					<button class="btn btn-secondary mt-4" onclick={analyzeFailures} disabled={analyzing}>
-						Analyze Recent Failures
+				<div class="flex flex-col items-center justify-center py-12 text-center">
+					<div class="w-12 h-12 rounded-full bg-apple-bg-tertiary flex items-center justify-center mb-4">
+						<svg class="w-6 h-6 text-apple-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+						</svg>
+					</div>
+					<p class="text-apple-text-secondary font-medium">No improvement suggestions available</p>
+					<p class="text-sm text-apple-text-tertiary mt-1 mb-4">Analyze failures to generate improvement suggestions</p>
+					<button class="btn btn-secondary" onclick={analyzeFailures} disabled={analyzing}>
+						{analyzing ? 'Analyzing...' : 'Analyze Recent Failures'}
 					</button>
 				</div>
 			{/if}

@@ -84,11 +84,11 @@
 	}
 
 	function getOutcomeColor(outcome: string | null): string {
-		if (!outcome) return 'text-slate-400';
-		if (outcome.toLowerCase().includes('success')) return 'text-green-400';
+		if (!outcome) return 'text-apple-text-tertiary';
+		if (outcome.toLowerCase().includes('success')) return 'text-apple-green';
 		if (outcome.toLowerCase().includes('error') || outcome.toLowerCase().includes('fail'))
-			return 'text-red-400';
-		return 'text-slate-300';
+			return 'text-apple-red';
+		return 'text-apple-text-secondary';
 	}
 </script>
 
@@ -98,73 +98,79 @@
 		<!-- Status Card -->
 		<Card title="Agent Status" class="lg:col-span-2">
 			{#if loading}
-				<div class="animate-pulse space-y-4">
-					<div class="h-6 bg-surface-700 rounded w-1/3"></div>
-					<div class="h-4 bg-surface-700 rounded w-full"></div>
-					<div class="h-4 bg-surface-700 rounded w-2/3"></div>
+				<div class="space-y-4">
+					{#each Array(4) as _}
+						<div class="skeleton h-6 w-full"></div>
+					{/each}
 				</div>
 			{:else if status && info}
-				<div class="space-y-4">
-					<div class="flex items-center gap-4">
-						<span
-							class="badge {status.is_running ? 'badge-success' : 'badge-danger'} text-sm px-3 py-1"
-						>
+				<div class="space-y-5">
+					<!-- Status Badges -->
+					<div class="flex items-center gap-3">
+						<span class="badge {status.is_running ? 'badge-success' : 'badge-danger'} text-sm px-3 py-1.5">
 							{status.is_running ? 'Running' : 'Stopped'}
 						</span>
-						<span class="badge badge-info text-sm px-3 py-1">{status.state}</span>
+						<span class="badge badge-info text-sm px-3 py-1.5">{status.state}</span>
 					</div>
 
-					<div class="grid grid-cols-2 gap-4">
+					<!-- Info Grid -->
+					<div class="grid grid-cols-2 gap-5">
 						<div>
-							<p class="text-sm text-slate-400">Personality</p>
-							<p class="text-white">{info.personality}</p>
+							<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Personality</p>
+							<p class="text-apple-text-primary mt-1">{info.personality}</p>
 						</div>
 						<div>
-							<p class="text-sm text-slate-400">Goal</p>
-							<p class="text-white">{info.goal}</p>
+							<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Goal</p>
+							<p class="text-apple-text-primary mt-1">{info.goal}</p>
 						</div>
 					</div>
 
+					<!-- Stats Cards -->
 					<div class="grid grid-cols-3 gap-4">
-						<div class="p-3 bg-surface-800 rounded-lg text-center">
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md text-center">
 							<p class="stat-value">{info.total_actions_executed}</p>
-							<p class="stat-label">Actions Executed</p>
+							<p class="stat-label mt-1">Actions Executed</p>
 						</div>
-						<div class="p-3 bg-surface-800 rounded-lg text-center">
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md text-center">
 							<p class="stat-value">{info.total_rewards.toFixed(2)}</p>
-							<p class="stat-label">Total Rewards</p>
+							<p class="stat-label mt-1">Total Rewards</p>
 						</div>
-						<div class="p-3 bg-surface-800 rounded-lg text-center">
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md text-center">
 							<p class="stat-value">{status.mcp_available_tools}</p>
-							<p class="stat-label">MCP Tools</p>
+							<p class="stat-label mt-1">MCP Tools</p>
 						</div>
 					</div>
 
+					<!-- Last Action -->
 					{#if info.last_action}
-						<div class="p-3 bg-surface-800 rounded-lg">
-							<p class="text-sm text-slate-400">Last Action</p>
-							<p class="text-white font-medium">{info.last_action}</p>
+						<div class="p-4 bg-apple-bg-tertiary rounded-apple-md">
+							<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Last Action</p>
+							<p class="text-apple-text-primary font-medium mt-1">{info.last_action}</p>
 							{#if info.last_action_time}
-								<p class="text-xs text-slate-500 mt-1">{formatTime(info.last_action_time)}</p>
+								<p class="text-xs text-apple-text-quaternary mt-2 font-mono">{formatTime(info.last_action_time)}</p>
 							{/if}
 						</div>
 					{/if}
 				</div>
 			{:else}
-				<p class="text-slate-500">Unable to load agent status</p>
+				<p class="text-apple-text-tertiary text-center py-8">Unable to load agent status</p>
 			{/if}
 		</Card>
 
 		<!-- Controls Card -->
 		<Card title="Controls">
-			<div class="space-y-4">
+			<div class="space-y-5">
 				<!-- Start/Stop Buttons -->
-				<div class="flex gap-2">
+				<div class="flex gap-3">
 					<button
 						class="btn btn-success flex-1"
 						onclick={startAgent}
 						disabled={actionLoading || status?.is_running}
 					>
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+						</svg>
 						{actionLoading ? 'Loading...' : 'Start'}
 					</button>
 					<button
@@ -172,14 +178,18 @@
 						onclick={stopAgent}
 						disabled={actionLoading || !status?.is_running}
 					>
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+						</svg>
 						{actionLoading ? 'Loading...' : 'Stop'}
 					</button>
 				</div>
 
 				<!-- Manual Action Execution -->
-				<div class="pt-4 border-t border-surface-700">
-					<p class="text-sm text-slate-400 mb-2">Execute Action</p>
-					<select class="input w-full mb-2" bind:value={selectedAction}>
+				<div class="pt-5 border-t border-apple-border-subtle">
+					<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium mb-3">Execute Action</p>
+					<select class="input mb-3" bind:value={selectedAction}>
 						<option value="">Select an action...</option>
 						{#if info?.available_actions}
 							{#each info.available_actions as action}
@@ -202,45 +212,45 @@
 	<!-- Action History -->
 	<Card title="Action History">
 		{#if loading}
-			<div class="animate-pulse space-y-2">
+			<div class="space-y-3">
 				{#each Array(5) as _}
-					<div class="h-12 bg-surface-700 rounded"></div>
+					<div class="skeleton h-14"></div>
 				{/each}
 			</div>
 		{:else if context?.actions_history && context.actions_history.length > 0}
 			<div class="overflow-x-auto">
 				<table class="w-full">
 					<thead>
-						<tr class="text-left border-b border-surface-700">
-							<th class="pb-3 text-sm text-slate-400 font-medium">Time</th>
-							<th class="pb-3 text-sm text-slate-400 font-medium">Action</th>
-							<th class="pb-3 text-sm text-slate-400 font-medium">State</th>
-							<th class="pb-3 text-sm text-slate-400 font-medium">Outcome</th>
-							<th class="pb-3 text-sm text-slate-400 font-medium">Reward</th>
+						<tr class="text-left border-b border-apple-border-subtle">
+							<th class="table-header">Time</th>
+							<th class="table-header">Action</th>
+							<th class="table-header">State</th>
+							<th class="table-header">Outcome</th>
+							<th class="table-header">Reward</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each context.actions_history.slice().reverse() as item (item.timestamp)}
-							<tr class="border-b border-surface-800">
-								<td class="py-3 text-sm text-slate-400">{formatTime(item.timestamp)}</td>
-								<td class="py-3">
-									<span class="font-medium text-white">{item.action}</span>
+							<tr class="table-row">
+								<td class="table-cell text-apple-text-tertiary font-mono text-xs">{formatTime(item.timestamp)}</td>
+								<td class="table-cell">
+									<span class="font-medium text-apple-text-primary">{item.action}</span>
 								</td>
-								<td class="py-3">
+								<td class="table-cell">
 									<span class="badge badge-info">{item.state}</span>
 								</td>
-								<td class="py-3">
+								<td class="table-cell">
 									<span class={getOutcomeColor(item.outcome)}>
 										{item.outcome || '-'}
 									</span>
 								</td>
-								<td class="py-3">
+								<td class="table-cell font-mono">
 									{#if item.reward !== null}
-										<span class={item.reward > 0 ? 'text-green-400' : 'text-red-400'}>
+										<span class={item.reward > 0 ? 'text-apple-green' : 'text-apple-red'}>
 											{item.reward > 0 ? '+' : ''}{item.reward.toFixed(2)}
 										</span>
 									{:else}
-										<span class="text-slate-500">-</span>
+										<span class="text-apple-text-quaternary">-</span>
 									{/if}
 								</td>
 							</tr>
@@ -249,7 +259,15 @@
 				</table>
 			</div>
 		{:else}
-			<p class="text-slate-500 text-center py-8">No action history available</p>
+			<div class="flex flex-col items-center justify-center py-12 text-center">
+				<div class="w-12 h-12 rounded-full bg-apple-bg-tertiary flex items-center justify-center mb-4">
+					<svg class="w-6 h-6 text-apple-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+					</svg>
+				</div>
+				<p class="text-apple-text-secondary font-medium">No action history available</p>
+				<p class="text-sm text-apple-text-tertiary mt-1">Actions will appear here as the agent executes them</p>
+			</div>
 		{/if}
 	</Card>
 </div>

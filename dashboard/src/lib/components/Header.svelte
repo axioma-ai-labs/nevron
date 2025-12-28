@@ -26,64 +26,69 @@
 		}
 	}
 
-	function getStatusColor(status: string): string {
+	function getStatusDotClass(status: string): string {
 		switch (status) {
 			case 'connected':
-				return 'bg-green-500';
+				return 'status-dot-success';
 			case 'connecting':
-				return 'bg-yellow-500 animate-pulse';
+				return 'status-dot-warning';
 			case 'error':
-				return 'bg-red-500';
+				return 'status-dot-danger';
 			default:
-				return 'bg-gray-500';
+				return 'status-dot-neutral';
 		}
 	}
 
-	function getHealthColor(status: string): string {
+	function getHealthBadgeClass(status: string): string {
 		switch (status) {
 			case 'healthy':
-				return 'text-green-400';
+				return 'badge-success';
 			case 'degraded':
-				return 'text-yellow-400';
+				return 'badge-warning';
 			default:
-				return 'text-red-400';
+				return 'badge-danger';
 		}
 	}
 </script>
 
-<header class="h-16 bg-surface-900 border-b border-surface-700 flex items-center justify-between px-6">
+<header class="h-16 bg-apple-bg-secondary border-b border-apple-border-subtle flex items-center justify-between px-6">
+	<!-- Page Title -->
 	<div class="flex items-center gap-4">
-		<h2 class="text-lg font-semibold text-white">
+		<h2 class="text-xl font-semibold text-apple-text-primary tracking-tight">
 			<slot name="title">Dashboard</slot>
 		</h2>
 	</div>
 
+	<!-- Status Indicators -->
 	<div class="flex items-center gap-6">
-		<!-- API Health -->
-		<div class="flex items-center gap-2 text-sm">
-			<span class="text-slate-400">API:</span>
+		<!-- API Health Status -->
+		<div class="flex items-center gap-3">
+			<span class="text-sm text-apple-text-tertiary">API</span>
 			{#if healthError}
-				<span class="text-red-400">Offline</span>
+				<span class="badge badge-danger">Offline</span>
 			{:else if health}
-				<span class={getHealthColor(health.status)}>{health.status}</span>
-				<span class="text-slate-500">v{health.version}</span>
+				<span class="badge {getHealthBadgeClass(health.status)}">{health.status}</span>
+				<span class="text-xs text-apple-text-quaternary font-mono">v{health.version}</span>
 			{:else}
-				<span class="text-slate-500">Checking...</span>
+				<span class="badge badge-neutral">Checking</span>
 			{/if}
 		</div>
 
+		<!-- Divider -->
+		<div class="w-px h-6 bg-apple-border-subtle"></div>
+
 		<!-- WebSocket Status -->
-		<div class="flex items-center gap-2 text-sm">
-			<span class="text-slate-400">WS:</span>
+		<div class="flex items-center gap-3">
+			<span class="text-sm text-apple-text-tertiary">WebSocket</span>
 			<span class="flex items-center gap-2">
-				<span class="w-2 h-2 rounded-full {getStatusColor($connectionStatus)}"></span>
-				<span class="text-slate-300 capitalize">{$connectionStatus}</span>
+				<span class="status-dot {getStatusDotClass($connectionStatus)}"></span>
+				<span class="text-sm text-apple-text-secondary capitalize">{$connectionStatus}</span>
 			</span>
 		</div>
 
 		<!-- Refresh Button -->
 		<button
-			class="p-2 rounded-md bg-surface-800 hover:bg-surface-700 text-slate-400 hover:text-white transition-colors"
+			class="btn btn-ghost btn-icon"
 			onclick={fetchHealth}
 			title="Refresh status"
 		>
@@ -91,7 +96,7 @@
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
-					stroke-width="2"
+					stroke-width="1.5"
 					d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
 				/>
 			</svg>

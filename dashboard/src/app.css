@@ -2,84 +2,494 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   Apple-Inspired Dark Theme
+   Clean, elegant, premium design language
+   ======================================== */
+
 @layer base {
+	:root {
+		/* Core backgrounds */
+		--bg-primary: #000000;
+		--bg-secondary: #1c1c1e;
+		--bg-tertiary: #2c2c2e;
+		--bg-elevated: #3a3a3c;
+
+		/* Text hierarchy */
+		--text-primary: #ffffff;
+		--text-secondary: #8e8e93;
+		--text-tertiary: #636366;
+		--text-quaternary: #48484a;
+
+		/* Borders */
+		--border-default: #3a3a3c;
+		--border-subtle: #2c2c2e;
+		--border-strong: #48484a;
+
+		/* Accent colors (Apple system colors) */
+		--accent-blue: #0a84ff;
+		--accent-blue-hover: #409cff;
+		--accent-green: #30d158;
+		--accent-orange: #ff9f0a;
+		--accent-red: #ff453a;
+		--accent-purple: #bf5af2;
+		--accent-cyan: #64d2ff;
+		--accent-pink: #ff2d55;
+		--accent-indigo: #5e5ce6;
+
+		/* Timing */
+		--transition-fast: 150ms;
+		--transition-normal: 180ms;
+		--transition-slow: 250ms;
+		--ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+	}
+
 	html {
-		@apply bg-surface-950 text-slate-100;
+		@apply bg-apple-bg-primary text-apple-text-primary antialiased;
+		font-feature-settings: 'kern' 1, 'liga' 1;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 
 	body {
-		@apply min-h-screen;
+		@apply min-h-screen font-sans;
+		letter-spacing: -0.01em;
+	}
+
+	/* Smooth scrolling */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--bg-elevated) transparent;
+	}
+
+	*::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background: var(--bg-elevated);
+		border-radius: 4px;
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background: var(--border-strong);
+	}
+
+	/* Selection styling */
+	::selection {
+		background: rgba(10, 132, 255, 0.3);
+		color: var(--text-primary);
 	}
 }
 
 @layer components {
+	/* ========================================
+	   Cards - Apple-style elevated surfaces
+	   ======================================== */
 	.card {
-		@apply bg-surface-900 rounded-lg border border-surface-700 p-4;
+		@apply bg-apple-bg-secondary rounded-apple-lg p-5;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		transition: transform var(--transition-normal) var(--ease-apple),
+					box-shadow var(--transition-normal) var(--ease-apple);
+	}
+
+	.card:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+	}
+
+	.card-static {
+		@apply bg-apple-bg-secondary rounded-apple-lg p-5;
+		border: 1px solid rgba(255, 255, 255, 0.06);
 	}
 
 	.card-header {
-		@apply text-lg font-semibold text-slate-100 mb-4;
+		@apply text-lg font-semibold text-apple-text-primary mb-4 tracking-tight;
 	}
 
+	.card-elevated {
+		@apply bg-apple-bg-tertiary rounded-apple-lg p-5;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	/* ========================================
+	   Buttons - Rounded, smooth transitions
+	   ======================================== */
 	.btn {
-		@apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+		@apply px-4 py-2.5 rounded-apple font-medium text-sm inline-flex items-center justify-center gap-2;
+		transition: all var(--transition-normal) var(--ease-apple);
+		letter-spacing: -0.01em;
+	}
+
+	.btn:disabled {
+		@apply opacity-50 cursor-not-allowed;
 	}
 
 	.btn-primary {
-		@apply bg-accent-600 hover:bg-accent-700 text-white;
+		@apply bg-apple-blue text-white;
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		@apply bg-apple-blue-hover;
+		box-shadow: 0 0 20px rgba(10, 132, 255, 0.4);
+	}
+
+	.btn-primary:active:not(:disabled) {
+		@apply bg-apple-blue-pressed;
 	}
 
 	.btn-secondary {
-		@apply bg-surface-700 hover:bg-surface-600 text-slate-100;
+		@apply bg-apple-bg-tertiary text-apple-text-primary;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.btn-secondary:hover:not(:disabled) {
+		@apply bg-apple-bg-elevated;
+		border-color: rgba(255, 255, 255, 0.15);
 	}
 
 	.btn-danger {
-		@apply bg-red-600 hover:bg-red-700 text-white;
+		@apply bg-apple-red text-white;
+	}
+
+	.btn-danger:hover:not(:disabled) {
+		@apply bg-apple-red-hover;
+		box-shadow: 0 0 20px rgba(255, 69, 58, 0.4);
 	}
 
 	.btn-success {
-		@apply bg-green-600 hover:bg-green-700 text-white;
+		@apply bg-apple-green text-white;
 	}
 
+	.btn-success:hover:not(:disabled) {
+		@apply bg-apple-green-hover;
+		box-shadow: 0 0 20px rgba(48, 209, 88, 0.4);
+	}
+
+	.btn-ghost {
+		@apply bg-transparent text-apple-text-secondary;
+	}
+
+	.btn-ghost:hover:not(:disabled) {
+		@apply bg-apple-bg-tertiary text-apple-text-primary;
+	}
+
+	/* Pill button variant */
+	.btn-pill {
+		@apply rounded-full px-5;
+	}
+
+	/* Icon button */
+	.btn-icon {
+		@apply p-2.5 rounded-apple;
+	}
+
+	/* ========================================
+	   Stats - Large, bold display numbers
+	   ======================================== */
 	.stat-value {
-		@apply text-3xl font-bold text-white;
+		@apply text-3xl font-semibold text-apple-text-primary tracking-tight;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.stat-value-lg {
+		@apply text-4xl font-semibold text-apple-text-primary tracking-tight;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.stat-label {
-		@apply text-sm text-slate-400;
+		@apply text-sm text-apple-text-secondary font-medium;
 	}
 
+	/* ========================================
+	   Badges - Status indicators
+	   ======================================== */
 	.badge {
-		@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+		@apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium tracking-tight;
 	}
 
 	.badge-success {
-		@apply bg-green-900/50 text-green-400;
+		background: rgba(48, 209, 88, 0.15);
+		color: #30d158;
 	}
 
 	.badge-warning {
-		@apply bg-yellow-900/50 text-yellow-400;
+		background: rgba(255, 159, 10, 0.15);
+		color: #ff9f0a;
 	}
 
 	.badge-danger {
-		@apply bg-red-900/50 text-red-400;
+		background: rgba(255, 69, 58, 0.15);
+		color: #ff453a;
 	}
 
 	.badge-info {
-		@apply bg-blue-900/50 text-blue-400;
+		background: rgba(10, 132, 255, 0.15);
+		color: #0a84ff;
 	}
 
+	.badge-purple {
+		background: rgba(191, 90, 242, 0.15);
+		color: #bf5af2;
+	}
+
+	.badge-cyan {
+		background: rgba(100, 210, 255, 0.15);
+		color: #64d2ff;
+	}
+
+	.badge-neutral {
+		background: rgba(142, 142, 147, 0.15);
+		color: #8e8e93;
+	}
+
+	/* Status dot */
+	.status-dot {
+		@apply w-2 h-2 rounded-full;
+	}
+
+	.status-dot-success {
+		@apply bg-apple-green;
+		box-shadow: 0 0 8px rgba(48, 209, 88, 0.6);
+	}
+
+	.status-dot-warning {
+		@apply bg-apple-orange animate-pulse;
+	}
+
+	.status-dot-danger {
+		@apply bg-apple-red;
+		box-shadow: 0 0 8px rgba(255, 69, 58, 0.6);
+	}
+
+	.status-dot-neutral {
+		@apply bg-apple-text-tertiary;
+	}
+
+	/* ========================================
+	   Form Inputs - Clean, minimal
+	   ======================================== */
 	.input {
-		@apply bg-surface-800 border border-surface-600 rounded-md px-3 py-2 text-slate-100
-			   placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent;
+		@apply bg-apple-bg-tertiary rounded-apple px-4 py-2.5 text-apple-text-primary text-sm w-full;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: all var(--transition-normal) var(--ease-apple);
 	}
 
+	.input::placeholder {
+		@apply text-apple-text-tertiary;
+	}
+
+	.input:focus {
+		@apply outline-none;
+		border-color: var(--accent-blue);
+		box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+	}
+
+	.input:disabled {
+		@apply opacity-50 cursor-not-allowed;
+	}
+
+	/* Select dropdown */
+	select.input {
+		@apply cursor-pointer appearance-none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238e8e93'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 12px center;
+		background-size: 16px;
+		padding-right: 40px;
+	}
+
+	/* Textarea */
+	textarea.input {
+		@apply resize-none;
+		min-height: 100px;
+	}
+
+	/* ========================================
+	   Navigation - Sidebar links
+	   ======================================== */
 	.nav-link {
-		@apply flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400
-			   hover:bg-surface-800 hover:text-white transition-colors duration-200;
+		@apply flex items-center gap-3 px-4 py-3 rounded-apple-md text-apple-text-secondary font-medium;
+		transition: all var(--transition-normal) var(--ease-apple);
+	}
+
+	.nav-link:hover {
+		@apply bg-apple-bg-tertiary text-apple-text-primary;
 	}
 
 	.nav-link.active {
-		@apply bg-accent-600/10 text-accent-400 border-l-2 border-accent-500;
+		@apply bg-apple-blue/10 text-apple-blue;
 	}
+
+	.nav-link.active svg {
+		color: var(--accent-blue);
+	}
+
+	/* ========================================
+	   Tables - Clean, minimal
+	   ======================================== */
+	.table-header {
+		@apply text-xs text-apple-text-tertiary font-medium uppercase tracking-wider pb-3;
+	}
+
+	.table-row {
+		@apply border-b border-apple-border-subtle;
+		transition: background var(--transition-fast) var(--ease-apple);
+	}
+
+	.table-row:hover {
+		@apply bg-apple-bg-tertiary/50;
+	}
+
+	.table-cell {
+		@apply py-4 text-sm;
+	}
+
+	/* ========================================
+	   Tabs - Minimal underline style
+	   ======================================== */
+	.tab {
+		@apply px-4 py-2.5 text-sm font-medium text-apple-text-secondary relative;
+		transition: color var(--transition-normal) var(--ease-apple);
+	}
+
+	.tab:hover {
+		@apply text-apple-text-primary;
+	}
+
+	.tab.active {
+		@apply text-apple-blue;
+	}
+
+	.tab.active::after {
+		content: '';
+		@apply absolute bottom-0 left-0 right-0 h-0.5 bg-apple-blue rounded-full;
+	}
+
+	/* ========================================
+	   Dividers
+	   ======================================== */
+	.divider {
+		@apply border-t border-apple-border-subtle;
+	}
+
+	.divider-vertical {
+		@apply border-l border-apple-border-subtle h-full;
+	}
+
+	/* ========================================
+	   Loading states
+	   ======================================== */
+	.skeleton {
+		@apply bg-apple-bg-tertiary rounded-apple animate-pulse;
+	}
+
+	/* ========================================
+	   Utility Classes
+	   ======================================== */
+	.text-gradient {
+		@apply bg-gradient-to-r from-apple-blue to-apple-cyan bg-clip-text text-transparent;
+	}
+
+	.glass {
+		@apply bg-apple-bg-secondary/80 backdrop-blur-apple;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+	}
+
+	.glow-blue {
+		box-shadow: 0 0 30px rgba(10, 132, 255, 0.3);
+	}
+
+	.glow-green {
+		box-shadow: 0 0 30px rgba(48, 209, 88, 0.3);
+	}
+
+	/* Truncate with ellipsis */
+	.truncate-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	/* Focus ring */
+	.focus-ring:focus {
+		@apply outline-none;
+		box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+	}
+
+	/* Hover lift effect */
+	.hover-lift {
+		transition: transform var(--transition-normal) var(--ease-apple);
+	}
+
+	.hover-lift:hover {
+		transform: translateY(-2px);
+	}
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.animate-fade-in {
+	animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-slide-up {
+	animation: slideUp 0.25s ease-out forwards;
+}
+
+.animate-slide-down {
+	animation: slideDown 0.25s ease-out forwards;
+}
+
+.animate-scale-in {
+	animation: scaleIn 0.2s ease-out forwards;
 }
