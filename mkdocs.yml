@@ -59,6 +59,7 @@ nav:
               - Google Drive: agent/tools/google_drive.md
           - E-commerce:
               - Shopify: agent/tools/shopify.md
+  - Dashboard: dashboard.md
   - Development:
       - Setup: development/setup.md
       - Workflow: development/workflow.md
