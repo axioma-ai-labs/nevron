@@ -67,6 +67,11 @@ discord-py = {extras = ["voice"], version = "^2.4.0"}
 audioop-lts = { version = "^0.2.1", python = ">=3.13" }
 requests-toolbelt = "^1.0.0"
 mcp = "^1.25.0"
+# Dashboard API dependencies
+fastapi = "^0.115.0"
+uvicorn = "^0.34.0"
+websockets = "^14.0"
+python-multipart = "^0.0.20"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"

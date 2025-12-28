@@ -37,6 +37,65 @@ services:
         source: ${volumes_basedir:-./volumes}/nevron/chromadb
         target: /app/.chromadb
 
+  # -- Dashboard API ------------------------------------------------------
+  #
+  # REST API and WebSocket server for dashboard
+
+  api:
+    <<: *service_default
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: nevron-api
+    hostname: nevron-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - QDRANT_HOST=nevron-qdrant
+      - QDRANT_PORT=6333
+    volumes:
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/nevron/logs
+        target: /app/logs
+      - type: bind
+        source: ${volumes_basedir:-./volumes}/nevron/chromadb
+        target: /app/.chromadb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # -- Dashboard UI -------------------------------------------------------
+  #
+  # Svelte frontend for monitoring and controlling the agent
+
+  dashboard:
+    <<: *service_default
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: nevron-dashboard
+    hostname: nevron-dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://nevron-api:8000
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   # -- Qdrant ---------------------------------------------------------------
   #
   # Vector database with persistent storage
