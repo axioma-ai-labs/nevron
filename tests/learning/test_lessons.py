@@ -163,18 +163,19 @@ class TestLessonRepository:
     def mock_embedding_generator(self):
         """Create mock embedding generator."""
         generator = MagicMock()
-        generator.get_embedding = AsyncMock(
-            return_value=[MagicMock(tolist=lambda: [0.1] * 384)]
-        )
+        generator.get_embedding = AsyncMock(return_value=[MagicMock(tolist=lambda: [0.1] * 384)])
         return generator
 
     @pytest.mark.asyncio
     async def test_store_lesson(self, mock_backend, mock_embedding_generator):
         """Test storing a lesson."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
             repo._backend = mock_backend
             repo._embedding_generator = mock_embedding_generator
@@ -193,14 +194,15 @@ class TestLessonRepository:
             mock_backend.store.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_store_similar_lesson_reinforces(
-        self, mock_backend, mock_embedding_generator
-    ):
+    async def test_store_similar_lesson_reinforces(self, mock_backend, mock_embedding_generator):
         """Test that similar lessons are reinforced instead of duplicated."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
             repo._backend = mock_backend
             repo._embedding_generator = mock_embedding_generator
@@ -250,10 +252,13 @@ class TestLessonRepository:
         ]
         mock_backend.search = AsyncMock(return_value=mock_results)
 
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
             repo._backend = mock_backend
             repo._embedding_generator = mock_embedding_generator
@@ -269,10 +274,13 @@ class TestLessonRepository:
     @pytest.mark.asyncio
     async def test_find_by_action(self, mock_backend, mock_embedding_generator):
         """Test finding lessons by action."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
             repo._backend = mock_backend
             repo._embedding_generator = mock_embedding_generator
@@ -296,10 +304,13 @@ class TestLessonRepository:
     @pytest.mark.asyncio
     async def test_reinforce_lesson(self, mock_backend, mock_embedding_generator):
         """Test reinforcing a lesson."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
             repo._backend = mock_backend
             repo._embedding_generator = mock_embedding_generator
@@ -322,10 +333,13 @@ class TestLessonRepository:
 
     def test_get_lesson(self, mock_backend, mock_embedding_generator):
         """Test getting a lesson by ID."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
 
             # Add lesson to cache
@@ -344,10 +358,13 @@ class TestLessonRepository:
 
     def test_get_all_lessons(self, mock_backend, mock_embedding_generator):
         """Test getting all lessons."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
 
             # Add lessons to cache
@@ -367,10 +384,13 @@ class TestLessonRepository:
 
     def test_get_lessons_by_tag(self, mock_backend, mock_embedding_generator):
         """Test getting lessons by tag."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
 
             # Add lessons with different tags
@@ -400,10 +420,13 @@ class TestLessonRepository:
 
     def test_get_statistics(self, mock_backend, mock_embedding_generator):
         """Test getting statistics."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
 
             # Add lessons
@@ -427,10 +450,13 @@ class TestLessonRepository:
 
     def test_clear_cache(self, mock_backend, mock_embedding_generator):
         """Test clearing cache."""
-        with patch(
-            "src.learning.lessons.EmbeddingGenerator",
-            return_value=mock_embedding_generator,
-        ), patch("src.learning.lessons.ChromaBackend", return_value=mock_backend):
+        with (
+            patch(
+                "src.learning.lessons.EmbeddingGenerator",
+                return_value=mock_embedding_generator,
+            ),
+            patch("src.learning.lessons.ChromaBackend", return_value=mock_backend),
+        ):
             repo = LessonRepository(backend_type="chroma")
 
             lesson = Lesson.create(

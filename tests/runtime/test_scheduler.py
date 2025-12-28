@@ -240,10 +240,12 @@ class TestScheduler:
         assert task.enabled
 
         scheduler.disable(task.task_id)
-        assert not scheduler.get_task(task.task_id).enabled
+        disabled_task = scheduler.get_task(task.task_id)
+        assert disabled_task is not None and not disabled_task.enabled
 
         scheduler.enable(task.task_id)
-        assert scheduler.get_task(task.task_id).enabled
+        enabled_task = scheduler.get_task(task.task_id)
+        assert enabled_task is not None and enabled_task.enabled
 
     def test_list_tasks(self):
         """Test listing scheduled tasks."""

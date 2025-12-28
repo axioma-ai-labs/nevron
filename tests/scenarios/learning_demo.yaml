@@ -1,0 +1,98 @@
+# Test Scenario: Learning Demonstration
+# Tests the agent's ability to learn and improve from experience
+
+name: repeated_task_learning
+description: Demonstrate learning improvement over repeated task executions
+
+goal:
+  description: "Post to Twitter repeatedly, learning optimal timing"
+  priority: medium
+
+task:
+  name: post_twitter
+  iterations: 10
+  measure_improvement: true
+
+inject_failures:
+  - iteration: 1
+    failure_type: rate_limit
+    reason: "First attempt hits rate limit"
+  - iteration: 3
+    failure_type: rate_limit
+    reason: "Third attempt also rate limited"
+  - iteration: 5
+    failure_type: rate_limit
+    reason: "Fifth attempt rate limited - pattern should emerge"
+
+expected_behavior:
+  phase_1:
+    iterations: [1, 2, 3]
+    expected_success_rate: 0.4
+    description: "Initial phase with high failure rate"
+    agent_should:
+      - encounter_failures
+      - record_failure_patterns
+      - begin_learning
+
+  phase_2:
+    iterations: [4, 5, 6]
+    expected_success_rate: 0.6
+    description: "Learning phase - agent adapts"
+    agent_should:
+      - recognize_rate_limit_pattern
+      - adjust_timing
+      - try_alternatives
+
+  phase_3:
+    iterations: [7, 8, 9, 10]
+    expected_success_rate: 0.9
+    description: "Optimized phase - agent learned"
+    agent_should:
+      - avoid_rate_limits
+      - use_optimal_timing
+      - show_improved_success_rate
+
+learning_objectives:
+  - name: timing_pattern
+    description: Learn optimal posting times to avoid rate limits
+    success_indicator: success_rate_improvement > 0.4
+
+  - name: fallback_strategy
+    description: Learn to use fallback channels when primary fails
+    success_indicator: fallback_usage_appropriate
+
+  - name: failure_prediction
+    description: Predict and avoid likely failures
+    success_indicator: preemptive_strategy_changes
+
+success_criteria:
+  - condition: success_rate_improvement
+    value: 0.4
+    description: Success rate improves by 40%+ over iterations
+  - condition: learning_curve
+    description: Clear improvement trend visible in later iterations
+  - condition: pattern_recognized
+    description: Agent identifies and acts on rate limit pattern
+
+failure_conditions:
+  - condition: no_improvement
+    description: Success rate doesn't improve over iterations
+  - condition: repeated_same_errors
+    description: Agent makes same mistakes without learning
+  - condition: regression
+    description: Success rate decreases in later iterations
+
+metrics_to_track:
+  - success_rate_by_iteration
+  - time_between_attempts
+  - fallback_tool_usage
+  - lesson_extraction_count
+  - pattern_recognition_events
+
+simulated_environment:
+  tool_success_rates:
+    post_twitter: 0.7  # Base rate (modified by injection)
+    send_telegram_message: 0.9  # Fallback
+  rate_limit_pattern:
+    min_interval_seconds: 60
+    burst_limit: 3

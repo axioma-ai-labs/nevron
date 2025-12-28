@@ -95,13 +95,16 @@ class TestBackgroundProcessManager:
 
         manager.register("toggleable", process, 60.0)
 
-        assert manager.get_process("toggleable").enabled
+        p = manager.get_process("toggleable")
+        assert p is not None and p.enabled
 
         manager.disable("toggleable")
-        assert not manager.get_process("toggleable").enabled
+        p_disabled = manager.get_process("toggleable")
+        assert p_disabled is not None and not p_disabled.enabled
 
         manager.enable("toggleable")
-        assert manager.get_process("toggleable").enabled
+        p_enabled = manager.get_process("toggleable")
+        assert p_enabled is not None and p_enabled.enabled
 
     def test_list_processes(self):
         """Test listing processes."""
@@ -157,13 +160,14 @@ class TestBackgroundProcessManager:
         # (start() for single process doesn't set this flag, which is needed for loop)
         await manager.start_all()
         process = manager.get_process("counter")
-        assert process.state == ProcessState.RUNNING
+        assert process is not None and process.state == ProcessState.RUNNING
 
         await asyncio.sleep(0.25)
 
         # Stop single process
         await manager.stop("counter")
-        assert process.state == ProcessState.STOPPED
+        process_after = manager.get_process("counter")
+        assert process_after is not None and process_after.state == ProcessState.STOPPED
 
         assert counter["value"] >= 1
 
@@ -193,8 +197,8 @@ class TestBackgroundProcessManager:
         await asyncio.sleep(0.5)
 
         # Should have stopped due to too many errors
-        assert process.state == ProcessState.ERROR
-        assert process.statistics.errors >= 3
+        assert process is not None and process.state == ProcessState.ERROR
+        assert process.statistics is not None and process.statistics.errors >= 3
 
         await manager.stop_all()
 
@@ -243,7 +247,9 @@ class TestBackgroundProcessManager:
         await asyncio.sleep(0.35)
         await manager.stop_all()
 
-        process = manager.get_process("stats_test")
-        assert process.statistics.iterations >= 2
-        assert process.statistics.total_run_time > 0
-        assert process.statistics.started_at is not None
+        p = manager.get_process("stats_test")
+        assert p is not None
+        assert p.statistics is not None
+        assert p.statistics.iterations >= 2
+        assert p.statistics.total_run_time > 0
+        assert p.statistics.started_at is not None

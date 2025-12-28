@@ -227,18 +227,12 @@ class TestAdaptiveLearningModule:
     @pytest.mark.asyncio
     async def test_analyze_recent_failures(self):
         """Test analyzing recent failures."""
-        config = LearningConfig(
-            persist_lessons=False, analyze_patterns_threshold=2
-        )
+        config = LearningConfig(persist_lessons=False, analyze_patterns_threshold=2)
         module = AdaptiveLearningModule(config=config)
 
         # Record some failures
-        await module.learn_from_outcome(
-            "action_a", {}, None, -1.0, "rate limit"
-        )
-        await module.learn_from_outcome(
-            "action_a", {}, None, -1.0, "rate limit again"
-        )
+        await module.learn_from_outcome("action_a", {}, None, -1.0, "rate limit")
+        await module.learn_from_outcome("action_a", {}, None, -1.0, "rate limit again")
 
         suggestions = await module.analyze_recent_failures()
 
@@ -392,9 +386,7 @@ class TestGetLearningModule:
 
         lm._learning_module = None
 
-        module1 = get_learning_module(
-            config=LearningConfig(persist_lessons=False)
-        )
+        module1 = get_learning_module(config=LearningConfig(persist_lessons=False))
         module2 = get_learning_module()
 
         assert module1 is module2

@@ -277,9 +277,7 @@ class AutonomousRuntime:
             self._setup_signal_handlers()
 
             # Emit startup event
-            await self._queue.put(
-                Event.system(EventType.STARTUP, priority=EventPriority.CRITICAL)
-            )
+            await self._queue.put(Event.system(EventType.STARTUP, priority=EventPriority.CRITICAL))
 
             # Start main loop
             self._state = RuntimeState.RUNNING
@@ -306,9 +304,7 @@ class AutonomousRuntime:
         self._shutdown_event.set()
 
         # Emit shutdown event
-        await self._queue.put(
-            Event.system(EventType.SHUTDOWN, priority=EventPriority.CRITICAL)
-        )
+        await self._queue.put(Event.system(EventType.SHUTDOWN, priority=EventPriority.CRITICAL))
 
         # Wait for main loop to finish
         if self._main_task:
@@ -448,9 +444,7 @@ class AutonomousRuntime:
         """Update uptime statistic."""
         if self._statistics.started_at:
             end = self._statistics.stopped_at or datetime.now(timezone.utc)
-            self._statistics.uptime_seconds = (
-                end - self._statistics.started_at
-            ).total_seconds()
+            self._statistics.uptime_seconds = (end - self._statistics.started_at).total_seconds()
 
     def get_statistics(self) -> Dict[str, Any]:
         """Get comprehensive runtime statistics.
@@ -465,9 +459,7 @@ class AutonomousRuntime:
             "runtime": {
                 "state": self._state.value,
                 "started_at": (
-                    self._statistics.started_at.isoformat()
-                    if self._statistics.started_at
-                    else None
+                    self._statistics.started_at.isoformat() if self._statistics.started_at else None
                 ),
                 "uptime_seconds": self._statistics.uptime_seconds,
                 "events_processed": self._statistics.events_processed,

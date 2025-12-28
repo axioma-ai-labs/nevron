@@ -99,8 +99,7 @@ class LoopDetector:
         self._last_detected: Optional[LoopPattern] = None
 
         logger.debug(
-            f"LoopDetector initialized: window={window_size}, "
-            f"rep_thresh={repetition_threshold}"
+            f"LoopDetector initialized: window={window_size}, rep_thresh={repetition_threshold}"
         )
 
     def record_action(self, action: str, context_hash: str = "") -> None:
@@ -224,7 +223,7 @@ class LoopDetector:
             return LoopPattern(LoopType.NONE, [], 0, 0.0)
 
         # Check last 4+ actions for alternation
-        recent = list(actions)[-min(len(actions), 10):]
+        recent = list(actions)[-min(len(actions), 10) :]
 
         # Look for A-B-A-B pattern
         if len(recent) >= 4:
@@ -300,9 +299,7 @@ class LoopDetector:
             # Check if cycle matches at this position
             window = actions[max(0, idx - cycle_len + 1) : idx + 1]
             if len(window) == cycle_len:
-                if all(
-                    window[i] == potential_cycle[i] for i in range(cycle_len)
-                ):
+                if all(window[i] == potential_cycle[i] for i in range(cycle_len)):
                     repetitions += 1
                     idx -= cycle_len
                 else:
@@ -384,14 +381,8 @@ class LoopDetector:
             "window_size": self._window_size,
             "actions_tracked": len(self._recent_actions),
             "unique_actions": len(unique_actions),
-            "last_pattern": (
-                self._last_detected.to_dict()
-                if self._last_detected
-                else None
-            ),
+            "last_pattern": (self._last_detected.to_dict() if self._last_detected else None),
             "is_stuck": (
-                self._last_detected.loop_type != LoopType.NONE
-                if self._last_detected
-                else False
+                self._last_detected.loop_type != LoopType.NONE if self._last_detected else False
             ),
         }

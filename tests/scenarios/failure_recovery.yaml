@@ -1,0 +1,88 @@
+# Test Scenario: API Failure Recovery
+# Tests the agent's ability to recover from tool failures
+
+name: api_failure_recovery
+description: Recover from API failures and complete task using alternatives
+
+goal:
+  description: "Find latest news and report findings"
+  priority: high
+
+setup:
+  injected_failures:
+    - tool: search_tavily
+      failure_type: rate_limit
+      after_actions: 0
+      duration: 2
+      error_message: "Rate limit exceeded. Please try again in 300 seconds."
+
+expected_behavior:
+  - step: 1
+    action: attempt_search_tavily
+    expected_result: failure
+    failure_reason: rate_limit
+
+  - step: 2
+    action: replan
+    expected_result: identify_alternative
+    alternative: ask_perplexity
+
+  - step: 3
+    action: attempt_ask_perplexity
+    expected_result: success
+
+  - step: 4
+    action: complete_goal
+    expected_result: success
+
+recovery_strategies:
+  rate_limit:
+    primary_strategy: use_alternative_tool
+    alternatives:
+      search_tavily: [ask_perplexity, mcp_web_search]
+      post_twitter: [send_telegram_message]
+      ask_perplexity: [search_tavily]
+
+  timeout:
+    primary_strategy: retry_with_backoff
+    max_retries: 3
+    backoff_multiplier: 2
+
+  api_error:
+    primary_strategy: try_alternative
+    fallback: request_human_help
+
+success_criteria:
+  - condition: recovered_without_human_help
+    description: Agent recovered from failure without human intervention
+  - condition: max_failed_attempts
+    value: 2
+    description: Agent switched strategy after max 2 failed attempts
+  - condition: goal_completed
+    description: Original goal was achieved
+
+failure_conditions:
+  - condition: gave_up_without_trying_alternatives
+    description: Agent didn't attempt alternative tools
+  - condition: infinite_retry_loop
+    value: 5
+    description: Agent retried same failing action 5+ times
+  - condition: requested_human_help_too_early
+    description: Agent asked for help before trying alternatives
+
+metrics_to_track:
+  - recovery_time
+  - alternative_tools_tried
+  - total_retries
+  - final_success
+
+simulated_environment:
+  tool_success_rates:
+    search_tavily: 0.0  # Always fails (injected)
+    ask_perplexity: 0.9
+    send_telegram_message: 0.95
+  failure_injections:
+    - tool: search_tavily
+      after_n_actions: 0
+      failure_type: rate_limit
+      duration: 5

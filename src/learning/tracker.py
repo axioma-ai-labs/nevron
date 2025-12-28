@@ -125,9 +125,7 @@ class ActionTracker:
         self._action_stats: Dict[str, ActionStats] = {}
 
         # Context-action tracking: (context_key, action) -> List[reward]
-        self._context_action_rewards: DefaultDict[
-            Tuple[str, str], List[float]
-        ] = defaultdict(list)
+        self._context_action_rewards: DefaultDict[Tuple[str, str], List[float]] = defaultdict(list)
 
         # Raw outcome history for analysis
         self._outcomes: List[ActionOutcome] = []

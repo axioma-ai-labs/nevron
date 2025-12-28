@@ -1,0 +1,73 @@
+# Test Scenario: Multi-Step Research Task
+# Tests the agent's ability to complete a research workflow autonomously
+
+name: research_and_report
+description: Research AI agent trends and post summary to Telegram
+
+goal:
+  description: "Research AI agent trends and post summary to Telegram"
+  priority: high
+  deadline_minutes: 10
+
+expected_steps:
+  - tool: search_tavily
+    description: Search for AI agent trends
+    params:
+      query: "AI agent trends 2024"
+    expected_outcome: "Returns search results with relevant articles"
+
+  - tool: ask_perplexity
+    description: Get detailed analysis from Perplexity
+    params:
+      query: "Summarize key AI agent developments"
+    expected_outcome: "Returns comprehensive answer"
+    depends_on: search_tavily
+
+  - tool: store_memory
+    description: Store research findings in memory
+    params:
+      type: episodic
+      importance: 0.8
+    expected_outcome: "Episode stored successfully"
+    depends_on: ask_perplexity
+
+  - tool: send_telegram_message
+    description: Post summary to Telegram channel
+    params:
+      channel: research_updates
+      format: markdown
+    expected_outcome: "Message sent successfully"
+    depends_on: store_memory
+
+success_criteria:
+  - condition: summary_posted
+    description: Summary was posted to Telegram within 10 actions
+  - condition: no_human_intervention
+    description: Task completed without human intervention
+  - condition: research_stored
+    description: Research findings were stored in memory
+
+failure_conditions:
+  - condition: max_actions_exceeded
+    value: 15
+    description: Task took more than 15 actions
+  - condition: consecutive_failures
+    value: 3
+    description: Agent failed 3 times in a row
+  - condition: loop_detected
+    description: Agent repeated same action 4+ times
+
+metrics_to_track:
+  - total_actions
+  - success_rate
+  - time_to_completion
+  - retry_count
+
+simulated_environment:
+  tool_success_rates:
+    search_tavily: 0.9
+    ask_perplexity: 0.85
+    store_memory: 0.95
+    send_telegram_message: 0.8
+  latency_range_ms: [50, 200]
+  random_failures_enabled: false

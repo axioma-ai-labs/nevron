@@ -171,9 +171,9 @@ class ConfidenceEstimator:
         should_request_help = overall < self.HELP_THRESHOLD
 
         # Generate explanation and help request
-        would_benefit_from = self._generate_help_request(
-            factors, uncertain_aspects
-        ) if should_request_help else None
+        would_benefit_from = (
+            self._generate_help_request(factors, uncertain_aspects) if should_request_help else None
+        )
 
         explanation = self._generate_explanation(factors, uncertain_aspects)
 
@@ -217,10 +217,7 @@ class ConfidenceEstimator:
             score += 0.2
 
         # Check for specific keywords
-        if any(
-            word in goal_lower
-            for word in ["specific", "exactly", "must", "should"]
-        ):
+        if any(word in goal_lower for word in ["specific", "exactly", "must", "should"]):
             score += 0.1
 
         return max(0.0, min(1.0, score))

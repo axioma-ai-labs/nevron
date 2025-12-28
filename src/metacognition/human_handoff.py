@@ -138,9 +138,7 @@ class HumanHandoff:
         self._request_history: List[HumanRequest] = []
         self._response_history: List[HumanResponse] = []
 
-        logger.debug(
-            f"HumanHandoff initialized with default channel: {default_channel.value}"
-        )
+        logger.debug(f"HumanHandoff initialized with default channel: {default_channel.value}")
 
     def register_channel_handler(
         self,

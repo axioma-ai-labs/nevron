@@ -57,15 +57,11 @@ class BackgroundProcess:
                 "iterations": self.statistics.iterations,
                 "errors": self.statistics.errors,
                 "last_run_at": (
-                    self.statistics.last_run_at.isoformat()
-                    if self.statistics.last_run_at
-                    else None
+                    self.statistics.last_run_at.isoformat() if self.statistics.last_run_at else None
                 ),
                 "last_error": self.statistics.last_error,
                 "started_at": (
-                    self.statistics.started_at.isoformat()
-                    if self.statistics.started_at
-                    else None
+                    self.statistics.started_at.isoformat() if self.statistics.started_at else None
                 ),
                 "total_run_time": self.statistics.total_run_time,
             },

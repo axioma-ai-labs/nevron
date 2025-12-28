@@ -152,7 +152,10 @@ class TestSelfCritic:
 
         assert critique.action == "search_tavily"
         assert "rate limit" in critique.failure_reason.lower()
-        assert "backoff" in critique.better_approach.lower() or "alternative" in critique.better_approach.lower()
+        assert (
+            "backoff" in critique.better_approach.lower()
+            or "alternative" in critique.better_approach.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_critique_timeout(self):
@@ -167,7 +170,10 @@ class TestSelfCritic:
         )
 
         # Should match "timeout" or "timed out" pattern
-        assert "timeout" in critique.failure_reason.lower() or "timed" in critique.failure_reason.lower()
+        assert (
+            "timeout" in critique.failure_reason.lower()
+            or "timed" in critique.failure_reason.lower()
+        )
         assert critique.confidence >= 0.5
 
     @pytest.mark.asyncio
@@ -182,7 +188,10 @@ class TestSelfCritic:
             error_message="401 Unauthorized - Invalid token",
         )
 
-        assert "auth" in critique.failure_reason.lower() or "unauthorized" in critique.failure_reason.lower()
+        assert (
+            "auth" in critique.failure_reason.lower()
+            or "unauthorized" in critique.failure_reason.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_critique_not_found(self):
