@@ -1,6 +1,6 @@
 """Config router - endpoints for configuration management."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
@@ -9,9 +9,380 @@ from pydantic import BaseModel
 from src.api.config import api_settings
 from src.api.dependencies import verify_api_key
 from src.api.schemas import APIResponse
+from src.core.ui_config import (
+    UIConfig,
+    UIConfigResponse,
+    config_exists,
+    get_available_models,
+    get_config_response,
+    load_ui_config,
+    save_ui_config,
+    AVAILABLE_MODELS,
+)
 
 
 router = APIRouter()
+
+
+# ============================================================================
+# UI Config Models (for dashboard settings page)
+# ============================================================================
+
+
+class UIConfigUpdate(BaseModel):
+    """Request model for updating UI config."""
+
+    llm_provider: Optional[str] = None
+    llm_api_key: Optional[str] = None
+    llm_model: Optional[str] = None
+    agent_personality: Optional[str] = None
+    agent_goal: Optional[str] = None
+    mcp_enabled: Optional[bool] = None
+    mcp_servers: Optional[Dict[str, Any]] = None
+
+
+class ConfigExistsResponse(BaseModel):
+    """Response for config exists check."""
+
+    exists: bool
+    has_api_key: bool
+
+
+class ModelsListResponse(BaseModel):
+    """Response for available models list."""
+
+    models: Dict[str, List[str]]
+
+
+class ValidateKeyRequest(BaseModel):
+    """Request for validating an API key."""
+
+    provider: str
+    api_key: str
+    model: Optional[str] = None
+
+
+class ValidateKeyResponse(BaseModel):
+    """Response for API key validation."""
+
+    valid: bool
+    message: str
+
+
+# ============================================================================
+# UI Config Endpoints (NEW - for dashboard settings)
+# ============================================================================
+
+
+@router.get("/ui", response_model=APIResponse[UIConfigResponse])
+async def get_ui_config(
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[UIConfigResponse]:
+    """Get UI configuration with masked API key.
+
+    Returns the current UI configuration from nevron_config.json.
+    The API key is masked for security.
+    """
+    try:
+        config = load_ui_config()
+        response = get_config_response(config)
+
+        return APIResponse(
+            success=True,
+            data=response,
+            message="UI configuration retrieved",
+        )
+    except Exception as e:
+        logger.error(f"Failed to get UI config: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get UI config: {str(e)}",
+        )
+
+
+@router.put("/ui", response_model=APIResponse[UIConfigResponse])
+async def update_ui_config(
+    update: UIConfigUpdate,
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[UIConfigResponse]:
+    """Update UI configuration.
+
+    Updates the nevron_config.json file with new settings.
+    Only provided fields are updated; others remain unchanged.
+    """
+    try:
+        # Load existing config
+        config = load_ui_config()
+
+        # Update only provided fields
+        if update.llm_provider is not None:
+            config.llm_provider = update.llm_provider
+        if update.llm_api_key is not None:
+            config.llm_api_key = update.llm_api_key
+        if update.llm_model is not None:
+            config.llm_model = update.llm_model
+        if update.agent_personality is not None:
+            config.agent_personality = update.agent_personality
+        if update.agent_goal is not None:
+            config.agent_goal = update.agent_goal
+        if update.mcp_enabled is not None:
+            config.mcp_enabled = update.mcp_enabled
+        if update.mcp_servers is not None:
+            config.mcp_servers = update.mcp_servers
+
+        # Save updated config
+        if not save_ui_config(config):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save configuration",
+            )
+
+        response = get_config_response(config)
+
+        return APIResponse(
+            success=True,
+            data=response,
+            message="UI configuration updated",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to update UI config: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update UI config: {str(e)}",
+        )
+
+
+@router.get("/ui/exists", response_model=APIResponse[ConfigExistsResponse])
+async def check_config_exists(
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[ConfigExistsResponse]:
+    """Check if UI configuration file exists.
+
+    Returns whether nevron_config.json exists and has an API key configured.
+    """
+    try:
+        exists = config_exists()
+        has_api_key = False
+
+        if exists:
+            config = load_ui_config()
+            has_api_key = bool(config.llm_api_key)
+
+        return APIResponse(
+            success=True,
+            data=ConfigExistsResponse(exists=exists, has_api_key=has_api_key),
+            message="Config existence checked",
+        )
+    except Exception as e:
+        logger.error(f"Failed to check config exists: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to check config exists: {str(e)}",
+        )
+
+
+@router.get("/ui/models", response_model=APIResponse[ModelsListResponse])
+async def get_available_models_list(
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[ModelsListResponse]:
+    """Get available models for all providers.
+
+    Returns a dictionary mapping provider names to their available models.
+    """
+    try:
+        return APIResponse(
+            success=True,
+            data=ModelsListResponse(models=AVAILABLE_MODELS),
+            message="Available models retrieved",
+        )
+    except Exception as e:
+        logger.error(f"Failed to get available models: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get available models: {str(e)}",
+        )
+
+
+@router.post("/ui/validate", response_model=APIResponse[ValidateKeyResponse])
+async def validate_api_key(
+    request: ValidateKeyRequest,
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[ValidateKeyResponse]:
+    """Validate an API key by attempting a simple LLM call.
+
+    Tests the provided API key by making a minimal request to the provider.
+    """
+    try:
+        provider = request.provider.lower()
+        api_key = request.api_key
+        model = request.model
+
+        if not api_key:
+            return APIResponse(
+                success=True,
+                data=ValidateKeyResponse(valid=False, message="API key is empty"),
+                message="Validation complete",
+            )
+
+        # Attempt validation based on provider
+        valid = False
+        message = "Unknown provider"
+
+        if provider == "openai":
+            valid, message = await _validate_openai_key(api_key, model or "gpt-4o-mini")
+        elif provider == "anthropic":
+            valid, message = await _validate_anthropic_key(api_key, model or "claude-3-haiku-20240307")
+        elif provider == "xai":
+            valid, message = await _validate_xai_key(api_key, model or "grok-beta")
+        elif provider == "deepseek":
+            valid, message = await _validate_deepseek_key(api_key, model or "deepseek-chat")
+        elif provider == "qwen":
+            valid, message = await _validate_qwen_key(api_key, model or "qwen-turbo")
+        elif provider == "venice":
+            valid, message = await _validate_venice_key(api_key, model or "venice-2-13b")
+        else:
+            message = f"Unknown provider: {provider}"
+
+        return APIResponse(
+            success=True,
+            data=ValidateKeyResponse(valid=valid, message=message),
+            message="Validation complete",
+        )
+    except Exception as e:
+        logger.error(f"Failed to validate API key: {e}")
+        return APIResponse(
+            success=True,
+            data=ValidateKeyResponse(valid=False, message=f"Validation error: {str(e)}"),
+            message="Validation complete",
+        )
+
+
+# ============================================================================
+# API Key Validation Helpers
+# ============================================================================
+
+
+async def _validate_openai_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate OpenAI API key."""
+    try:
+        import openai
+
+        client = openai.OpenAI(api_key=api_key)
+        # Make a minimal request
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "Hi"}],
+            max_tokens=5,
+        )
+        return True, "API key is valid"
+    except openai.AuthenticationError:
+        return False, "Invalid API key"
+    except openai.RateLimitError:
+        return True, "API key is valid (rate limited)"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+async def _validate_anthropic_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate Anthropic API key."""
+    try:
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model,
+            max_tokens=5,
+            messages=[{"role": "user", "content": "Hi"}],
+        )
+        return True, "API key is valid"
+    except anthropic.AuthenticationError:
+        return False, "Invalid API key"
+    except anthropic.RateLimitError:
+        return True, "API key is valid (rate limited)"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+async def _validate_xai_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate xAI API key."""
+    try:
+        import openai
+
+        client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "Hi"}],
+            max_tokens=5,
+        )
+        return True, "API key is valid"
+    except openai.AuthenticationError:
+        return False, "Invalid API key"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+async def _validate_deepseek_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate DeepSeek API key."""
+    try:
+        import openai
+
+        client = openai.OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "Hi"}],
+            max_tokens=5,
+        )
+        return True, "API key is valid"
+    except openai.AuthenticationError:
+        return False, "Invalid API key"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+async def _validate_qwen_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate Qwen API key."""
+    try:
+        import openai
+
+        client = openai.OpenAI(
+            api_key=api_key,
+            base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        )
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "Hi"}],
+            max_tokens=5,
+        )
+        return True, "API key is valid"
+    except openai.AuthenticationError:
+        return False, "Invalid API key"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+async def _validate_venice_key(api_key: str, model: str) -> tuple[bool, str]:
+    """Validate Venice API key."""
+    try:
+        import openai
+
+        client = openai.OpenAI(api_key=api_key, base_url="https://api.venice.ai/api/v1")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "Hi"}],
+            max_tokens=5,
+        )
+        return True, "API key is valid"
+    except openai.AuthenticationError:
+        return False, "Invalid API key"
+    except Exception as e:
+        return False, f"Validation failed: {str(e)}"
+
+
+# ============================================================================
+# Legacy Config Models (for existing functionality)
+# ============================================================================
 
 
 class AgentConfig(BaseModel):
@@ -70,6 +441,11 @@ class FullConfig(BaseModel):
     memory: MemoryConfig
     learning: LearningConfig
     api: APIConfig
+
+
+# ============================================================================
+# Legacy Config Endpoints
+# ============================================================================
 
 
 @router.get("/agent", response_model=APIResponse[AgentConfig])
