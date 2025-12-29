@@ -494,11 +494,11 @@ def get_all_available_actions() -> List[Dict[str, Any]]:
             action_to_category[action] = category
 
     result = []
-    for action in AgentAction:
+    for agent_action in AgentAction:
         result.append({
-            "name": action.name,
-            "value": action.value,
-            "category": action_to_category.get(action.value, "other"),
+            "name": agent_action.name,
+            "value": agent_action.value,
+            "category": action_to_category.get(agent_action.value, "other"),
         })
 
     return result
