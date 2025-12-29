@@ -9,10 +9,7 @@ from pydantic import BaseModel
 
 from src.api.dependencies import verify_api_key
 from src.api.schemas import APIResponse
-from src.core.cycle_logger import (
-    CycleLog,
-    get_cycle_logger,
-)
+from src.core.cycle_logger import CycleLog, get_cycle_logger
 
 
 router = APIRouter()

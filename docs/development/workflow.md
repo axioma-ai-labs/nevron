@@ -19,7 +19,7 @@ Follow the [Code Style and Standards](contributing.md#code-style-and-standards) 
 make test
 
 # Run specific test file
-pipenv run pytest tests/path/to/test_file.py
+poetry run pytest tests/path/to/test_file.py
 
 # Run with coverage
 make coverage

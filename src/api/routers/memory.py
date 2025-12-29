@@ -38,6 +38,7 @@ def _get_memory_safe() -> Tuple[Optional[TriMemorySystem], bool]:
     """
     try:
         from src.api.dependencies import get_memory
+
         memory = get_memory()
         return memory, True
     except ValueError as e:

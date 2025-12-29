@@ -36,6 +36,7 @@ def _get_learning_safe() -> Tuple[Optional[AdaptiveLearningModule], bool]:
     """
     try:
         from src.api.dependencies import get_learning
+
         learning = get_learning()
         return learning, True
     except ValueError as e:

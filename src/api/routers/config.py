@@ -10,17 +10,17 @@ from src.api.config import api_settings
 from src.api.dependencies import verify_api_key
 from src.api.schemas import APIResponse
 from src.core.ui_config import (
-    UIConfigResponse,
-    IntegrationsConfig,
+    ACTION_INTEGRATION_MAP,
+    AVAILABLE_MODELS,
     AgentBehaviorConfig,
+    IntegrationsConfig,
     MCPServerUIConfig,
+    UIConfigResponse,
     config_exists,
-    get_config_response,
     get_all_available_actions,
+    get_config_response,
     load_ui_config,
     save_ui_config,
-    AVAILABLE_MODELS,
-    ACTION_INTEGRATION_MAP,
 )
 
 
@@ -61,12 +61,14 @@ class UIConfigUpdate(BaseModel):
 
 class ActionsListResponse(BaseModel):
     """Response for available actions list."""
+
     actions: List[Dict[str, Any]]
     action_integration_map: Dict[str, str]
 
 
 class IntegrationStatusResponse(BaseModel):
     """Response for integration status check."""
+
     integration: str
     configured: bool
     required_fields: List[str]
@@ -322,12 +324,14 @@ async def get_integrations_status(
         for integration_name, required_fields in integration_required_fields.items():
             integration_data = getattr(integrations, integration_name, None)
             if integration_data is None:
-                result.append(IntegrationStatusResponse(
-                    integration=integration_name,
-                    configured=False,
-                    required_fields=required_fields,
-                    missing_fields=required_fields,
-                ))
+                result.append(
+                    IntegrationStatusResponse(
+                        integration=integration_name,
+                        configured=False,
+                        required_fields=required_fields,
+                        missing_fields=required_fields,
+                    )
+                )
                 continue
 
             # Check which required fields are missing
@@ -337,12 +341,14 @@ async def get_integrations_status(
                 if not value:
                     missing.append(field)
 
-            result.append(IntegrationStatusResponse(
-                integration=integration_name,
-                configured=len(missing) == 0,
-                required_fields=required_fields,
-                missing_fields=missing,
-            ))
+            result.append(
+                IntegrationStatusResponse(
+                    integration=integration_name,
+                    configured=len(missing) == 0,
+                    required_fields=required_fields,
+                    missing_fields=missing,
+                )
+            )
 
         return APIResponse(
             success=True,
@@ -385,7 +391,9 @@ async def validate_api_key(
         if provider == "openai":
             valid, message = await _validate_openai_key(api_key, model or "gpt-4o-mini")
         elif provider == "anthropic":
-            valid, message = await _validate_anthropic_key(api_key, model or "claude-3-haiku-20240307")
+            valid, message = await _validate_anthropic_key(
+                api_key, model or "claude-3-haiku-20240307"
+            )
         elif provider == "xai":
             valid, message = await _validate_xai_key(api_key, model or "grok-beta")
         elif provider == "deepseek":

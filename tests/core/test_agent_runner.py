@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from src.agent_runner import AgentRunner
-from src.core.agent_commands import CommandQueue, CommandStatus, CommandType
+from src.core.agent_commands import CommandQueue, CommandType
 from src.core.agent_state import SharedStateManager, reset_state_manager
 
 

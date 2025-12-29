@@ -227,9 +227,7 @@ class TestSharedStateManager:
         assert state.last_heartbeat is not None
 
         # Parse the timestamp to verify it's valid
-        heartbeat = datetime.fromisoformat(
-            state.last_heartbeat.replace("Z", "+00:00")
-        )
+        heartbeat = datetime.fromisoformat(state.last_heartbeat.replace("Z", "+00:00"))
         now = datetime.now(timezone.utc)
         # Should be within 5 seconds
         assert (now - heartbeat).total_seconds() < 5

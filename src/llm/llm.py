@@ -92,9 +92,7 @@ def get_embedding_client(provider: EmbeddingProviderType = EmbeddingProviderType
                 "LLAMA_API_KEY is required for Llama API embeddings. "
                 "Please set it in your .env file or environment variables."
             )
-        return openai.AsyncOpenAI(
-            api_key=api_key, base_url=settings.LLAMA_API_BASE_URL
-        )
+        return openai.AsyncOpenAI(api_key=api_key, base_url=settings.LLAMA_API_BASE_URL)
     else:
         raise ValueError(f"Unsupported provider for embedding client: {provider}")
 

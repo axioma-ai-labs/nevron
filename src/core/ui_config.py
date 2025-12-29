@@ -14,8 +14,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
 from loguru import logger
+from pydantic import BaseModel, Field
 
 
 # Default config file path (relative to working directory)
@@ -29,6 +29,7 @@ CONFIG_FILE_PATH = Path("./nevron_config.json")
 
 class TwitterCredentials(BaseModel):
     """Twitter API credentials."""
+
     api_key: str = Field(default="", description="Twitter API key")
     api_secret_key: str = Field(default="", description="Twitter API secret key")
     access_token: str = Field(default="", description="Twitter access token")
@@ -37,51 +38,60 @@ class TwitterCredentials(BaseModel):
 
 class TelegramCredentials(BaseModel):
     """Telegram bot credentials."""
+
     bot_token: str = Field(default="", description="Telegram bot token")
     chat_id: str = Field(default="", description="Telegram chat ID")
 
 
 class DiscordCredentials(BaseModel):
     """Discord bot credentials."""
+
     bot_token: str = Field(default="", description="Discord bot token")
     channel_id: str = Field(default="", description="Discord channel ID")
 
 
 class SlackCredentials(BaseModel):
     """Slack credentials."""
+
     bot_token: str = Field(default="", description="Slack bot token")
     app_token: str = Field(default="", description="Slack app token")
 
 
 class WhatsAppCredentials(BaseModel):
     """WhatsApp credentials."""
+
     id_instance: str = Field(default="", description="WhatsApp instance ID")
     api_token: str = Field(default="", description="WhatsApp API token")
 
 
 class GitHubCredentials(BaseModel):
     """GitHub credentials."""
+
     token: str = Field(default="", description="GitHub personal access token")
 
 
 class GoogleDriveCredentials(BaseModel):
     """Google Drive credentials (simplified - full OAuth handled separately)."""
+
     enabled: bool = Field(default=False, description="Whether Google Drive is configured")
 
 
 class TavilyCredentials(BaseModel):
     """Tavily search API credentials."""
+
     api_key: str = Field(default="", description="Tavily API key")
 
 
 class PerplexityCredentials(BaseModel):
     """Perplexity API credentials."""
+
     api_key: str = Field(default="", description="Perplexity API key")
     model: str = Field(default="llama-3.1-sonar-small-128k-online", description="Perplexity model")
 
 
 class ShopifyCredentials(BaseModel):
     """Shopify credentials."""
+
     api_key: str = Field(default="", description="Shopify API key")
     password: str = Field(default="", description="Shopify password")
     store_name: str = Field(default="", description="Shopify store name")
@@ -89,12 +99,14 @@ class ShopifyCredentials(BaseModel):
 
 class YouTubeCredentials(BaseModel):
     """YouTube credentials."""
+
     api_key: str = Field(default="", description="YouTube API key")
     playlist_id: str = Field(default="", description="YouTube playlist ID")
 
 
 class SpotifyCredentials(BaseModel):
     """Spotify credentials."""
+
     client_id: str = Field(default="", description="Spotify client ID")
     client_secret: str = Field(default="", description="Spotify client secret")
     redirect_uri: str = Field(default="", description="Spotify redirect URI")
@@ -102,12 +114,14 @@ class SpotifyCredentials(BaseModel):
 
 class LensCredentials(BaseModel):
     """Lens Protocol credentials."""
+
     api_key: str = Field(default="", description="Lens API key")
     profile_id: str = Field(default="", description="Lens profile ID")
 
 
 class IntegrationsConfig(BaseModel):
     """All integration credentials."""
+
     twitter: TwitterCredentials = Field(default_factory=TwitterCredentials)
     telegram: TelegramCredentials = Field(default_factory=TelegramCredentials)
     discord: DiscordCredentials = Field(default_factory=DiscordCredentials)
@@ -130,6 +144,7 @@ class IntegrationsConfig(BaseModel):
 
 class MCPServerUIConfig(BaseModel):
     """MCP server configuration for UI."""
+
     name: str = Field(..., description="Unique name for this server")
     transport: str = Field(default="stdio", description="Transport type (stdio, http, sse)")
     command: Optional[str] = Field(default=None, description="Command for STDIO transport")
@@ -146,9 +161,12 @@ class MCPServerUIConfig(BaseModel):
 
 class AgentBehaviorConfig(BaseModel):
     """Agent behavior settings."""
+
     rest_time: int = Field(default=300, description="Rest time between actions in seconds")
     max_consecutive_failures: int = Field(default=3, description="Max failures before intervention")
-    verbosity: str = Field(default="normal", description="Logging verbosity (quiet, normal, verbose)")
+    verbosity: str = Field(
+        default="normal", description="Logging verbosity (quiet, normal, verbose)"
+    )
 
 
 # ============================================================================
@@ -168,44 +186,45 @@ class UIConfig(BaseModel):
     """
 
     # LLM Settings
-    llm_provider: str = Field(default="openai", description="LLM provider (openai, anthropic, xai, deepseek, qwen, venice)")
+    llm_provider: str = Field(
+        default="openai",
+        description="LLM provider (openai, anthropic, xai, deepseek, qwen, venice)",
+    )
     llm_api_key: str = Field(default="", description="API key for the selected LLM provider")
-    llm_model: str = Field(default="gpt-4o-mini", description="Model name for the selected provider")
+    llm_model: str = Field(
+        default="gpt-4o-mini", description="Model name for the selected provider"
+    )
 
     # Agent Identity Settings
     agent_name: str = Field(default="Nevron", description="The agent's name")
     agent_personality: str = Field(
-        default="You are a helpful AI assistant.",
-        description="The agent's personality description"
+        default="You are a helpful AI assistant.", description="The agent's personality description"
     )
     agent_goal: str = Field(
         default="Help users accomplish their tasks effectively.",
-        description="The agent's primary goal"
+        description="The agent's primary goal",
     )
 
     # Agent Behavior Settings
     agent_behavior: AgentBehaviorConfig = Field(
-        default_factory=AgentBehaviorConfig,
-        description="Agent behavior configuration"
+        default_factory=AgentBehaviorConfig, description="Agent behavior configuration"
     )
 
     # Tools/Actions Configuration
     enabled_actions: List[str] = Field(
         default_factory=lambda: ["idle", "analyze_news"],
-        description="List of enabled action names from AgentAction enum"
+        description="List of enabled action names from AgentAction enum",
     )
 
     # Integration Credentials
     integrations: IntegrationsConfig = Field(
-        default_factory=IntegrationsConfig,
-        description="Integration credentials for all services"
+        default_factory=IntegrationsConfig, description="Integration credentials for all services"
     )
 
     # MCP Settings
     mcp_enabled: bool = Field(default=False, description="Enable MCP integration")
     mcp_servers: List[MCPServerUIConfig] = Field(
-        default_factory=list,
-        description="List of MCP server configurations"
+        default_factory=list, description="List of MCP server configurations"
     )
 
     # Legacy compatibility - keep mcp_servers dict support
@@ -216,6 +235,7 @@ class UIConfig(BaseModel):
 
 class IntegrationsConfigResponse(BaseModel):
     """Response model for integrations with masked credentials."""
+
     twitter: Dict[str, str]
     telegram: Dict[str, str]
     discord: Dict[str, str]
@@ -470,20 +490,31 @@ def get_all_available_actions() -> List[Dict[str, Any]]:
     action_categories = {
         "workflows": ["analyze_news", "check_signal", "idle"],
         "social_media": [
-            "post_tweet", "listen_discord_messages", "send_discord_message",
-            "send_telegram_message", "post_lens", "fetch_lens",
-            "listen_whatsapp_messages", "send_whatsapp_message",
-            "listen_slack_messages", "send_slack_message"
+            "post_tweet",
+            "listen_discord_messages",
+            "send_discord_message",
+            "send_telegram_message",
+            "post_lens",
+            "fetch_lens",
+            "listen_whatsapp_messages",
+            "send_whatsapp_message",
+            "listen_slack_messages",
+            "send_slack_message",
         ],
         "research": ["search_tavily", "ask_perplexity", "ask_coinstats"],
         "development": [
-            "create_github_issue", "create_github_pr", "process_github_memories",
-            "search_google_drive", "upload_google_drive"
+            "create_github_issue",
+            "create_github_pr",
+            "process_github_memories",
+            "search_google_drive",
+            "upload_google_drive",
         ],
         "ecommerce": ["get_shopify_product", "get_shopify_orders", "update_shopify_product"],
         "media": [
-            "search_youtube_video", "retrieve_youtube_playlist",
-            "search_spotify_song", "retrieve_spotify_playlist"
+            "search_youtube_video",
+            "retrieve_youtube_playlist",
+            "search_spotify_song",
+            "retrieve_spotify_playlist",
         ],
     }
 
@@ -495,11 +526,13 @@ def get_all_available_actions() -> List[Dict[str, Any]]:
 
     result = []
     for agent_action in AgentAction:
-        result.append({
-            "name": agent_action.name,
-            "value": agent_action.value,
-            "category": action_to_category.get(agent_action.value, "other"),
-        })
+        result.append(
+            {
+                "name": agent_action.name,
+                "value": agent_action.value,
+                "category": action_to_category.get(agent_action.value, "other"),
+            }
+        )
 
     return result
 

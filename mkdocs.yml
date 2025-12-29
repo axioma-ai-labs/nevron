@@ -27,8 +27,9 @@ theme:
   logo: assets/logo.png
 
 nav:
-  - 🏠 Home: index.md  
+  - 🏠 Home: index.md
   - Quickstart: quickstart.md
+  - Architecture: architecture.md
   - Configuration: configuration.md
   - Agent:
       - Overview: agent/overview.md

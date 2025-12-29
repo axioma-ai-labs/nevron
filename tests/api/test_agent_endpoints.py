@@ -4,20 +4,13 @@ import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Generator
-from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 from src.api.main import create_app
-from src.core.agent_commands import CommandQueue, CommandStatus
-from src.core.agent_state import (
-    AgentRuntimeState,
-    CycleInfo,
-    RecentCycles,
-    SharedStateManager,
-    reset_state_manager,
-)
+from src.core.agent_commands import CommandQueue
+from src.core.agent_state import CycleInfo, SharedStateManager, reset_state_manager
 
 
 @pytest.fixture

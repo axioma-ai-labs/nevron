@@ -9,11 +9,11 @@ import json
 import sqlite3
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 from threading import Lock
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
@@ -67,7 +67,9 @@ class CycleLog:
         """Convert to dictionary for storage."""
         result = asdict(self)
         # Serialize lists and dicts as JSON strings for SQLite
-        result["planning_input_recent_actions"] = json.dumps(result["planning_input_recent_actions"])
+        result["planning_input_recent_actions"] = json.dumps(
+            result["planning_input_recent_actions"]
+        )
         result["action_params"] = json.dumps(result["action_params"])
         result["execution_result"] = json.dumps(result["execution_result"])
         result["memories_stored"] = json.dumps(result["memories_stored"])
@@ -78,7 +80,9 @@ class CycleLog:
         """Create from dictionary (from database)."""
         # Deserialize JSON strings
         if isinstance(data.get("planning_input_recent_actions"), str):
-            data["planning_input_recent_actions"] = json.loads(data["planning_input_recent_actions"])
+            data["planning_input_recent_actions"] = json.loads(
+                data["planning_input_recent_actions"]
+            )
         if isinstance(data.get("action_params"), str):
             data["action_params"] = json.loads(data["action_params"])
         if isinstance(data.get("execution_result"), str):
@@ -217,8 +221,7 @@ class CycleLogger:
                     values = list(data.values())
 
                     cursor.execute(
-                        f"INSERT OR REPLACE INTO cycles ({columns}) VALUES ({placeholders})",
-                        values
+                        f"INSERT OR REPLACE INTO cycles ({columns}) VALUES ({placeholders})", values
                     )
                     conn.commit()
 
@@ -351,7 +354,8 @@ class CycleLogger:
                 cursor = conn.cursor()
 
                 # Get basic stats
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     SELECT
                         COUNT(*) as total,
                         SUM(CASE WHEN execution_success = 1 THEN 1 ELSE 0 END) as successful,
@@ -362,7 +366,9 @@ class CycleLogger:
                         MAX(timestamp) as last_cycle
                     FROM cycles
                     {where_clause}
-                """, params)
+                """,
+                    params,
+                )
                 row = cursor.fetchone()
 
                 total = row["total"] or 0
@@ -371,13 +377,16 @@ class CycleLogger:
                 success_rate = (successful / total * 100) if total > 0 else 0.0
 
                 # Get action counts
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     SELECT action_name, COUNT(*) as count
                     FROM cycles
                     {where_clause}
                     GROUP BY action_name
                     ORDER BY count DESC
-                """, params)
+                """,
+                    params,
+                )
                 action_rows = cursor.fetchall()
                 action_counts = {r["action_name"]: r["count"] for r in action_rows}
                 top_actions = [r["action_name"] for r in action_rows[:5]]
@@ -385,14 +394,19 @@ class CycleLogger:
                 # Calculate cycles per hour
                 cycles_per_hour = 0.0
                 if total > 0:
-                    cursor.execute(f"""
+                    cursor.execute(
+                        f"""
                         SELECT MIN(timestamp) as first_cycle
                         FROM cycles
                         {where_clause}
-                    """, params)
+                    """,
+                        params,
+                    )
                     first_row = cursor.fetchone()
                     if first_row["first_cycle"] and row["last_cycle"]:
-                        first_time = datetime.fromisoformat(first_row["first_cycle"].replace("Z", "+00:00"))
+                        first_time = datetime.fromisoformat(
+                            first_row["first_cycle"].replace("Z", "+00:00")
+                        )
                         last_time = datetime.fromisoformat(row["last_cycle"].replace("Z", "+00:00"))
                         hours_diff = (last_time - first_time).total_seconds() / 3600
                         if hours_diff > 0:
@@ -438,13 +452,16 @@ class CycleLogger:
                         return 0
 
                     # Delete oldest cycles
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         DELETE FROM cycles WHERE cycle_id IN (
                             SELECT cycle_id FROM cycles
                             ORDER BY timestamp ASC
                             LIMIT ?
                         )
-                    """, (total - keep_count,))
+                    """,
+                        (total - keep_count,),
+                    )
 
                     deleted = cursor.rowcount
                     conn.commit()
