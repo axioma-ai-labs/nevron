@@ -8,24 +8,26 @@
 		runtimeAPI,
 		memoryAPI,
 		learningAPI,
-		mcpAPI,
+		configAPI,
 		type AgentStatus,
 		type FullRuntimeStatistics,
 		type MemoryStatistics,
-		type LearningStatistics,
-		type MCPStatus
+		type LearningStatistics
 	} from '$lib/api/client';
 
 	let agentStatus: AgentStatus | null = $state(null);
 	let runtimeStats: FullRuntimeStatistics | null = $state(null);
 	let memoryStats: MemoryStatistics | null = $state(null);
 	let learningStats: LearningStatistics | null = $state(null);
-	let mcpStatus: MCPStatus | null = $state(null);
 	let loading = $state(true);
+	let actionLoading = $state(false);
 	let error = $state<string | null>(null);
+	let showConfigWarning = $state(false);
+	let hasApiKey = $state(false);
 	let refreshInterval: ReturnType<typeof setInterval>;
 
 	onMount(() => {
+		checkConfig();
 		fetchAllData();
 		refreshInterval = setInterval(fetchAllData, 10000);
 	});
@@ -34,21 +36,33 @@
 		if (refreshInterval) clearInterval(refreshInterval);
 	});
 
+	async function checkConfig() {
+		try {
+			const res = await configAPI.checkConfigExists();
+			if (res.data) {
+				showConfigWarning = !res.data.exists || !res.data.has_api_key;
+				hasApiKey = res.data.has_api_key;
+			}
+		} catch (e) {
+			// Config check failed, show warning
+			showConfigWarning = true;
+			hasApiKey = false;
+		}
+	}
+
 	async function fetchAllData() {
 		try {
-			const [agentRes, runtimeRes, memoryRes, learningRes, mcpRes] = await Promise.all([
+			const [agentRes, runtimeRes, memoryRes, learningRes] = await Promise.all([
 				agentAPI.getStatus().catch(() => null),
 				runtimeAPI.getStatistics().catch(() => null),
 				memoryAPI.getStatistics().catch(() => null),
-				learningAPI.getStatistics().catch(() => null),
-				mcpAPI.getStatus().catch(() => null)
+				learningAPI.getStatistics().catch(() => null)
 			]);
 
 			if (agentRes?.data) agentStatus = agentRes.data;
 			if (runtimeRes?.data) runtimeStats = runtimeRes.data;
 			if (memoryRes?.data) memoryStats = memoryRes.data;
 			if (learningRes?.data) learningStats = learningRes.data;
-			if (mcpRes?.data) mcpStatus = mcpRes.data;
 
 			loading = false;
 			error = null;
@@ -56,6 +70,39 @@
 			loading = false;
 			error = e instanceof Error ? e.message : 'Failed to fetch data';
 		}
+	}
+
+	async function startAgent() {
+		actionLoading = true;
+		try {
+			await runtimeAPI.start();
+			await fetchAllData();
+		} catch (e) {
+			console.error('Failed to start agent:', e);
+		}
+		actionLoading = false;
+	}
+
+	async function stopAgent() {
+		actionLoading = true;
+		try {
+			await runtimeAPI.stop();
+			await fetchAllData();
+		} catch (e) {
+			console.error('Failed to stop agent:', e);
+		}
+		actionLoading = false;
+	}
+
+	async function pauseAgent() {
+		actionLoading = true;
+		try {
+			await runtimeAPI.pause();
+			await fetchAllData();
+		} catch (e) {
+			console.error('Failed to pause agent:', e);
+		}
+		actionLoading = false;
 	}
 
 	function formatUptime(seconds: number): string {
@@ -77,9 +124,49 @@
 				return 'badge-info';
 		}
 	}
+
+	function getStateIcon(state: string): string {
+		switch (state) {
+			case 'running':
+				return 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z';
+			case 'paused':
+				return 'M10 9v6m4-6v6';
+			case 'stopped':
+				return 'M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+			default:
+				return 'M12 8v4m0 4h.01';
+		}
+	}
+
+	let totalMemories = $derived(
+		memoryStats
+			? memoryStats.total_episodes + memoryStats.total_facts + memoryStats.total_concepts + memoryStats.total_skills
+			: 0
+	);
 </script>
 
 <div class="space-y-6">
+	<!-- Config Warning Banner -->
+	{#if showConfigWarning}
+		<div class="card-static border-l-4 border-l-apple-orange bg-apple-orange/5">
+			<div class="flex items-start gap-3">
+				<svg class="w-5 h-5 text-apple-orange flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+				</svg>
+				<div class="flex-1">
+					<p class="font-medium text-apple-text-primary">Configuration Required</p>
+					<p class="text-sm text-apple-text-secondary mt-1">
+						{#if !hasApiKey}
+							Please configure your LLM API key in <a href="/settings" class="text-apple-blue hover:underline">Settings</a> before starting the agent.
+						{:else}
+							Some settings may be missing. Visit <a href="/settings" class="text-apple-blue hover:underline">Settings</a> to review your configuration.
+						{/if}
+					</p>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<!-- Error Banner -->
 	{#if error}
 		<div class="card-static border-l-4 border-l-apple-red bg-apple-red/5">
@@ -95,48 +182,89 @@
 		</div>
 	{/if}
 
-	<!-- Agent Hero Card -->
+	<!-- Agent Status Hero Card -->
 	<Card>
-		<div class="flex items-center justify-between">
+		<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+			<!-- Left: Status Info -->
 			<div class="flex items-center gap-5">
-				<!-- Agent Icon -->
-				<div class="w-14 h-14 rounded-apple-lg bg-gradient-to-br from-apple-blue to-apple-indigo flex items-center justify-center shadow-apple glow-blue">
-					<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-							d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-						/>
-					</svg>
+				<!-- Status Icon -->
+				<div class="w-20 h-20 rounded-apple-lg bg-gradient-to-br from-apple-blue to-apple-indigo flex items-center justify-center shadow-apple glow-blue">
+					{#if runtimeStats?.runtime}
+						<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={getStateIcon(runtimeStats.runtime.state)}/>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+						</svg>
+					{:else}
+						<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+						</svg>
+					{/if}
 				</div>
-				<!-- Agent Info -->
+				<!-- Status Text -->
 				<div>
-					<h2 class="text-2xl font-semibold text-apple-text-primary tracking-tight">Nevron Agent</h2>
-					<p class="text-sm text-apple-text-secondary mt-1">
-						{agentStatus?.personality || 'Loading personality...'}
+					<div class="flex items-center gap-3 mb-2">
+						<h2 class="text-3xl font-bold text-apple-text-primary tracking-tight capitalize">
+							{runtimeStats?.runtime?.state || 'Unknown'}
+						</h2>
+						{#if runtimeStats?.runtime}
+							<span class="badge {getStateBadgeClass(runtimeStats.runtime.state)} text-sm px-3 py-1">
+								{runtimeStats.runtime.state}
+							</span>
+						{/if}
+					</div>
+					<p class="text-apple-text-secondary">
+						{#if runtimeStats?.runtime?.state === 'running'}
+							Agent is actively processing events
+						{:else if runtimeStats?.runtime?.state === 'paused'}
+							Agent is paused, events are queued
+						{:else}
+							Agent is stopped
+						{/if}
 					</p>
+					{#if runtimeStats?.runtime && runtimeStats.runtime.uptime_seconds > 0}
+						<p class="text-sm text-apple-text-tertiary mt-1">
+							Uptime: <span class="font-mono">{formatUptime(runtimeStats.runtime.uptime_seconds)}</span>
+						</p>
+					{/if}
 				</div>
 			</div>
-			<!-- Status -->
-			<div class="flex items-center gap-4">
-				{#if agentStatus}
-					<span class="badge {getStateBadgeClass(agentStatus.state)} text-sm px-3">{agentStatus.state}</span>
-				{/if}
-				{#if runtimeStats?.runtime}
-					<div class="text-right">
-						<p class="text-xs text-apple-text-tertiary">Uptime</p>
-						<p class="text-sm font-mono text-apple-text-secondary">{formatUptime(runtimeStats.runtime.uptime_seconds)}</p>
-					</div>
-				{/if}
+
+			<!-- Right: Control Buttons -->
+			<div class="flex gap-3">
+				<button
+					class="btn btn-success px-6 py-3"
+					onclick={startAgent}
+					disabled={actionLoading || !hasApiKey || runtimeStats?.runtime?.state === 'running'}
+					title={!hasApiKey ? 'Configure API key first' : ''}
+				>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+					</svg>
+					Start
+				</button>
+				<button
+					class="btn btn-secondary px-6 py-3"
+					onclick={pauseAgent}
+					disabled={actionLoading || runtimeStats?.runtime?.state !== 'running'}
+				>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
+					</svg>
+					Pause
+				</button>
+				<button
+					class="btn btn-danger px-6 py-3"
+					onclick={stopAgent}
+					disabled={actionLoading || runtimeStats?.runtime?.state === 'stopped'}
+				>
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+					</svg>
+					Stop
+				</button>
 			</div>
 		</div>
-		{#if agentStatus?.goal}
-			<div class="mt-5 p-4 bg-apple-bg-tertiary rounded-apple-md">
-				<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Current Goal</p>
-				<p class="text-apple-text-primary mt-2">{agentStatus.goal}</p>
-			</div>
-		{/if}
 	</Card>
 
 	<!-- Stats Grid -->
@@ -147,99 +275,39 @@
 			icon="actions"
 		/>
 		<StatCard
-			label="Total Memories"
-			value={memoryStats
-				? memoryStats.total_episodes +
-					memoryStats.total_facts +
-					memoryStats.total_concepts +
-					memoryStats.total_skills
-				: '-'}
-			icon="memory"
-		/>
-		<StatCard
 			label="Success Rate"
 			value={learningStats?.overall_success_rate
 				? `${(learningStats.overall_success_rate * 100).toFixed(1)}%`
 				: '-'}
 			icon="success"
 		/>
-		<StatCard label="MCP Tools" value={mcpStatus?.total_tools ?? '-'} icon="tools" />
+		<StatCard
+			label="Uptime"
+			value={runtimeStats?.runtime ? formatUptime(runtimeStats.runtime.uptime_seconds) : '-'}
+			icon="actions"
+		/>
+		<StatCard
+			label="Memories"
+			value={totalMemories || '-'}
+			icon="memory"
+		/>
 	</div>
 
-	<!-- Two Column Layout -->
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-		<!-- Runtime Overview -->
-		<Card title="Runtime Overview">
-			{#if loading}
-				<div class="space-y-4">
-					{#each Array(4) as _}
-						<div class="skeleton h-5 w-full"></div>
-					{/each}
+	<!-- Agent Info -->
+	{#if agentStatus}
+		<Card>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div>
+					<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Personality</p>
+					<p class="text-apple-text-primary mt-2">{agentStatus.personality}</p>
 				</div>
-			{:else if runtimeStats}
-				<div class="space-y-4">
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Queue Size</span>
-						<span class="text-apple-text-primary font-mono font-medium">{runtimeStats.queue.size}</span>
-					</div>
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Events Failed</span>
-						<span class="text-apple-text-primary font-mono font-medium">{runtimeStats.runtime.events_failed}</span>
-					</div>
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Scheduled Tasks</span>
-						<span class="text-apple-text-primary font-mono font-medium">{runtimeStats.scheduler.tasks_scheduled}</span>
-					</div>
-					<div class="flex justify-between items-center py-2">
-						<span class="text-apple-text-secondary">Background Processes</span>
-						<span class="text-apple-text-primary font-mono font-medium">
-							{runtimeStats.background.total_running} running
-						</span>
-					</div>
+				<div>
+					<p class="text-xs text-apple-text-tertiary uppercase tracking-wider font-medium">Goal</p>
+					<p class="text-apple-text-primary mt-2">{agentStatus.goal}</p>
 				</div>
-			{:else}
-				<p class="text-apple-text-tertiary text-center py-8">No data available</p>
-			{/if}
+			</div>
 		</Card>
-
-		<!-- Memory Breakdown -->
-		<Card title="Memory Breakdown">
-			{#if loading}
-				<div class="space-y-4">
-					{#each Array(5) as _}
-						<div class="skeleton h-5 w-full"></div>
-					{/each}
-				</div>
-			{:else if memoryStats}
-				<div class="space-y-4">
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Episodes</span>
-						<span class="text-apple-text-primary font-mono font-medium">{memoryStats.total_episodes}</span>
-					</div>
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Facts</span>
-						<span class="text-apple-text-primary font-mono font-medium">{memoryStats.total_facts}</span>
-					</div>
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Concepts</span>
-						<span class="text-apple-text-primary font-mono font-medium">{memoryStats.total_concepts}</span>
-					</div>
-					<div class="flex justify-between items-center py-2 border-b border-apple-border-subtle">
-						<span class="text-apple-text-secondary">Skills</span>
-						<span class="text-apple-text-primary font-mono font-medium">{memoryStats.total_skills}</span>
-					</div>
-					<div class="flex justify-between items-center py-2">
-						<span class="text-apple-text-secondary">Consolidation</span>
-						<span class="badge {memoryStats.consolidation_running ? 'badge-warning' : 'badge-neutral'}">
-							{memoryStats.consolidation_running ? 'Running' : 'Idle'}
-						</span>
-					</div>
-				</div>
-			{:else}
-				<p class="text-apple-text-tertiary text-center py-8">No data available</p>
-			{/if}
-		</Card>
-	</div>
+	{/if}
 
 	<!-- Live Events -->
 	<EventFeed maxItems={15} />

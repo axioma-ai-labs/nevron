@@ -7,15 +7,20 @@
 	let { children } = $props();
 
 	const pageTitles: Record<string, string> = {
-		'/': 'Dashboard',
-		'/agent': 'Agent Control',
-		'/runtime': 'Runtime Monitor',
-		'/memory': 'Memory Explorer',
-		'/learning': 'Learning Insights',
-		'/mcp': 'MCP Manager'
+		'/': 'Control',
+		'/settings': 'Settings',
+		'/explore': 'Explore'
 	};
 
-	let pageTitle = $derived(pageTitles[$page.url.pathname] || 'Dashboard');
+	// Get page title based on path prefix matching
+	function getPageTitle(pathname: string): string {
+		if (pathname === '/') return 'Control';
+		if (pathname.startsWith('/settings')) return 'Settings';
+		if (pathname.startsWith('/explore')) return 'Explore';
+		return 'Nevron';
+	}
+
+	let pageTitle = $derived(getPageTitle($page.url.pathname));
 </script>
 
 <div class="flex h-screen overflow-hidden bg-apple-bg-primary">

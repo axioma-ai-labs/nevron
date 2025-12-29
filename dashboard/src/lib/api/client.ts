@@ -261,6 +261,51 @@ export interface HealthCheck {
 	components: Record<string, string>;
 }
 
+// UI Config Types
+export interface UIConfigResponse {
+	llm_provider: string;
+	llm_api_key_masked: string;
+	llm_model: string;
+	agent_personality: string;
+	agent_goal: string;
+	mcp_enabled: boolean;
+	mcp_servers: Record<string, unknown>;
+}
+
+export interface UIConfigUpdate {
+	llm_provider?: string;
+	llm_api_key?: string;
+	llm_model?: string;
+	agent_personality?: string;
+	agent_goal?: string;
+	mcp_enabled?: boolean;
+	mcp_servers?: Record<string, unknown>;
+}
+
+export interface ConfigExistsResponse {
+	exists: boolean;
+	has_api_key: boolean;
+}
+
+export interface ModelsListResponse {
+	models: Record<string, string[]>;
+}
+
+export interface ValidateKeyResponse {
+	valid: boolean;
+	message: string;
+}
+
+// Available models per provider (for offline use)
+export const AVAILABLE_MODELS: Record<string, string[]> = {
+	openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+	anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'],
+	xai: ['grok-2-latest', 'grok-beta'],
+	deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+	qwen: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
+	venice: ['venice-2-13b']
+};
+
 // API request helper
 async function request<T>(
 	endpoint: string,
@@ -435,4 +480,21 @@ export const healthAPI = {
 		const response = await fetch('/health');
 		return response.json();
 	}
+};
+
+// Config API
+export const configAPI = {
+	getUIConfig: () => request<UIConfigResponse>('/config/ui'),
+	saveUIConfig: (config: UIConfigUpdate) =>
+		request<UIConfigResponse>('/config/ui', {
+			method: 'PUT',
+			body: JSON.stringify(config)
+		}),
+	checkConfigExists: () => request<ConfigExistsResponse>('/config/ui/exists'),
+	validateApiKey: (provider: string, apiKey: string, model?: string) =>
+		request<ValidateKeyResponse>('/config/ui/validate', {
+			method: 'POST',
+			body: JSON.stringify({ provider, api_key: apiKey, model })
+		}),
+	getAvailableModels: () => request<ModelsListResponse>('/config/ui/models')
 };

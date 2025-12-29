@@ -1,38 +1,37 @@
 # Dashboard
 
-The Nevron Dashboard provides a web-based interface for monitoring and controlling your AI agent. It includes real-time statistics, memory exploration, learning insights, and MCP server management.
+The Nevron Dashboard provides a web-based interface for monitoring and controlling your AI agent. It features a clean 3-page layout with real-time statistics, memory exploration, learning insights, and configuration management.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Svelte Dashboard                       │
-│  ┌─────────┬─────────┬─────────┬─────────┬───────────┐  │
-│  │ Agent   │ Runtime │ Memory  │Learning │   MCP     │  │
-│  │ Control │ Monitor │ Explorer│ Insights│  Manager  │  │
-│  └────┬────┴────┬────┴────┬────┴────┬────┴─────┬─────┘  │
-│       └─────────┴─────────┴─────────┴──────────┘        │
-│                         │ REST + WebSocket               │
-└─────────────────────────┼───────────────────────────────┘
-                          │
-┌─────────────────────────┼───────────────────────────────┐
-│              FastAPI Backend (src/api/)                  │
-│  ┌──────────────────────┴──────────────────────────┐    │
-│  │ Routers: agent, runtime, memory, learning,      │    │
-│  │          metacognition, mcp, config             │    │
-│  └──────────────────────┬──────────────────────────┘    │
-│                         │                                │
-│  ┌──────────────────────┴──────────────────────────┐    │
-│  │ WebSocket Manager (real-time event streaming)   │    │
-│  └──────────────────────┬──────────────────────────┘    │
-└─────────────────────────┼───────────────────────────────┘
-                          │
-          ┌───────────────┼───────────────┐
-          │               │               │
-    ┌─────▼─────┐  ┌──────▼──────┐ ┌──────▼──────┐
-    │   Agent   │  │  Runtime    │ │   Memory    │
-    │           │  │             │ │             │
-    └───────────┘  └─────────────┘ └─────────────┘
++-----------------------------------------------------------+
+|                    Svelte Dashboard                        |
+|  +-------------+  +-------------+  +-------------+        |
+|  |   Control   |  |  Settings   |  |   Explore   |        |
+|  |   (Home)    |  | (LLM Config)|  | (Mem/Learn) |        |
+|  +------+------+  +------+------+  +------+------+        |
+|         +----------------+----------------+                |
+|                          | REST + WebSocket                |
++-----------------------------------------------------------+
+                           |
++-----------------------------------------------------------+
+|               FastAPI Backend (src/api/)                   |
+|  +-------------------------------------------------------+ |
+|  | Routers: agent, runtime, memory, learning,            | |
+|  |          metacognition, mcp, config                   | |
+|  +---------------------------+---------------------------+ |
+|                              |                             |
+|  +---------------------------+---------------------------+ |
+|  | WebSocket Manager (real-time event streaming)         | |
+|  +---------------------------+---------------------------+ |
++-----------------------------------------------------------+
+                           |
+           +---------------+---------------+
+           |               |               |
+     +-----v-----+   +-----v-----+   +-----v-----+
+     |   Agent   |   |  Runtime  |   |  Memory   |
+     +-----------+   +-----------+   +-----------+
 ```
 
 ## Quick Start
@@ -100,55 +99,54 @@ make docker-down
 
 ## Dashboard Pages
 
-### Home Dashboard
+### Control (Home)
 
-The main dashboard provides an overview of your agent's status:
+The main dashboard for agent control and monitoring:
 
-- **Agent Status**: Current state (idle/running/paused)
-- **Runtime Statistics**: Events processed, queue size, uptime
+- **Agent Status Hero**: Current state (Running/Paused/Stopped) with uptime
+- **Configuration Warning**: Banner prompting API key setup on first run
+- **Control Buttons**: Start, Pause, and Stop the agent
+- **Statistics Cards**: Events processed, success rate, uptime, memories
+- **Agent Identity**: Current personality and goal display
 - **Live Event Feed**: Real-time WebSocket events
 
-### Agent Control
+### Settings
 
-Manage your agent's lifecycle:
+Configure your LLM provider and agent identity:
 
-- **Start/Stop/Pause**: Control agent execution
-- **Execute Actions**: Manually trigger agent actions
-- **Action History**: View recent actions and their outcomes
+- **LLM Provider**: Select from OpenAI, Anthropic, xAI, DeepSeek, Qwen, Venice
+- **API Key**: Secure input with test validation button
+- **Model Selection**: Provider-specific model options
+- **Agent Personality**: Define agent behavior and communication style
+- **Agent Goal**: Set the primary objective
+- **MCP Toggle**: Enable/disable Model Context Protocol integration
 
-### Runtime Monitor
+### Explore
 
-Monitor the event-driven runtime:
+Deep dive into agent systems with tabbed navigation:
 
-- **Queue Statistics**: Current queue size, processed events
-- **Scheduler**: View scheduled tasks and next run times
-- **Background Processes**: Monitor consolidation, cleanup jobs
-
-### Memory Explorer
-
+#### Memory Tab
 Explore the tri-memory system:
+- **Episodes**: Time-indexed experiences with emotional valence
+- **Facts**: Knowledge graph entries (subject-predicate-object)
+- **Concepts**: Abstract concepts and their properties
+- **Skills**: Learned procedural patterns
+- **Memory Consolidation**: Trigger memory consolidation
 
-- **Episodic Memory**: Time-indexed experiences
-- **Semantic Memory**: Facts and knowledge graph
-- **Procedural Memory**: Learned skills and patterns
-- **Search**: Query across all memory types
-
-### Learning Insights
-
+#### Learning Tab
 View the agent's learning progress:
-
-- **Training History**: Success rates over time
+- **Training History**: Outcomes with success rates and bias changes
 - **Self-Critiques**: Generated critiques from failures
-- **Lessons Learned**: Extracted patterns and improvements
-- **Suggestions**: AI-generated improvement recommendations
+- **Improvement Suggestions**: AI-generated recommendations
+- **Failure Analysis**: Analyze patterns in failures
 
-### MCP Manager
-
-Manage Model Context Protocol servers:
-
-- **Server Status**: Connected/disconnected state
-- **Available Tools**: List of tools per server
-- **Tool Execution**: Execute tools directly from the UI
+#### Runtime Tab
+Monitor the event-driven runtime:
+- **Control Buttons**: Start, Pause, Resume, Stop
+- **Statistics**: Queue size, events processed, uptime
+- **Queue Details**: Priority distribution and event types
+- **Scheduler**: Scheduled tasks with next run times
+- **Background Processes**: Consolidation and cleanup jobs
 
 ## API Reference
 
@@ -162,13 +160,17 @@ The dashboard communicates with the FastAPI backend. Full API documentation is a
 | Endpoint | Description |
 |----------|-------------|
 | `GET /api/v1/agent/status` | Agent state and info |
-| `POST /api/v1/agent/start` | Start the agent |
-| `POST /api/v1/agent/stop` | Stop the agent |
+| `POST /api/v1/runtime/start` | Start the agent |
+| `POST /api/v1/runtime/stop` | Stop the agent |
+| `POST /api/v1/runtime/pause` | Pause the agent |
 | `GET /api/v1/runtime/statistics` | Runtime stats |
 | `GET /api/v1/memory/statistics` | Memory system stats |
 | `POST /api/v1/memory/recall` | Query memories |
 | `GET /api/v1/learning/statistics` | Learning stats |
-| `GET /api/v1/mcp/servers` | MCP server status |
+| `GET /api/v1/config/ui` | Get UI configuration |
+| `PUT /api/v1/config/ui` | Save UI configuration |
+| `GET /api/v1/config/ui/exists` | Check if config exists |
+| `POST /api/v1/config/ui/validate` | Validate API key |
 | `WS /ws/{client_id}` | WebSocket for real-time events |
 
 ## WebSocket Events
@@ -194,6 +196,18 @@ type WSMessageType =
 ```
 
 ## Configuration
+
+### First-Run Setup
+
+On first launch, the dashboard will display a configuration warning banner. Navigate to Settings to:
+
+1. Select your LLM provider
+2. Enter your API key (use "Test" button to validate)
+3. Choose a model
+4. Set agent personality and goal
+5. Save configuration
+
+The configuration is stored in `nevron_config.json` in the project root.
 
 ### API Configuration
 
@@ -274,13 +288,18 @@ nevron/
 │       ├── manager.py
 │       └── events.py
 │
+├── src/core/
+│   └── ui_config.py            # Dashboard config management
+│
 ├── dashboard/                   # Svelte Frontend
 │   ├── src/
 │   │   ├── lib/
 │   │   │   ├── api/            # API client
-│   │   │   ├── stores/         # Svelte stores
 │   │   │   └── components/     # UI components
 │   │   └── routes/             # SvelteKit pages
+│   │       ├── +page.svelte    # Control (Home)
+│   │       ├── settings/       # Settings page
+│   │       └── explore/        # Explore page
 │   └── static/
 │
 └── docker/
@@ -325,3 +344,9 @@ The dashboard auto-reconnects on WebSocket disconnection. If issues persist:
 1. Check API logs for WebSocket errors
 2. Verify no firewall blocking WebSocket connections
 3. Try refreshing the dashboard page
+
+### API Key Validation Fails
+
+1. Verify the API key is correct for the selected provider
+2. Check network connectivity to the provider's API
+3. Ensure the selected model is available for your API key tier
