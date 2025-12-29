@@ -4,9 +4,37 @@ This page describes all available configuration options for Nevron.
 
 ## Overview
 
-Most of Nevron's settings can be configured through environment variables in your `.env` file. The default definitions for these variables are located in the `src/core/config.py` file.
+Nevron supports two configuration methods:
 
-When you set up Nevron using either the Docker or local setup methods described in the [Quickstart Guide](quickstart.md), you'll create and configure a `.env` file that controls your agent's behavior.
+1. **Dashboard UI** (Recommended) - Configure everything through the web dashboard
+2. **Environment Variables** - Use `.env` files for Docker/production deployments
+
+### Dashboard Configuration
+
+When using the dashboard (`make dev-full` or `make dev`), all configuration is managed through the UI:
+
+1. Open http://localhost:5173
+2. Navigate to **Settings**
+3. Configure LLM provider, API key, model, personality, and goal
+4. Save changes
+
+Configuration is stored in `nevron_config.json` and loaded automatically by the agent.
+
+### Environment Variable Configuration
+
+For Docker deployments or running without the dashboard, use environment variables in a `.env` file. The default definitions are located in `src/core/config.py`.
+
+### Configuration Priority
+
+When both are present, the priority is:
+
+```
+Priority 1: .env file (overrides everything)
+    |
+Priority 2: nevron_config.json (UI-configured)
+    |
+Priority 3: Code defaults (fallback)
+```
 
 ## Essential Configuration
 

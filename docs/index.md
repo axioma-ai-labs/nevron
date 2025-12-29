@@ -29,6 +29,7 @@ This framework is built on top of:
 - [Python](https://www.python.org/) programming language
 - State-of-the-art LLM-powered intelligence
 - Modular architecture with planning, feedback, execution and memory components
+- **Web Dashboard** for configuration and real-time monitoring
 - Integration with external services (Telegram, Twitter, Discord, etc.)
 - Vector-based memory storage using [Chroma](https://www.trychroma.com/) or [Qdrant](https://qdrant.tech/)
 - Local LLM support with [Ollama](https://ollama.ai)
@@ -37,6 +38,10 @@ This framework is built on top of:
 
 ## Core Features
 
+- **Web Dashboard**: Control and configure your agent through an intuitive UI
+    - Start, pause, resume, stop the agent
+    - Configure LLM provider, personality, and goals
+    - Monitor real-time events and statistics
 - **Autonomous Decision Making**: Nevron uses Q-learning algorithm for intelligent decision making
 - **LLM Integration**: Powered by a wide range of Large Language Models (e.g., OpenAI, Anthropic, xAI, DeepSeek, etc.)
 - **Local LLM Support**: Run models locally with Ollama integration

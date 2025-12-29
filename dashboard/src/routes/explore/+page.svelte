@@ -711,13 +711,6 @@
 					</button>
 					<button class="btn btn-secondary" onclick={pauseRuntime} disabled={actionLoading}>Pause</button>
 					<button class="btn btn-secondary" onclick={resumeRuntime} disabled={actionLoading}>Resume</button>
-					<button
-						class="btn btn-danger"
-						onclick={stopRuntime}
-						disabled={actionLoading || runtimeStats?.runtime.state === 'stopped'}
-					>
-						Stop
-					</button>
 				</div>
 			</div>
 		</Card>

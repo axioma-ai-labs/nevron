@@ -2,18 +2,68 @@
 
 This guide will help you get Nevron, your autonomous AI agent, running quickly. Choose the setup path that best suits your needs:
 
+- [Local Setup with Dashboard](#local-setup-with-dashboard) (Recommended for development)
 - [Docker Setup](#docker-setup) (Recommended for production)
-- [Local Setup](#local-setup) (Recommended for development)
+- [Legacy Setup](#legacy-setup) (No dashboard, `.env` configuration)
 
 ## Prerequisites
 
 General requirements:
-- For Docker setup: **Docker**
-- For local setup: **Python 3.13** and **Poetry**
+- For local setup: **Python 3.11+**, **Node.js 18+**, and **Poetry**
+- For Docker setup: **Docker** and **Docker Compose**
 
-Additional requirements:
-- API keys for LLM providers your Agent will use
-- API keys for tools your Agent will use
+-----
+
+## Local Setup with Dashboard
+
+The recommended way to run Nevron with full UI control and configuration.
+
+### 1. Clone & Install
+
+```bash
+# Clone the repository
+git clone https://github.com/axioma-ai-labs/nevron.git
+cd nevron
+
+# Install Python dependencies
+make deps
+
+# Install dashboard dependencies
+make dashboard-deps
+```
+
+### 2. Start Everything
+
+```bash
+make dev-full
+```
+
+This starts:
+- **Dashboard**: http://localhost:5173
+- **API**: http://localhost:8000
+- **Agent**: Running in background (starts in stopped state)
+
+### 3. Configure via Dashboard
+
+1. Open the dashboard at http://localhost:5173
+2. You'll see a configuration banner - click **Settings**
+3. Select your LLM provider (OpenAI, Anthropic, xAI, etc.)
+4. Enter your API key and click **Test** to validate
+5. Choose a model from the dropdown
+6. Set your agent's personality and goal
+7. Click **Save Configuration**
+
+Configuration is saved to `nevron_config.json` - no `.env` file needed!
+
+### 4. Control the Agent
+
+Back on the **Control** page:
+1. Click **Start** to begin the agent runtime loop
+2. Use **Pause** to temporarily stop cycles (agent remains ready)
+3. Use **Stop** to fully stop the agent (can restart with Start)
+4. Watch the live event feed for real-time activity
+
+The agent starts in **stopped** state and waits for you to start it from the dashboard. This gives you full control over when cycles begin.
 
 -----
 
@@ -23,45 +73,42 @@ Get Nevron running with Docker in 3 steps:
 
 ### 1. Pull & Setup
 
-First pull the docker image:
-
 ```bash
 docker pull axiomai/nevron:latest
-```
 
-Create volumes:
-
-```bash
+# Create volumes
 mkdir -p volumes/nevron/logs
 mkdir -p volumes/qdrant/data
 mkdir -p volumes/ollama/models
 ```
 
-Create env file:
+### 2. Configure
+
+For Docker, create a `.env` file with your LLM configuration:
 
 ```bash
 cp .env.example .env
 ```
 
-### 2. Configure
-
-Edit `.env` file to use local Llama and Qdrant as vector store:
+Edit `.env` with your settings:
 
 ```bash
-# LLM configuration
-LLAMA_PROVIDER=ollama
-LLAMA_OLLAMA_MODEL=llama3:8b-instruct
+# LLM configuration (choose one provider)
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_key_here
+
+# Or use local Ollama
+# LLM_PROVIDER=llama
+# LLAMA_PROVIDER=ollama
+# LLAMA_OLLAMA_MODEL=llama3:8b-instruct
 
 # Memory configuration
 MEMORY_BACKEND_TYPE=qdrant
-```
 
-Then configure the personality, goals and rest time of your agent in `.env`:
-
-```bash
-AGENT_PERSONALITY="You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That's legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles."
-AGENT_GOAL="You provide high-quality research and analysis on crypto markets."
-AGENT_REST_TIME=300  # seconds between actions
+# Agent settings
+AGENT_PERSONALITY="You are Nevron - an autonomous AI agent."
+AGENT_GOAL="You provide high-quality research and analysis."
+AGENT_REST_TIME=300
 ```
 
 ### 3. Run
@@ -70,32 +117,19 @@ AGENT_REST_TIME=300  # seconds between actions
 docker compose up -d
 ```
 
-This will start Nevron with Ollama running locally in the container, using the small model specified in your `.env` file. Qdrant will be used as the default memory vector store.
+Access the dashboard at http://localhost:3000 (API at http://localhost:8000).
 
 -----
 
-## Local Setup
+## Legacy Setup
 
-Set up Nevron locally in 5 steps:
+For running the agent without the dashboard, using `.env` configuration only.
 
 ### 1. Clone & Install
-
-Clone the repository:
 
 ```bash
 git clone https://github.com/axioma-ai-labs/nevron.git
 cd nevron
-```
-
-Install Poetry if you haven't already:
-
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-Install dependencies:
-
-```bash
 make deps
 ```
 
@@ -105,68 +139,15 @@ make deps
 cp .env.dev .env
 ```
 
-### 3. Choose LLM Provider
+Edit `.env` with your LLM provider credentials and agent settings. See [Configuration](configuration.md) for all options.
 
-You have two options for the LLM provider:
-
-#### Option 1: Use LLM API
-
-Edit your `.env` file to include one of these LLM providers:
-
-```bash
-ANTHROPIC_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here
-XAI_API_KEY=your_key_here
-DEEPSEEK_API_KEY=your_key_here
-QWEN_API_KEY=your_key_here
-VENICE_API_KEY=your_key_here
-LLAMA_API_KEY=your_key_here   # The API key for the api.llama-api.com
-```
-
-You can also use Llama with [openrouter](https://openrouter.ai/api/v1):
-
-```bash
-LLAMA_PROVIDER=openrouter
-LLAMA_API_KEY=your_key_here
-```
-
-Or use Llama with [fireworks](https://api.fireworks.ai/inference):
-
-```bash
-LLAMA_PROVIDER=fireworks
-LLAMA_API_KEY=your_key_here
-```
-
-#### Option 2: Run Ollama locally
-
-First, install Ollama following the instructions at [ollama.ai](https://ollama.ai).
-
-Then, pull a small model:
-```bash
-ollama pull llama3:8b-instruct
-```
-
-Edit your `.env` file:
-```bash
-# Configure Nevron to use local Ollama
-LLAMA_PROVIDER=ollama
-LLAMA_OLLAMA_MODEL=llama3:8b-instruct
-```
-
-### 4. Configure Personality
-
-Setup the personality, goals and rest time of your agent in `.env`:
-```bash
-AGENT_PERSONALITY="You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That's legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles."
-AGENT_GOAL="You provide high-quality research and analysis on crypto markets."
-AGENT_REST_TIME=300  # seconds between actions
-```
-
-### 5. Run
+### 3. Run
 
 ```bash
 make run
 ```
+
+This runs the agent directly without the API or dashboard.
 
 -----
 

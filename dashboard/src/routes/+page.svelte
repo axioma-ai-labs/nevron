@@ -252,17 +252,6 @@
 					</svg>
 					Pause
 				</button>
-				<button
-					class="btn btn-danger px-6 py-3"
-					onclick={stopAgent}
-					disabled={actionLoading || runtimeStats?.runtime?.state === 'stopped'}
-				>
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
-					</svg>
-					Stop
-				</button>
 			</div>
 		</div>
 	</Card>

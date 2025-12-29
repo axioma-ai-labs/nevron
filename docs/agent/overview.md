@@ -4,6 +4,46 @@
 
 Nevron is an autonomous AI agent built with a modular architecture consisting of several key components that work together to enable intelligent decision-making and task execution.
 
+### Decoupled Runtime Architecture
+
+Nevron uses a decoupled architecture where the **Agent**, **API**, and **Dashboard** run as independent processes:
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Dashboard     │────▶│   FastAPI        │────▶│  Shared State   │
+│   (Svelte)      │     │   (Port 8000)    │     │  ./nevron_state │
+│   Port 5173     │◀────│   + WebSocket    │◀────│                 │
+└─────────────────┘     └──────────────────┘     └────────┬────────┘
+                                                          │
+                              nevron_config.json ─────────┤
+                                                          │
+                                                          ▼
+                                                 ┌─────────────────┐
+                                                 │  Agent Runner   │
+                                                 │  (Independent)  │
+                                                 └─────────────────┘
+```
+
+**Key Benefits:**
+- Control the agent lifecycle (start/pause/resume/stop) from the dashboard
+- Configure everything via UI - no `.env` file needed for basic setup
+- Restart API without stopping the agent
+- Multiple dashboards can connect simultaneously
+- Agent continues running if dashboard disconnects
+
+### Agent Lifecycle
+
+The agent starts in **stopped** state and waits for commands:
+
+1. **Stopped** - Agent process running but not executing cycles (initial state)
+2. **Running** - Agent actively executing decision-making cycles
+3. **Paused** - Cycles paused, ready to resume immediately
+4. **Error** - Agent stopped due to an error
+
+Control the lifecycle through the Dashboard's Control page or via API endpoints.
+
+### Component Architecture
+
 ![Architecture](../assets/architecture.png)
 
 
@@ -70,14 +110,35 @@ The time between actions is defined in the configuration (`AGENT_REST_TIME`), al
 
 ## Configuration
 
-The agent's behavior can be configured via:
+The agent's behavior can be configured in two ways:
 
+### Dashboard Configuration (Recommended)
+
+Open http://localhost:5173 and navigate to **Settings** to configure:
+
+- **LLM Provider**: Choose from OpenAI, Anthropic, xAI, DeepSeek, Qwen, Venice
+- **API Key**: Enter and validate your provider's API key
+- **Model**: Select the model to use
 - **Agent Personality**: Defines the agent's communication style and decision-making approach
 - **Agent Goals**: Establishes the agent's primary objectives and workflow patterns
-- **Rest Time**: Controls the frequency of agent actions
-- **Environment Variables**: Configures technical aspects of the agent
+- **Actions**: Enable/disable available actions
+- **Integrations**: Configure Twitter, Discord, Telegram, etc.
+- **MCP Servers**: Add custom tool servers
+
+Configuration is saved to `nevron_config.json`.
+
+### Environment Variables
+
+For Docker or headless deployments, use environment variables:
+
+- **Agent Personality**: `AGENT_PERSONALITY`
+- **Agent Goals**: `AGENT_GOAL`
+- **Rest Time**: `AGENT_REST_TIME` - Controls the frequency of agent actions
+- **LLM Settings**: Provider-specific API keys and models
 - **Workflows**: Defines available task execution patterns
 - **Tools**: Determines the agent's capabilities for interacting with external systems
+
+See [Configuration](../configuration.md) for complete details.
 
 -----
 
