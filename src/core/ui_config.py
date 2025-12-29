@@ -396,46 +396,52 @@ def get_config_response(config: UIConfig) -> UIConfigResponse:
     )
 
 
-# Available models per provider (hardcoded list, updated December 2025)
+# Available models per provider (verified from official docs, December 2025)
+# Sources:
+# - OpenAI: platform.openai.com/docs/models
+# - Anthropic: docs.anthropic.com/en/docs/about-claude/models
+# - xAI: docs.x.ai/docs/models
+# - DeepSeek: api-docs.deepseek.com/quick_start/pricing
+# - Qwen: alibabacloud.com/help/en/model-studio
+# - Venice: docs.venice.ai/models/text
 AVAILABLE_MODELS: Dict[str, list[str]] = {
     "openai": [
         "gpt-4o",
         "gpt-4o-mini",
+        "gpt-4-turbo",
         "o1",
         "o1-mini",
-        "o3-mini",
-        "gpt-4-turbo",
+        "o1-preview",
     ],
     "anthropic": [
-        "claude-opus-4-5-20251024",
-        "claude-sonnet-4-5-20250929",
-        "claude-haiku-4-5-20251015",
+        "claude-sonnet-4-20250514",
+        "claude-opus-4-20250514",
+        "claude-3-7-sonnet-20250219",
         "claude-3-5-sonnet-20241022",
         "claude-3-5-haiku-20241022",
         "claude-3-opus-20240229",
     ],
     "xai": [
-        "grok-4.1",
-        "grok-4.1-fast",
-        "grok-4",
-        "grok-2-latest",
+        "grok-3",
+        "grok-3-fast",
+        "grok-2",
+        "grok-2-vision",
     ],
     "deepseek": [
         "deepseek-chat",
         "deepseek-reasoner",
-        "deepseek-v3",
     ],
     "qwen": [
-        "qwen2.5-max",
         "qwen-max",
         "qwen-plus",
         "qwen-turbo",
-        "qwq-32b",
+        "qwen-long",
     ],
     "venice": [
         "llama-3.3-70b",
-        "llama-3.1-405b",
-        "deepseek-r1-llama-70b",
+        "llama-3.2-3b",
+        "qwen3-235b",
+        "mistral-31-24b",
     ],
 }
 
