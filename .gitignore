@@ -13,6 +13,8 @@ logs/
 !logs/.gitkeep
 lib/*
 !lib/.gitkeep
+nevron_state/
+nevron_cycles.db
 
 # ====== Default gitignore config ======
 

@@ -9,17 +9,20 @@ help:
 	@echo "  deps            Install all dependencies"
 	@echo "  format          Format source code"
 	@echo "  lint            Run lint checks"
-	@echo "  run             Run the agent"
+	@echo "  run             Run the agent (legacy coupled mode)"
+	@echo "  run-agent       Run the agent process (decoupled mode)"
 	@echo "  test            Run tests"
 	@echo "  test-ci         Run tests in CI"
 	@echo "  docs            Generate docs"
 	@echo
-	@echo "Dashboard:"
-	@echo "  api             Run the FastAPI backend (port 8000)"
+	@echo "Dashboard (Decoupled Architecture):"
+	@echo "  run-agent       Run the agent process (writes state to ./nevron_state/)"
+	@echo "  api             Run the FastAPI backend (port 8000) - reads from shared state"
 	@echo "  dashboard       Run the Svelte dashboard (port 5173)"
 	@echo "  dashboard-build Build the dashboard for production"
 	@echo "  dashboard-deps  Install dashboard dependencies"
-	@echo "  dev             Run both API and dashboard (requires tmux)"
+	@echo "  dev             Run API and dashboard together"
+	@echo "  dev-full        Run agent, API, and dashboard together"
 	@echo
 	@echo "Docker:"
 	@echo "  docker-up       Start all services with Docker Compose"
@@ -66,6 +69,13 @@ lint-mypy:
 run:
 	poetry run python -m src.main
 
+.PHONY: run-agent
+run-agent:
+	@echo "Starting agent process (independent of API server)..."
+	@echo "State will be written to ./nevron_state/"
+	@echo "Use 'make api' in another terminal to run the API server."
+	poetry run python -m src.agent_runner
+
 .PHONY: test
 test:
 	poetry run pytest \
@@ -111,9 +121,23 @@ dev:
 	@echo "Starting API and Dashboard in parallel..."
 	@echo "API will be available at http://localhost:8000"
 	@echo "Dashboard will be available at http://localhost:5173"
+	@echo "Note: Agent is NOT running. Use 'make dev-full' to include agent."
 	@echo "Press Ctrl+C to stop both services"
 	@trap 'kill 0' INT; \
 		poetry run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000 & \
+		cd dashboard && npm run dev & \
+		wait
+
+.PHONY: dev-full
+dev-full:
+	@echo "Starting Agent, API, and Dashboard in parallel..."
+	@echo "Agent process will write state to ./nevron_state/"
+	@echo "API will be available at http://localhost:8000"
+	@echo "Dashboard will be available at http://localhost:5173"
+	@echo "Press Ctrl+C to stop all services"
+	@trap 'kill 0' INT; \
+		poetry run python -m src.agent_runner & \
+		sleep 2 && poetry run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000 & \
 		cd dashboard && npm run dev & \
 		wait
 

@@ -1,12 +1,16 @@
-"""Agent control router - endpoints for managing the AI agent."""
+"""Agent control router - endpoints for managing the AI agent.
+
+This router reads agent state from shared storage and sends commands
+to the agent process via the command queue.
+"""
 
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
-from src.api.dependencies import get_runtime, verify_api_key
+from src.api.dependencies import get_commands, get_shared_state, verify_api_key
 from src.api.schemas import (
     ActionRequest,
     ActionResponse,
@@ -15,37 +19,17 @@ from src.api.schemas import (
     AgentStatus,
     APIResponse,
 )
-from src.runtime.runtime import AutonomousRuntime
+from src.core.agent_commands import CommandQueue, CommandType
+from src.core.agent_state import SharedStateManager
+from src.core.defs import AgentAction
 
 
 router = APIRouter()
 
 
-def _get_agent_from_runtime(runtime: AutonomousRuntime) -> Optional[Any]:
-    """Get the agent instance from the runtime if available.
-
-    Args:
-        runtime: The autonomous runtime instance
-
-    Returns:
-        Agent instance or None
-    """
-    # The agent may be registered as a handler or stored in the runtime
-    # For now, we'll try to access it via the processor's handlers
-    try:
-        from src.agent import Agent
-
-        # Create a temporary agent instance for status queries
-        # In production, this would be the actual running agent
-        return Agent()
-    except Exception as e:
-        logger.warning(f"Could not get agent instance: {e}")
-        return None
-
-
 @router.get("/status", response_model=APIResponse[AgentStatus])
 async def get_agent_status(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[AgentStatus]:
     """Get the current agent status.
@@ -53,30 +37,18 @@ async def get_agent_status(
     Returns agent state, personality, goal, and MCP connection status.
     """
     try:
-        agent = _get_agent_from_runtime(runtime)
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
 
-        if agent:
-            mcp_status = agent.get_mcp_status()
-            agent_status = AgentStatus(
-                state=agent.state.value,
-                personality=agent.personality,
-                goal=agent.goal,
-                mcp_enabled=mcp_status.get("enabled", False),
-                mcp_connected_servers=len(mcp_status.get("connected_servers", [])),
-                mcp_available_tools=mcp_status.get("available_tools", 0),
-                is_running=runtime.is_running,
-            )
-        else:
-            # Return default status when agent is not available
-            agent_status = AgentStatus(
-                state="unknown",
-                personality="unknown",
-                goal="unknown",
-                mcp_enabled=False,
-                mcp_connected_servers=0,
-                mcp_available_tools=0,
-                is_running=runtime.is_running,
-            )
+        agent_status = AgentStatus(
+            state=state.agent_state if state.agent_state else "unknown",
+            personality=state.personality if state.personality else "unknown",
+            goal=state.goal if state.goal else "unknown",
+            mcp_enabled=state.mcp_enabled,
+            mcp_connected_servers=state.mcp_connected_servers,
+            mcp_available_tools=state.mcp_available_tools,
+            is_running=state.is_running and is_alive,
+        )
 
         return APIResponse(
             success=True,
@@ -93,7 +65,7 @@ async def get_agent_status(
 
 @router.get("/info", response_model=APIResponse[AgentInfo])
 async def get_agent_info(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[AgentInfo]:
     """Get detailed agent information.
@@ -101,52 +73,36 @@ async def get_agent_info(
     Returns full agent info including action history and statistics.
     """
     try:
-        agent = _get_agent_from_runtime(runtime)
+        state = state_manager.get_state()
+        recent_cycles = state_manager.get_recent_cycles()
 
-        if agent:
-            # Get context with action history
-            context = agent.context_manager.get_context()
-            actions_history = context.actions_history
+        # Get available actions
+        available_actions = [a.value for a in AgentAction]
 
-            # Calculate totals
-            total_actions = len(actions_history)
-            total_rewards = sum(h.get("reward", 0) for h in actions_history if h.get("reward"))
+        # Get last action from recent cycles
+        last_action = None
+        last_action_time = None
+        if recent_cycles.cycles:
+            last_cycle = recent_cycles.cycles[0]
+            last_action = last_cycle.action
+            if last_cycle.timestamp:
+                try:
+                    last_action_time = datetime.fromisoformat(
+                        last_cycle.timestamp.replace("Z", "+00:00")
+                    )
+                except (ValueError, TypeError):
+                    pass
 
-            # Get available actions
-            from src.core.defs import AgentAction
-
-            available_actions = [a.value for a in AgentAction]
-
-            # Get last action
-            last_action = None
-            last_action_time = None
-            if actions_history:
-                last = actions_history[-1]
-                last_action = last.get("action")
-                if last.get("timestamp"):
-                    last_action_time = datetime.fromisoformat(last["timestamp"])
-
-            agent_info = AgentInfo(
-                personality=agent.personality,
-                goal=agent.goal,
-                state=agent.state.value,
-                available_actions=available_actions,
-                total_actions_executed=total_actions,
-                total_rewards=total_rewards,
-                last_action=last_action,
-                last_action_time=last_action_time,
-            )
-        else:
-            from src.core.defs import AgentAction
-
-            agent_info = AgentInfo(
-                personality="unknown",
-                goal="unknown",
-                state="unknown",
-                available_actions=[a.value for a in AgentAction],
-                total_actions_executed=0,
-                total_rewards=0.0,
-            )
+        agent_info = AgentInfo(
+            personality=state.personality if state.personality else "unknown",
+            goal=state.goal if state.goal else "unknown",
+            state=state.agent_state if state.agent_state else "unknown",
+            available_actions=available_actions,
+            total_actions_executed=state.cycle_count,
+            total_rewards=state.total_rewards,
+            last_action=last_action,
+            last_action_time=last_action_time,
+        )
 
         return APIResponse(
             success=True,
@@ -164,7 +120,7 @@ async def get_agent_info(
 @router.get("/context", response_model=APIResponse[AgentContext])
 async def get_agent_context(
     limit: int = 50,
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[AgentContext]:
     """Get the agent's context including action history.
@@ -173,45 +129,34 @@ async def get_agent_context(
         limit: Maximum number of history items to return
     """
     try:
-        agent = _get_agent_from_runtime(runtime)
+        state = state_manager.get_state()
+        recent_cycles = state_manager.get_recent_cycles()
 
-        if agent:
-            context = agent.context_manager.get_context()
-            actions_history = context.actions_history[-limit:]
+        # Convert cycles to history items
+        from src.api.schemas import ActionHistoryItem
 
-            # Convert to schema format
-            from src.api.schemas import ActionHistoryItem
+        history_items = []
+        for cycle in recent_cycles.cycles[:limit]:
+            try:
+                timestamp = datetime.fromisoformat(cycle.timestamp.replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                timestamp = datetime.now(timezone.utc)
 
-            history_items = []
-            for h in actions_history:
-                item = ActionHistoryItem(
-                    timestamp=(
-                        datetime.fromisoformat(h["timestamp"])
-                        if h.get("timestamp")
-                        else datetime.now(timezone.utc)
-                    ),
-                    action=h.get("action", "unknown"),
-                    state=h.get("state", "unknown"),
-                    outcome=h.get("outcome"),
-                    reward=h.get("reward"),
-                )
-                history_items.append(item)
-
-            total_rewards = sum(h.get("reward", 0) for h in actions_history if h.get("reward"))
-
-            agent_context = AgentContext(
-                actions_history=history_items,
-                last_state=context.last_state.value if context.last_state else "unknown",
-                total_actions=len(context.actions_history),
-                total_rewards=total_rewards,
+            item = ActionHistoryItem(
+                timestamp=timestamp,
+                action=cycle.action,
+                state=cycle.state_before,
+                outcome=cycle.outcome,
+                reward=cycle.reward,
             )
-        else:
-            agent_context = AgentContext(
-                actions_history=[],
-                last_state="unknown",
-                total_actions=0,
-                total_rewards=0.0,
-            )
+            history_items.append(item)
+
+        agent_context = AgentContext(
+            actions_history=history_items,
+            last_state=state.agent_state if state.agent_state else "unknown",
+            total_actions=state.cycle_count,
+            total_rewards=state.total_rewards,
+        )
 
         return APIResponse(
             success=True,
@@ -228,28 +173,36 @@ async def get_agent_context(
 
 @router.post("/start", response_model=APIResponse[Dict[str, Any]])
 async def start_agent(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[Dict[str, Any]]:
     """Start the agent runtime loop.
 
-    Starts the autonomous runtime if not already running.
+    In decoupled mode, this checks if the agent is running.
+    To start the agent, use 'make run-agent' in a separate terminal.
     """
     try:
-        if runtime.is_running:
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
+
+        if state.is_running and is_alive:
             return APIResponse(
                 success=True,
-                data={"status": "already_running"},
+                data={
+                    "status": "already_running",
+                    "pid": state.pid,
+                },
                 message="Agent is already running",
             )
 
-        await runtime.start()
-        logger.info("Agent runtime started via API")
-
+        # In decoupled mode, we can't start the agent from the API
         return APIResponse(
-            success=True,
-            data={"status": "started"},
-            message="Agent runtime started",
+            success=False,
+            data={
+                "status": "not_running",
+                "instruction": "Run 'make run-agent' to start the agent process",
+            },
+            message="Agent not running. Start with 'make run-agent' in a separate terminal.",
         )
     except Exception as e:
         logger.error(f"Failed to start agent: {e}")
@@ -261,29 +214,47 @@ async def start_agent(
 
 @router.post("/stop", response_model=APIResponse[Dict[str, Any]])
 async def stop_agent(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
+    commands: CommandQueue = Depends(get_commands),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[Dict[str, Any]]:
     """Stop the agent runtime loop.
 
-    Gracefully stops the autonomous runtime.
+    Sends a stop command to the agent process.
     """
     try:
-        if not runtime.is_running:
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
+
+        if not state.is_running or not is_alive:
             return APIResponse(
                 success=True,
                 data={"status": "already_stopped"},
                 message="Agent is already stopped",
             )
 
-        await runtime.stop()
-        logger.info("Agent runtime stopped via API")
+        # Send stop command
+        command = commands.send_command(CommandType.STOP, timeout_seconds=30.0)
+        logger.info(f"Sent stop command: {command.command_id}")
 
-        return APIResponse(
-            success=True,
-            data={"status": "stopped"},
-            message="Agent runtime stopped",
-        )
+        # Wait briefly for acknowledgment
+        result = commands.wait_for_command(command.command_id, timeout_seconds=5.0)
+
+        if result and result.status == "completed":
+            return APIResponse(
+                success=True,
+                data={"status": "stopped", "command_id": command.command_id},
+                message="Agent stopped",
+            )
+        else:
+            return APIResponse(
+                success=True,
+                data={
+                    "status": "stop_requested",
+                    "command_id": command.command_id,
+                },
+                message="Stop command sent to agent",
+            )
     except Exception as e:
         logger.error(f"Failed to stop agent: {e}")
         raise HTTPException(
@@ -295,7 +266,8 @@ async def stop_agent(
 @router.post("/action", response_model=APIResponse[ActionResponse])
 async def execute_action(
     request: ActionRequest,
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state_manager: SharedStateManager = Depends(get_shared_state),
+    commands: CommandQueue = Depends(get_commands),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[ActionResponse]:
     """Manually trigger an agent action.
@@ -303,20 +275,17 @@ async def execute_action(
     Args:
         request: Action request with action name and optional parameters
     """
-    import time
-
     try:
-        agent = _get_agent_from_runtime(runtime)
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
 
-        if not agent:
+        if not state.is_running or not is_alive:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Agent not available",
+                detail="Agent not running",
             )
 
         # Validate action
-        from src.core.defs import AgentAction
-
         try:
             action = AgentAction(request.action)
         except ValueError:
@@ -326,35 +295,41 @@ async def execute_action(
                 f"Valid actions: {[a.value for a in AgentAction]}",
             )
 
-        # Execute the action
-        start_time = time.time()
-        success, outcome = await agent.execution_module.execute_action(action)
-        execution_time = time.time() - start_time
-
-        # Collect feedback
-        reward = agent._collect_feedback(action.value, outcome)
-
-        # Update context
-        agent.context_manager.add_action(
-            action=action,
-            state=agent.state,
-            outcome=str(outcome) if outcome else None,
-            reward=reward,
+        # Send execute action command
+        command = commands.send_command(
+            CommandType.EXECUTE_ACTION,
+            params={"action": action.value},
+            timeout_seconds=60.0,
         )
-        agent._update_state(action)
+        logger.info(f"Sent execute action command: {command.command_id}")
 
-        action_response = ActionResponse(
-            action=action.value,
-            success=success,
-            outcome=str(outcome) if outcome else None,
-            reward=reward,
-            execution_time=execution_time,
-        )
+        # Wait for the action to complete
+        result = commands.wait_for_command(command.command_id, timeout_seconds=30.0)
+
+        if result and result.status == "completed" and result.result:
+            action_result = result.result
+            action_response = ActionResponse(
+                action=action.value,
+                success=action_result.get("success", False),
+                outcome=action_result.get("outcome"),
+                reward=action_result.get("reward", 0.0),
+                execution_time=0.0,  # Not tracked in command response
+            )
+        else:
+            # Command still pending or failed
+            error_msg = result.error if result else "Command timed out"
+            action_response = ActionResponse(
+                action=action.value,
+                success=False,
+                outcome=error_msg,
+                reward=0.0,
+                execution_time=0.0,
+            )
 
         return APIResponse(
-            success=True,
+            success=action_response.success,
             data=action_response,
-            message="Action executed",
+            message="Action executed" if action_response.success else "Action failed",
         )
     except HTTPException:
         raise
@@ -363,4 +338,38 @@ async def execute_action(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to execute action: {str(e)}",
+        )
+
+
+@router.get("/cycles", response_model=APIResponse[Dict[str, Any]])
+async def get_recent_cycles(
+    limit: int = 20,
+    state_manager: SharedStateManager = Depends(get_shared_state),
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[Dict[str, Any]]:
+    """Get recent agent cycles from shared state.
+
+    This provides quick access to recent cycles stored in shared state.
+    For full cycle history, use the /api/v1/cycles endpoint.
+    """
+    try:
+        recent_cycles = state_manager.get_recent_cycles()
+
+        cycles_data = []
+        for cycle in recent_cycles.cycles[:limit]:
+            cycles_data.append(cycle.to_dict())
+
+        return APIResponse(
+            success=True,
+            data={
+                "cycles": cycles_data,
+                "count": len(cycles_data),
+            },
+            message=f"Retrieved {len(cycles_data)} recent cycles",
+        )
+    except Exception as e:
+        logger.error(f"Failed to get recent cycles: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get recent cycles: {str(e)}",
         )

@@ -1,34 +1,47 @@
-"""FastAPI dependencies for injecting agent and runtime instances."""
+"""FastAPI dependencies for injecting shared state and services.
+
+This module provides dependency injection for the API. It no longer owns
+the agent runtime - instead it reads from shared state and sends commands
+via the command queue.
+"""
 
 from typing import Optional
 
 from fastapi import Header, HTTPException, status
 
 from src.api.config import api_settings
+from src.core.agent_commands import CommandQueue, get_command_queue
+from src.core.agent_state import SharedStateManager, get_state_manager
 from src.learning.learning_module import AdaptiveLearningModule, get_learning_module
 from src.memory.tri_memory import TriMemorySystem, get_tri_memory_system
 from src.metacognition.monitor import MetacognitiveMonitor
-from src.runtime.runtime import AutonomousRuntime, RuntimeConfiguration
 
 
-# Singleton instances
-_runtime: Optional[AutonomousRuntime] = None
+# Singleton instances for stateless services (not agent runtime)
 _memory: Optional[TriMemorySystem] = None
 _learning: Optional[AdaptiveLearningModule] = None
 _monitor: Optional[MetacognitiveMonitor] = None
 
 
-def get_runtime() -> AutonomousRuntime:
-    """Get the autonomous runtime instance (singleton)."""
-    global _runtime
-    if _runtime is None:
-        config = RuntimeConfiguration(
-            webhook_enabled=False,  # We use our own FastAPI server
-            scheduler_enabled=True,
-            background_enabled=True,
-        )
-        _runtime = AutonomousRuntime(config=config)
-    return _runtime
+def get_shared_state() -> SharedStateManager:
+    """Get the shared state manager for reading agent state.
+
+    This replaces the old get_runtime() - the API no longer owns the runtime.
+    Instead, it reads state from shared storage.
+
+    Returns:
+        SharedStateManager instance
+    """
+    return get_state_manager()
+
+
+def get_commands() -> CommandQueue:
+    """Get the command queue for sending commands to the agent.
+
+    Returns:
+        CommandQueue instance
+    """
+    return get_command_queue()
 
 
 def get_memory() -> TriMemorySystem:
@@ -74,8 +87,7 @@ async def verify_api_key(
 
 def reset_singletons() -> None:
     """Reset all singleton instances (useful for testing)."""
-    global _runtime, _memory, _learning, _monitor
-    _runtime = None
+    global _memory, _learning, _monitor
     _memory = None
     _learning = None
     _monitor = None
