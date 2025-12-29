@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from src.api.dependencies import get_runtime, verify_api_key
+from src.api.dependencies import get_shared_state, verify_api_key
 from src.api.schemas import APIResponse
-from src.runtime.runtime import AutonomousRuntime
+from src.core.agent_state import SharedStateManager
 
 
 router = APIRouter()
@@ -59,11 +59,11 @@ class ToolExecuteResponse(BaseModel):
     execution_time: float = 0.0
 
 
-def _get_mcp_manager(runtime: AutonomousRuntime) -> Optional[Any]:
+def _get_mcp_manager(state: SharedStateManager) -> Optional[Any]:
     """Get MCP manager from agent if available.
 
     Args:
-        runtime: The runtime instance
+        state: The shared state manager
 
     Returns:
         MCPToolManager or None
@@ -82,7 +82,7 @@ def _get_mcp_manager(runtime: AutonomousRuntime) -> Optional[Any]:
 
 @router.get("/status", response_model=APIResponse[MCPStatus])
 async def get_mcp_status(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[MCPStatus]:
     """Get MCP connection status.
@@ -90,7 +90,7 @@ async def get_mcp_status(
     Returns overall MCP status including connected servers and available tools.
     """
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             mcp_status = MCPStatus(
@@ -136,7 +136,7 @@ async def get_mcp_status(
 
 @router.get("/servers", response_model=APIResponse[List[MCPServerStatus]])
 async def get_mcp_servers(
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[MCPServerStatus]]:
     """Get list of MCP servers with their status.
@@ -144,7 +144,7 @@ async def get_mcp_servers(
     Returns connection status and tool count for each configured server.
     """
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             return APIResponse(
@@ -180,7 +180,7 @@ async def get_mcp_servers(
 @router.get("/tools", response_model=APIResponse[List[MCPToolInfo]])
 async def get_mcp_tools(
     server: Optional[str] = Query(default=None, description="Filter by server name"),
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[MCPToolInfo]]:
     """Get list of available MCP tools.
@@ -189,7 +189,7 @@ async def get_mcp_tools(
         server: Optional filter by server name
     """
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             return APIResponse(
@@ -230,7 +230,7 @@ async def get_mcp_tools(
 @router.get("/tools/{tool_name}", response_model=APIResponse[MCPToolInfo])
 async def get_tool_info(
     tool_name: str,
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[MCPToolInfo]:
     """Get information about a specific MCP tool.
@@ -239,7 +239,7 @@ async def get_tool_info(
         tool_name: Name of the tool
     """
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             raise HTTPException(
@@ -280,7 +280,7 @@ async def get_tool_info(
 @router.post("/servers/{server_name}/reconnect", response_model=APIResponse[Dict[str, Any]])
 async def reconnect_server(
     server_name: str,
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[Dict[str, Any]]:
     """Reconnect to an MCP server.
@@ -289,7 +289,7 @@ async def reconnect_server(
         server_name: Name of the server to reconnect
     """
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             raise HTTPException(
@@ -336,7 +336,7 @@ async def reconnect_server(
 async def execute_tool(
     tool_name: str,
     request: ToolExecuteRequest,
-    runtime: AutonomousRuntime = Depends(get_runtime),
+    state: SharedStateManager = Depends(get_shared_state),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[ToolExecuteResponse]:
     """Execute an MCP tool.
@@ -348,7 +348,7 @@ async def execute_tool(
     import time
 
     try:
-        mcp_manager = _get_mcp_manager(runtime)
+        mcp_manager = _get_mcp_manager(state)
 
         if not mcp_manager:
             raise HTTPException(

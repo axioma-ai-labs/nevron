@@ -1,12 +1,12 @@
 """Memory router - endpoints for exploring and managing memory systems."""
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from loguru import logger
 
-from src.api.dependencies import get_memory, verify_api_key
+from src.api.dependencies import verify_api_key
 from src.api.schemas import (
     APIResponse,
     Concept,
@@ -24,15 +24,63 @@ from src.memory.tri_memory import TriMemorySystem
 router = APIRouter()
 
 
+def _is_embeddings_error(error: Exception) -> bool:
+    """Check if an error is related to missing embeddings API key."""
+    error_str = str(error).lower()
+    return "api_key" in error_str or "api key" in error_str
+
+
+def _get_memory_safe() -> Tuple[Optional[TriMemorySystem], bool]:
+    """Safely get memory system, returning (memory, embeddings_available).
+
+    Returns:
+        Tuple of (memory_system or None, embeddings_available bool)
+    """
+    try:
+        from src.api.dependencies import get_memory
+        memory = get_memory()
+        return memory, True
+    except ValueError as e:
+        if _is_embeddings_error(e):
+            logger.warning(f"Memory system unavailable - embeddings not configured: {e}")
+            return None, False
+        raise
+    except Exception as e:
+        if _is_embeddings_error(e):
+            logger.warning(f"Memory system unavailable - embeddings error: {e}")
+            return None, False
+        raise
+
+
 @router.get("/statistics", response_model=APIResponse[MemoryStatistics])
 async def get_memory_statistics(
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[MemoryStatistics]:
     """Get memory system statistics.
 
     Returns consolidation status and memory counts.
+    Returns empty stats with embeddings_available=False if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        # Return empty stats when embeddings not configured
+        memory_stats = MemoryStatistics(
+            consolidation_enabled=False,
+            consolidation_running=False,
+            last_consolidation=None,
+            total_skills=0,
+            total_concepts=0,
+            total_episodes=0,
+            total_facts=0,
+            embeddings_available=False,
+        )
+        return APIResponse(
+            success=True,
+            data=memory_stats,
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         stats = memory.get_statistics()
 
@@ -48,6 +96,7 @@ async def get_memory_statistics(
             total_concepts=stats.get("total_concepts", 0),
             total_episodes=stats.get("total_episodes", 0),
             total_facts=stats.get("total_facts", 0),
+            embeddings_available=True,
         )
 
         return APIResponse(
@@ -56,6 +105,22 @@ async def get_memory_statistics(
             message="Memory statistics retrieved",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            memory_stats = MemoryStatistics(
+                consolidation_enabled=False,
+                consolidation_running=False,
+                last_consolidation=None,
+                total_skills=0,
+                total_concepts=0,
+                total_episodes=0,
+                total_facts=0,
+                embeddings_available=False,
+            )
+            return APIResponse(
+                success=True,
+                data=memory_stats,
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to get memory statistics: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -66,13 +131,31 @@ async def get_memory_statistics(
 @router.post("/recall", response_model=APIResponse[MemoryRecallResponse])
 async def recall_memories(
     request: MemoryRecallRequest,
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[MemoryRecallResponse]:
     """Query all memory types with a search query.
 
     Returns relevant episodes, facts, concepts, and skills.
+    Returns empty results if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        response = MemoryRecallResponse(
+            query=request.query,
+            timestamp=datetime.now(),
+            episodes=[],
+            facts=[],
+            concepts=[],
+            skills=[],
+            has_results=False,
+        )
+        return APIResponse(
+            success=True,
+            data=response,
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         result = await memory.recall(
             query=request.query,
@@ -153,6 +236,21 @@ async def recall_memories(
             message=f"Recalled {len(episodes) + len(facts) + len(concepts) + len(skills)} memories",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            response = MemoryRecallResponse(
+                query=request.query,
+                timestamp=datetime.now(),
+                episodes=[],
+                facts=[],
+                concepts=[],
+                skills=[],
+                has_results=False,
+            )
+            return APIResponse(
+                success=True,
+                data=response,
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to recall memories: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -164,7 +262,6 @@ async def recall_memories(
 async def get_episodes(
     limit: int = Query(default=50, le=200),
     time_period: Optional[str] = Query(default=None, description="Natural language time period"),
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[Episode]]:
     """Get episodic memories.
@@ -172,7 +269,18 @@ async def get_episodes(
     Args:
         limit: Maximum number of episodes to return
         time_period: Optional time period filter (e.g., "last hour", "today")
+
+    Returns empty list if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        return APIResponse(
+            success=True,
+            data=[],
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         if time_period:
             raw_episodes = await memory.recall_temporal(time_period)
@@ -208,6 +316,12 @@ async def get_episodes(
             message=f"Retrieved {len(episodes)} episodes",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            return APIResponse(
+                success=True,
+                data=[],
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to get episodes: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -219,7 +333,6 @@ async def get_episodes(
 async def get_facts(
     limit: int = Query(default=50, le=200),
     subject: Optional[str] = Query(default=None),
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[Fact]]:
     """Get semantic facts.
@@ -227,7 +340,18 @@ async def get_facts(
     Args:
         limit: Maximum number of facts to return
         subject: Optional filter by subject
+
+    Returns empty list if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        return APIResponse(
+            success=True,
+            data=[],
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         # Query facts
         query = subject if subject else "all known facts"
@@ -259,6 +383,12 @@ async def get_facts(
             message=f"Retrieved {len(facts)} facts",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            return APIResponse(
+                success=True,
+                data=[],
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to get facts: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -270,7 +400,6 @@ async def get_facts(
 async def get_concepts(
     limit: int = Query(default=50, le=200),
     concept_type: Optional[str] = Query(default=None),
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[Concept]]:
     """Get semantic concepts.
@@ -278,7 +407,18 @@ async def get_concepts(
     Args:
         limit: Maximum number of concepts to return
         concept_type: Optional filter by concept type
+
+    Returns empty list if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        return APIResponse(
+            success=True,
+            data=[],
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         # Get all concepts from semantic memory
         raw_concepts = memory.semantic.get_all_concepts()
@@ -304,6 +444,12 @@ async def get_concepts(
             message=f"Retrieved {len(concepts)} concepts",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            return APIResponse(
+                success=True,
+                data=[],
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to get concepts: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -315,7 +461,6 @@ async def get_concepts(
 async def get_skills(
     limit: int = Query(default=50, le=200),
     min_confidence: float = Query(default=0.0, ge=0.0, le=1.0),
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[List[Skill]]:
     """Get procedural skills.
@@ -323,7 +468,18 @@ async def get_skills(
     Args:
         limit: Maximum number of skills to return
         min_confidence: Minimum confidence threshold
+
+    Returns empty list if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        return APIResponse(
+            success=True,
+            data=[],
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         # Get all skills from procedural memory
         raw_skills = memory.procedural.get_all_skills()
@@ -354,6 +510,12 @@ async def get_skills(
             message=f"Retrieved {len(skills)} skills",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            return APIResponse(
+                success=True,
+                data=[],
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to get skills: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -363,13 +525,28 @@ async def get_skills(
 
 @router.post("/consolidate", response_model=APIResponse[ConsolidationResult])
 async def trigger_consolidation(
-    memory: TriMemorySystem = Depends(get_memory),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[ConsolidationResult]:
     """Trigger immediate memory consolidation.
 
     Consolidates episodic memories into semantic knowledge and skills.
+    Returns empty result if embeddings not configured.
     """
+    memory, embeddings_available = _get_memory_safe()
+
+    if not embeddings_available or memory is None:
+        consolidation_result = ConsolidationResult(
+            episodes_processed=0,
+            facts_created=0,
+            skills_updated=0,
+            duration_seconds=0.0,
+        )
+        return APIResponse(
+            success=True,
+            data=consolidation_result,
+            message="Embeddings not configured - configure API key in Settings",
+        )
+
     try:
         import time
 
@@ -392,6 +569,18 @@ async def trigger_consolidation(
             message="Memory consolidation completed",
         )
     except Exception as e:
+        if _is_embeddings_error(e):
+            consolidation_result = ConsolidationResult(
+                episodes_processed=0,
+                facts_created=0,
+                skills_updated=0,
+                duration_seconds=0.0,
+            )
+            return APIResponse(
+                success=True,
+                data=consolidation_result,
+                message="Embeddings not configured - configure API key in Settings",
+            )
         logger.error(f"Failed to consolidate memories: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

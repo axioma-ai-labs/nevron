@@ -76,6 +76,7 @@ class LearningStatistics(BaseModel):
     worst_performing: Optional[str] = None
     lessons_count: int = 0
     critiques_count: int = 0
+    embeddings_available: bool = True
 
 
 class FailingAction(BaseModel):

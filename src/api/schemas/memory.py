@@ -88,6 +88,7 @@ class MemoryStatistics(BaseModel):
     total_concepts: int = 0
     total_episodes: int = 0
     total_facts: int = 0
+    embeddings_available: bool = True
 
 
 class ConsolidationResult(BaseModel):
