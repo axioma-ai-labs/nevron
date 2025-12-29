@@ -29,74 +29,29 @@ make deps
 make dashboard-deps
 ```
 
-### Configuration
-
-1. Copy the example environment file:
-```bash
-cp .env.example .env
-```
-
-2. Add your LLM API key to `.env`:
-```bash
-# Choose one provider
-OPENAI_API_KEY=sk-...
-# or
-ANTHROPIC_API_KEY=sk-ant-...
-# or
-XAI_API_KEY=xai-...
-```
-
-3. Configure your LLM provider:
-```bash
-LLM_PROVIDER=openai  # Options: openai, anthropic, xai, deepseek, qwen, venice, llama
-LLM_MODEL=gpt-4o     # Model name for your provider
-```
-
-## Running Nevron
-
-### Option 1: Full Stack (Recommended)
-
-Run the agent, API, and dashboard together:
+### Running Nevron
 
 ```bash
+# Start everything (Agent + API + Dashboard)
 make dev-full
 ```
 
 This starts:
-- **Agent Process** - Autonomous agent runtime (writes state to `./nevron_state/`)
-- **API Server** - FastAPI backend at http://localhost:8000
-- **Dashboard** - Svelte UI at http://localhost:5173
+- **Dashboard**: http://localhost:5173
+- **API**: http://localhost:8000
+- **Agent**: Running in background
 
-### Option 2: Components Separately
+### Configuration
 
-Run each component in separate terminals:
+**All configuration is done through the Dashboard UI** - no `.env` file needed!
 
-```bash
-# Terminal 1: Agent process
-make run-agent
+1. Open the dashboard at http://localhost:5173
+2. Go to **Settings** page
+3. Configure your LLM provider and API key
+4. Set up agent personality and goals
+5. Enable integrations as needed
 
-# Terminal 2: API server
-make api
-
-# Terminal 3: Dashboard
-make dashboard
-```
-
-### Option 3: Dashboard Only (No Agent)
-
-For development or monitoring without running the agent:
-
-```bash
-make dev
-```
-
-### Option 4: Agent Only (No Dashboard)
-
-Run the agent in legacy coupled mode:
-
-```bash
-make run
-```
+Configuration is saved to `nevron_config.json` and loaded automatically.
 
 ## Architecture
 
@@ -109,6 +64,8 @@ Nevron uses a decoupled architecture where the API and Agent run as independent 
 │   Port 5173     │◀────│   + WebSocket    │◀────│                 │
 └─────────────────┘     └──────────────────┘     └────────┬────────┘
                                                           │
+                              nevron_config.json ─────────┤
+                                                          │
                                                           ▼
                                                  ┌─────────────────┐
                                                  │  Agent Runner   │
@@ -117,6 +74,7 @@ Nevron uses a decoupled architecture where the API and Agent run as independent 
 ```
 
 **Benefits:**
+- Configure everything from the UI
 - Restart API without stopping the agent
 - Multiple dashboards can connect simultaneously
 - Agent continues running if dashboard disconnects
@@ -135,11 +93,21 @@ Nevron uses a decoupled architecture where the API and Agent run as independent 
 - Performance metrics
 
 ### Settings Page
-- **LLM Configuration** - Provider, model, temperature
+- **LLM Configuration** - Provider, model, API key
 - **Agent Settings** - Personality, goal, behavior
 - **Actions** - Enable/disable available actions
 - **Integrations** - Configure Twitter, Discord, Telegram, etc.
 - **MCP Servers** - Add custom tool servers
+
+## Other Run Options
+
+| Command | What it does |
+|---------|-------------|
+| `make dev-full` | Agent + API + Dashboard (recommended) |
+| `make dev` | API + Dashboard only (no agent) |
+| `make run-agent` | Agent process only |
+| `make api` | API server only |
+| `make dashboard` | Dashboard only |
 
 ## Available Commands
 
@@ -167,18 +135,18 @@ make docker-logs     # View logs
 
 ## Supported LLM Providers
 
-| Provider | Models | Environment Variable |
-|----------|--------|---------------------|
-| OpenAI | gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o1-mini | `OPENAI_API_KEY` |
-| Anthropic | claude-sonnet-4, claude-opus-4 | `ANTHROPIC_API_KEY` |
-| xAI | grok-3, grok-3-fast, grok-2 | `XAI_API_KEY` |
-| DeepSeek | deepseek-chat, deepseek-reasoner | `DEEPSEEK_API_KEY` |
-| Qwen | qwen-max, qwen-plus, qwen-turbo | `QWEN_API_KEY` |
-| Venice | llama-3.3-70b, qwen3-235b | `VENICE_API_KEY` |
+| Provider | Models |
+|----------|--------|
+| OpenAI | gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o1-mini |
+| Anthropic | claude-sonnet-4, claude-opus-4 |
+| xAI | grok-3, grok-3-fast, grok-2 |
+| DeepSeek | deepseek-chat, deepseek-reasoner |
+| Qwen | qwen-max, qwen-plus, qwen-turbo |
+| Venice | llama-3.3-70b, qwen3-235b |
 
 ## Integrations
 
-Nevron supports various external services:
+Nevron supports various external services (configure in Settings):
 
 - **Social Media**: Twitter, Discord, Telegram, Slack, WhatsApp
 - **Development**: GitHub
@@ -186,8 +154,6 @@ Nevron supports various external services:
 - **Media**: Spotify, YouTube
 - **Web3**: Lens Protocol
 - **Search**: Tavily, Perplexity
-
-Configure integrations via the dashboard Settings page or `.env` file.
 
 ## Documentation
 

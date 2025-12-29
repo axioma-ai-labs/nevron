@@ -1,4 +1,17 @@
-from typing import List, Optional
+"""Configuration module for Nevron.
+
+Configuration Priority (highest to lowest):
+1. nevron_config.json (UI-configured settings) - PRIMARY
+2. Environment variables / .env file - for backwards compatibility only
+3. Code defaults as fallback
+
+The nevron_config.json file is the main configuration source.
+Users configure everything through the dashboard UI.
+"""
+
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,8 +26,64 @@ from src.core.defs import (
 )
 
 
+# Path to the UI config file
+CONFIG_FILE_PATH = Path("./nevron_config.json")
+
+
+def _load_json_config() -> Dict[str, Any]:
+    """Load configuration from nevron_config.json.
+
+    Returns:
+        Dictionary with config values, or empty dict if file doesn't exist
+    """
+    if not CONFIG_FILE_PATH.exists():
+        return {}
+
+    try:
+        with open(CONFIG_FILE_PATH, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+# Load JSON config once at module load
+_json_config = _load_json_config()
+
+
+def _get_config_value(key: str, default: Any = None) -> Any:
+    """Get a config value from JSON config.
+
+    Args:
+        key: The config key to look up
+        default: Default value if not found
+
+    Returns:
+        The config value or default
+    """
+    return _json_config.get(key, default)
+
+
+def _get_integration_value(integration: str, field: str, default: str = "") -> str:
+    """Get an integration credential from JSON config.
+
+    Args:
+        integration: Integration name (e.g., 'twitter', 'telegram')
+        field: Field name within the integration
+        default: Default value if not found
+
+    Returns:
+        The credential value or default
+    """
+    integrations = _json_config.get("integrations", {})
+    return integrations.get(integration, {}).get(field, default)
+
+
 class Settings(BaseSettings):
-    """Settings for the autonomous agent."""
+    """Settings for the autonomous agent.
+
+    Configuration is loaded from nevron_config.json (primary) with
+    environment variables as fallback for backwards compatibility.
+    """
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True
@@ -58,12 +127,13 @@ class Settings(BaseSettings):
     EMBEDDING_POOLING_TYPE: LlamaPoolingType = LlamaPoolingType.MEAN
 
     # --- LLMs settings ---
+    # These are loaded from nevron_config.json first, then env vars as fallback
 
     LLM_PROVIDER: LLMProviderType = LLMProviderType.OPENAI
 
     #: Anthropic
     ANTHROPIC_API_KEY: str = ""
-    ANTHROPIC_MODEL: str = "claude-2"
+    ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
 
     #: OpenAI
     OPENAI_API_KEY: str = ""
@@ -76,7 +146,7 @@ class Settings(BaseSettings):
 
     #: DeepSeek
     DEEPSEEK_API_KEY: str = ""
-    DEEPSEEK_MODEL: str = "deepseek-reasoner"
+    DEEPSEEK_MODEL: str = "deepseek-chat"
     DEEPSEEK_API_BASE_URL: str = "https://api.deepseek.com"
 
     #: Qwen
@@ -86,7 +156,7 @@ class Settings(BaseSettings):
 
     #: Venice
     VENICE_API_KEY: str = ""
-    VENICE_MODEL: str = "venice-2-13b"
+    VENICE_MODEL: str = "llama-3.3-70b"
     VENICE_API_BASE_URL: str = "https://api.venice.ai/api/v1"
 
     #: Llama
@@ -342,4 +412,167 @@ class Settings(BaseSettings):
             )
 
 
-settings = Settings(_env_file=".env", _env_file_encoding="utf-8")  # type: ignore[call-arg]
+def _create_settings() -> Settings:
+    """Create Settings instance with JSON config overrides.
+
+    Loads settings from .env first (pydantic default behavior),
+    then overrides with values from nevron_config.json.
+
+    Returns:
+        Configured Settings instance
+    """
+    # Create base settings from env
+    base_settings = Settings(_env_file=".env", _env_file_encoding="utf-8")  # type: ignore[call-arg]
+
+    # If no JSON config, return as-is
+    if not _json_config:
+        return base_settings
+
+    # Apply JSON config overrides
+    overrides = {}
+
+    # LLM Provider
+    if provider := _get_config_value("llm_provider"):
+        overrides["LLM_PROVIDER"] = provider.upper()
+
+    # LLM API Key - apply to the correct provider
+    if api_key := _get_config_value("llm_api_key"):
+        provider = _get_config_value("llm_provider", "openai").lower()
+        if provider == "openai":
+            overrides["OPENAI_API_KEY"] = api_key
+        elif provider == "anthropic":
+            overrides["ANTHROPIC_API_KEY"] = api_key
+        elif provider == "xai":
+            overrides["XAI_API_KEY"] = api_key
+        elif provider == "deepseek":
+            overrides["DEEPSEEK_API_KEY"] = api_key
+        elif provider == "qwen":
+            overrides["QWEN_API_KEY"] = api_key
+        elif provider == "venice":
+            overrides["VENICE_API_KEY"] = api_key
+
+    # LLM Model - apply to the correct provider
+    if model := _get_config_value("llm_model"):
+        provider = _get_config_value("llm_provider", "openai").lower()
+        if provider == "openai":
+            overrides["OPENAI_MODEL"] = model
+        elif provider == "anthropic":
+            overrides["ANTHROPIC_MODEL"] = model
+        elif provider == "xai":
+            overrides["XAI_MODEL"] = model
+        elif provider == "deepseek":
+            overrides["DEEPSEEK_MODEL"] = model
+        elif provider == "qwen":
+            overrides["QWEN_MODEL"] = model
+        elif provider == "venice":
+            overrides["VENICE_MODEL"] = model
+
+    # Agent settings
+    if personality := _get_config_value("agent_personality"):
+        overrides["AGENT_PERSONALITY"] = personality
+    if goal := _get_config_value("agent_goal"):
+        overrides["AGENT_GOAL"] = goal
+
+    # Agent behavior
+    if behavior := _get_config_value("agent_behavior"):
+        if rest_time := behavior.get("rest_time"):
+            overrides["AGENT_REST_TIME"] = rest_time
+
+    # MCP settings
+    if mcp_enabled := _get_config_value("mcp_enabled"):
+        overrides["MCP_ENABLED"] = mcp_enabled
+
+    # Integration credentials
+    # Twitter
+    if v := _get_integration_value("twitter", "api_key"):
+        overrides["TWITTER_API_KEY"] = v
+    if v := _get_integration_value("twitter", "api_secret_key"):
+        overrides["TWITTER_API_SECRET_KEY"] = v
+    if v := _get_integration_value("twitter", "access_token"):
+        overrides["TWITTER_ACCESS_TOKEN"] = v
+    if v := _get_integration_value("twitter", "access_token_secret"):
+        overrides["TWITTER_ACCESS_TOKEN_SECRET"] = v
+
+    # Telegram
+    if v := _get_integration_value("telegram", "bot_token"):
+        overrides["TELEGRAM_BOT_TOKEN"] = v
+    if v := _get_integration_value("telegram", "chat_id"):
+        overrides["TELEGRAM_CHAT_ID"] = v
+
+    # Discord
+    if v := _get_integration_value("discord", "bot_token"):
+        overrides["DISCORD_BOT_TOKEN"] = v
+    if v := _get_integration_value("discord", "channel_id"):
+        try:
+            overrides["DISCORD_CHANNEL_ID"] = int(v)
+        except (ValueError, TypeError):
+            pass
+
+    # Slack
+    if v := _get_integration_value("slack", "bot_token"):
+        overrides["SLACK_BOT_TOKEN"] = v
+    if v := _get_integration_value("slack", "app_token"):
+        overrides["SLACK_APP_TOKEN"] = v
+
+    # WhatsApp
+    if v := _get_integration_value("whatsapp", "id_instance"):
+        overrides["WHATSAPP_ID_INSTANCE"] = v
+    if v := _get_integration_value("whatsapp", "api_token"):
+        overrides["WHATSAPP_API_TOKEN"] = v
+
+    # GitHub
+    if v := _get_integration_value("github", "token"):
+        overrides["GITHUB_TOKEN"] = v
+
+    # Tavily
+    if v := _get_integration_value("tavily", "api_key"):
+        overrides["TAVILY_API_KEY"] = v
+
+    # Perplexity
+    if v := _get_integration_value("perplexity", "api_key"):
+        overrides["PERPLEXITY_API_KEY"] = v
+    if v := _get_integration_value("perplexity", "model"):
+        overrides["PERPLEXITY_MODEL"] = v
+
+    # Shopify
+    if v := _get_integration_value("shopify", "api_key"):
+        overrides["SHOPIFY_API_KEY"] = v
+    if v := _get_integration_value("shopify", "password"):
+        overrides["SHOPIFY_PASSWORD"] = v
+    if v := _get_integration_value("shopify", "store_name"):
+        overrides["SHOPIFY_STORE_NAME"] = v
+
+    # YouTube
+    if v := _get_integration_value("youtube", "api_key"):
+        overrides["YOUTUBE_API_KEY"] = v
+    if v := _get_integration_value("youtube", "playlist_id"):
+        overrides["YOUTUBE_PLAYLIST_ID"] = v
+
+    # Spotify
+    if v := _get_integration_value("spotify", "client_id"):
+        overrides["SPOTIFY_CLIENT_ID"] = v
+    if v := _get_integration_value("spotify", "client_secret"):
+        overrides["SPOTIFY_CLIENT_SECRET"] = v
+    if v := _get_integration_value("spotify", "redirect_uri"):
+        overrides["SPOTIFY_REDIRECT_URI"] = v
+
+    # Lens
+    if v := _get_integration_value("lens", "api_key"):
+        overrides["LENS_API_KEY"] = v
+    if v := _get_integration_value("lens", "profile_id"):
+        overrides["LENS_PROFILE_ID"] = v
+
+    # Apply overrides by creating new settings with merged values
+    if overrides:
+        # Get current values as dict
+        current = base_settings.model_dump()
+        # Merge with overrides
+        current.update(overrides)
+        # Create new settings from merged dict
+        return Settings(**current)
+
+    return base_settings
+
+
+# Global settings instance - reads from nevron_config.json first, then .env
+settings = _create_settings()
