@@ -480,7 +480,7 @@ export const mcpAPI = {
 // Health API
 export const healthAPI = {
 	check: async (): Promise<HealthCheck> => {
-		const response = await fetch('/health');
+		const response = await fetch(`${API_HOST}/health`);
 		return response.json();
 	}
 };

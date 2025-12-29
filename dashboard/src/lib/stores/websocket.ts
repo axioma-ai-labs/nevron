@@ -47,7 +47,10 @@ function createWebSocketStore() {
 		if (ws?.readyState === WebSocket.OPEN) return;
 
 		clientId = generateClientId();
-		const wsUrl = `ws://${window.location.host}/ws/${clientId}`;
+		// In development, connect to FastAPI on port 8000
+		// In production (Docker), use same host (nginx proxy)
+		const wsHost = import.meta.env.DEV ? 'localhost:8000' : window.location.host;
+		const wsUrl = `ws://${wsHost}/ws/${clientId}`;
 
 		update((state) => ({ ...state, status: 'connecting', error: null }));
 
