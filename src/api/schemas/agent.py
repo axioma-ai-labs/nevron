@@ -10,6 +10,7 @@ class AgentStatus(BaseModel):
     """Agent status response."""
 
     state: str
+    status: str  # running, paused, stopped
     personality: str
     goal: str
     mcp_enabled: bool

@@ -40,8 +40,19 @@ async def get_agent_status(
         state = state_manager.get_state()
         is_alive = state_manager.is_agent_alive()
 
+        # Determine effective status
+        if not is_alive:
+            effective_status = "stopped"
+        elif state.status:
+            effective_status = state.status
+        elif state.is_running:
+            effective_status = "running"
+        else:
+            effective_status = "stopped"
+
         agent_status = AgentStatus(
             state=state.agent_state if state.agent_state else "unknown",
+            status=effective_status,
             personality=state.personality if state.personality else "unknown",
             goal=state.goal if state.goal else "unknown",
             mcp_enabled=state.mcp_enabled,
@@ -174,18 +185,29 @@ async def get_agent_context(
 @router.post("/start", response_model=APIResponse[Dict[str, Any]])
 async def start_agent(
     state_manager: SharedStateManager = Depends(get_shared_state),
+    commands: CommandQueue = Depends(get_commands),
     _auth: bool = Depends(verify_api_key),
 ) -> APIResponse[Dict[str, Any]]:
     """Start the agent runtime loop.
 
-    In decoupled mode, this checks if the agent is running.
-    To start the agent, use 'make run-agent' in a separate terminal.
+    Sends a START command to the agent process if it's running but stopped.
     """
     try:
         state = state_manager.get_state()
         is_alive = state_manager.is_agent_alive()
 
-        if state.is_running and is_alive:
+        if not is_alive:
+            # Agent process is not running at all
+            return APIResponse(
+                success=False,
+                data={
+                    "status": "not_running",
+                    "instruction": "Run 'make run-agent' to start the agent process",
+                },
+                message="Agent process not running. Start with 'make run-agent' in a separate terminal.",
+            )
+
+        if state.is_running:
             return APIResponse(
                 success=True,
                 data={
@@ -195,14 +217,18 @@ async def start_agent(
                 message="Agent is already running",
             )
 
-        # In decoupled mode, we can't start the agent from the API
+        # Agent process is alive but stopped - send START command
+        from src.core.agent_commands import CommandType
+
+        command = commands.send_command(CommandType.START)
         return APIResponse(
-            success=False,
+            success=True,
             data={
-                "status": "not_running",
-                "instruction": "Run 'make run-agent' to start the agent process",
+                "status": "starting",
+                "command_id": command.command_id,
+                "pid": state.pid,
             },
-            message="Agent not running. Start with 'make run-agent' in a separate terminal.",
+            message="Start command sent to agent",
         )
     except Exception as e:
         logger.error(f"Failed to start agent: {e}")
@@ -260,6 +286,104 @@ async def stop_agent(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to stop agent: {str(e)}",
+        )
+
+
+@router.post("/pause", response_model=APIResponse[Dict[str, Any]])
+async def pause_agent(
+    state_manager: SharedStateManager = Depends(get_shared_state),
+    commands: CommandQueue = Depends(get_commands),
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[Dict[str, Any]]:
+    """Pause the agent runtime loop.
+
+    Sends a pause command to the agent process. The agent will stop
+    running cycles but remain ready to resume.
+    """
+    try:
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
+
+        if not is_alive:
+            return APIResponse(
+                success=False,
+                data={"status": "not_running"},
+                message="Agent process is not running",
+            )
+
+        if not state.is_running:
+            return APIResponse(
+                success=True,
+                data={"status": "already_stopped"},
+                message="Agent is not running (start it first)",
+            )
+
+        if state.status == "paused":
+            return APIResponse(
+                success=True,
+                data={"status": "already_paused"},
+                message="Agent is already paused",
+            )
+
+        # Send pause command
+        command = commands.send_command(CommandType.PAUSE, timeout_seconds=30.0)
+        logger.info(f"Sent pause command: {command.command_id}")
+
+        return APIResponse(
+            success=True,
+            data={"status": "pausing", "command_id": command.command_id},
+            message="Pause command sent to agent",
+        )
+    except Exception as e:
+        logger.error(f"Failed to pause agent: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to pause agent: {str(e)}",
+        )
+
+
+@router.post("/resume", response_model=APIResponse[Dict[str, Any]])
+async def resume_agent(
+    state_manager: SharedStateManager = Depends(get_shared_state),
+    commands: CommandQueue = Depends(get_commands),
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[Dict[str, Any]]:
+    """Resume a paused agent.
+
+    Sends a resume command to the agent process.
+    """
+    try:
+        state = state_manager.get_state()
+        is_alive = state_manager.is_agent_alive()
+
+        if not is_alive:
+            return APIResponse(
+                success=False,
+                data={"status": "not_running"},
+                message="Agent process is not running",
+            )
+
+        if state.status != "paused":
+            return APIResponse(
+                success=True,
+                data={"status": "not_paused"},
+                message="Agent is not paused",
+            )
+
+        # Send resume command
+        command = commands.send_command(CommandType.RESUME, timeout_seconds=30.0)
+        logger.info(f"Sent resume command: {command.command_id}")
+
+        return APIResponse(
+            success=True,
+            data={"status": "resuming", "command_id": command.command_id},
+            message="Resume command sent to agent",
+        )
+    except Exception as e:
+        logger.error(f"Failed to resume agent: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to resume agent: {str(e)}",
         )
 
 

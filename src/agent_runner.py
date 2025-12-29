@@ -43,10 +43,19 @@ class AgentRunner:
     """Standalone agent runner with IPC support.
 
     This runner:
+    - Starts in STOPPED state, waiting for START command
     - Manages the agent lifecycle independently of the API
     - Writes state to shared storage for API access
     - Processes commands from the command queue
     - Sends heartbeats to indicate liveness
+
+    Lifecycle:
+    - Process starts -> state = "stopped", waiting for commands
+    - START command -> state = "running", begins agent cycles
+    - PAUSE command -> state = "paused", cycles paused
+    - RESUME command -> state = "running", cycles resume
+    - STOP command -> state = "stopped", cycles stop (can be restarted)
+    - SHUTDOWN command -> process exits
     """
 
     def __init__(
@@ -64,7 +73,8 @@ class AgentRunner:
         self.command_queue = command_queue or get_command_queue()
 
         self._agent: Optional[Agent] = None
-        self._running = False
+        self._process_running = False  # Process is alive
+        self._agent_started = False  # Agent cycles are running
         self._paused = False
         self._shutdown_requested = False
 
@@ -78,21 +88,27 @@ class AgentRunner:
 
         logger.info("AgentRunner initialized")
 
-    async def start(self) -> None:
-        """Start the agent runner."""
-        if self._running:
-            logger.warning("Agent runner already running")
+    async def initialize(self) -> None:
+        """Initialize the agent runner process (but don't start cycles).
+
+        This sets up the agent and shared state, but waits for a START command
+        before actually running cycles.
+        """
+        if self._process_running:
+            logger.warning("Agent runner already initialized")
             return
 
-        logger.info("Starting agent runner...")
+        logger.info("Initializing agent runner (waiting for START command)...")
         log_settings()
 
         # Initialize the agent
         self._agent = Agent()
 
-        # Update shared state
-        self.state_manager.set_running(
+        # Update shared state - mark as STOPPED (waiting for start)
+        self.state_manager.update_state(
             pid=os.getpid(),
+            status="stopped",
+            is_running=False,
             personality=self._agent.personality,
             goal=self._agent.goal,
         )
@@ -108,26 +124,62 @@ class AgentRunner:
             available_tools=mcp_status.get("available_tools", 0),
         )
 
-        self._running = True
+        self._process_running = True
+        self._agent_started = False
         self._shutdown_requested = False
 
         # Setup signal handlers
         self._setup_signal_handlers()
 
-        logger.info("Agent runner started")
+        logger.info("Agent runner initialized - waiting for START command")
 
-    async def stop(self, error: Optional[str] = None) -> None:
-        """Stop the agent runner.
-
-        Args:
-            error: Optional error message if stopping due to error
-        """
-        if not self._running:
+    async def start_agent(self) -> None:
+        """Start agent cycles (called when START command received)."""
+        if self._agent_started:
+            logger.warning("Agent already started")
             return
 
-        logger.info("Stopping agent runner...")
+        logger.info("Starting agent cycles...")
 
-        self._running = False
+        # Update shared state
+        self.state_manager.set_running(
+            pid=os.getpid(),
+            personality=self._agent.personality if self._agent else "",
+            goal=self._agent.goal if self._agent else "",
+        )
+
+        self._agent_started = True
+        self._paused = False
+
+        logger.info("Agent cycles started")
+
+    async def stop_agent(self) -> None:
+        """Stop agent cycles (can be restarted with START command)."""
+        if not self._agent_started:
+            return
+
+        logger.info("Stopping agent cycles...")
+        self._agent_started = False
+        self._paused = False
+
+        # Update shared state
+        self.state_manager.update_state(status="stopped", is_running=False)
+
+        logger.info("Agent cycles stopped - waiting for START command")
+
+    async def shutdown(self, error: Optional[str] = None) -> None:
+        """Shutdown the agent runner process completely.
+
+        Args:
+            error: Optional error message if shutting down due to error
+        """
+        if not self._process_running:
+            return
+
+        logger.info("Shutting down agent runner...")
+
+        self._process_running = False
+        self._agent_started = False
 
         # Cleanup MCP connections
         if self._agent:
@@ -136,7 +188,7 @@ class AgentRunner:
         # Update shared state
         self.state_manager.set_stopped(error=error)
 
-        logger.info("Agent runner stopped")
+        logger.info("Agent runner shutdown complete")
 
     def _setup_signal_handlers(self) -> None:
         """Setup OS signal handlers for graceful shutdown."""
@@ -190,16 +242,28 @@ class AgentRunner:
         """
         cmd_type = command.command_type
 
-        if cmd_type == CommandType.STOP.value:
-            self._shutdown_requested = True
-            return {"status": "shutdown_requested"}
+        if cmd_type == CommandType.START.value:
+            if self._agent_started:
+                return {"status": "already_running"}
+            await self.start_agent()
+            return {"status": "started"}
+
+        elif cmd_type == CommandType.STOP.value:
+            if not self._agent_started:
+                return {"status": "already_stopped"}
+            await self.stop_agent()
+            return {"status": "stopped"}
 
         elif cmd_type == CommandType.PAUSE.value:
+            if not self._agent_started:
+                return {"status": "error", "error": "Agent not running"}
             self._paused = True
             self.state_manager.update_state(status="paused")
             return {"status": "paused"}
 
         elif cmd_type == CommandType.RESUME.value:
+            if not self._agent_started:
+                return {"status": "error", "error": "Agent not running"}
             self._paused = False
             self.state_manager.update_state(status="running")
             return {"status": "resumed"}
@@ -347,11 +411,15 @@ class AgentRunner:
             return False
 
     async def run(self) -> None:
-        """Main run loop."""
-        await self.start()
+        """Main run loop.
+
+        The agent runner starts in STOPPED state and waits for commands.
+        When START command is received, it begins running cycles.
+        """
+        await self.initialize()
 
         try:
-            while self._running and not self._shutdown_requested:
+            while self._process_running and not self._shutdown_requested:
                 # Send heartbeat
                 await self._send_heartbeat()
 
@@ -361,6 +429,11 @@ class AgentRunner:
                 # Check for shutdown
                 if self._shutdown_requested:
                     break
+
+                # If agent not started, just wait for commands
+                if not self._agent_started:
+                    await asyncio.sleep(1.0)
+                    continue
 
                 # Skip cycle if paused
                 if self._paused:
@@ -382,10 +455,10 @@ class AgentRunner:
             logger.info("Agent runner interrupted by user")
         except Exception as e:
             logger.critical(f"Fatal error in agent runner: {e}")
-            await self.stop(error=str(e))
+            await self.shutdown(error=str(e))
             raise
         finally:
-            await self.stop()
+            await self.shutdown()
 
 
 async def async_main() -> None:

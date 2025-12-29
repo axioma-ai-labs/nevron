@@ -390,15 +390,18 @@ class SharedStateManager:
     def is_agent_alive(self, timeout_seconds: float = 60.0) -> bool:
         """Check if the agent process is alive based on heartbeat.
 
+        The agent can be alive but in stopped state (waiting for START command).
+        This method only checks if the process is running, not if cycles are active.
+
         Args:
             timeout_seconds: Max seconds since last heartbeat
 
         Returns:
-            True if agent appears alive
+            True if agent process appears alive (has recent heartbeat)
         """
         state = self.get_state()
 
-        if not state.is_running or not state.last_heartbeat:
+        if not state.last_heartbeat:
             return False
 
         try:
