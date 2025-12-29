@@ -2,7 +2,10 @@
  * API client for Nevron Dashboard
  */
 
-const API_BASE = '/api/v1';
+// In development, point to FastAPI backend on port 8000
+// In production (Docker), use relative path (nginx proxy)
+const API_HOST = import.meta.env.DEV ? 'http://localhost:8000' : '';
+const API_BASE = `${API_HOST}/api/v1`;
 
 // Types
 export interface APIResponse<T> {
