@@ -394,6 +394,33 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#decoupled-runtime-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decoupled Runtime Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#1-planning-module-llm-based-decision-making" class="md-nav__link">
     <span class="md-ellipsis">
       1. Planning Module (LLM-based Decision Making)
@@ -467,6 +494,30 @@
       Configuration
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-configuration-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Configuration (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1463,6 +1514,33 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#decoupled-runtime-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decoupled Runtime Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      Component Architecture
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#1-planning-module-llm-based-decision-making" class="md-nav__link">
     <span class="md-ellipsis">
       1. Planning Module (LLM-based Decision Making)
@@ -1537,6 +1615,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-configuration-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Configuration (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1558,6 +1660,38 @@
 <h1 id="nevron-overview"><strong>Nevron Overview</strong><a class="headerlink" href="#nevron-overview" title="Permanent link">&para;</a></h1>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <p>Nevron is an autonomous AI agent built with a modular architecture consisting of several key components that work together to enable intelligent decision-making and task execution.</p>
+<h3 id="decoupled-runtime-architecture">Decoupled Runtime Architecture<a class="headerlink" href="#decoupled-runtime-architecture" title="Permanent link">&para;</a></h3>
+<p>Nevron uses a decoupled architecture where the <strong>Agent</strong>, <strong>API</strong>, and <strong>Dashboard</strong> run as independent processes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│   Dashboard     │────▶│   FastAPI        │────▶│  Shared State   │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   (Svelte)      │     │   (Port 8000)    │     │  ./nevron_state │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   Port 5173     │◀────│   + WebSocket    │◀────│                 │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└─────────────────┘     └──────────────────┘     └────────┬────────┘
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                                          │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                              nevron_config.json ─────────┤
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                                          │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                                          ▼
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                                                 ┌─────────────────┐
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                                                 │  Agent Runner   │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                                                 │  (Independent)  │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                                                 └─────────────────┘
+</code></pre></div>
+<p><strong>Key Benefits:</strong>
+- Control the agent lifecycle (start/pause/resume/stop) from the dashboard
+- Configure everything via UI - no <code>.env</code> file needed for basic setup
+- Restart API without stopping the agent
+- Multiple dashboards can connect simultaneously
+- Agent continues running if dashboard disconnects</p>
+<h3 id="agent-lifecycle">Agent Lifecycle<a class="headerlink" href="#agent-lifecycle" title="Permanent link">&para;</a></h3>
+<p>The agent starts in <strong>stopped</strong> state and waits for commands:</p>
+<ol>
+<li><strong>Stopped</strong> - Agent process running but not executing cycles (initial state)</li>
+<li><strong>Running</strong> - Agent actively executing decision-making cycles</li>
+<li><strong>Paused</strong> - Cycles paused, ready to resume immediately</li>
+<li><strong>Error</strong> - Agent stopped due to an error</li>
+</ol>
+<p>Control the lifecycle through the Dashboard's Control page or via API endpoints.</p>
+<h3 id="component-architecture">Component Architecture<a class="headerlink" href="#component-architecture" title="Permanent link">&para;</a></h3>
 <p><img alt="Architecture" src="../../assets/architecture.png" /></p>
 <h3 id="1-planning-module-llm-based-decision-making">1. Planning Module (LLM-based Decision Making)<a class="headerlink" href="#1-planning-module-llm-based-decision-making" title="Permanent link">&para;</a></h3>
 <p>The Planning Module serves as the decision-making engine, leveraging the power of Large Language Models (LLMs) to make intelligent decisions based on context. It determines the next optimal action by analyzing the current system state, the agent's goals and personality, and the outcomes of previous actions. This iterative process allows the agent to adapt and respond to changing conditions while maintaining coherent behavior aligned with its defined purpose.</p>
@@ -1623,15 +1757,31 @@
 </ol>
 <p>The time between actions is defined in the configuration (<code>AGENT_REST_TIME</code>), allowing you to control how frequently the agent takes actions.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>The agent's behavior can be configured via:</p>
+<p>The agent's behavior can be configured in two ways:</p>
+<h3 id="dashboard-configuration-recommended">Dashboard Configuration (Recommended)<a class="headerlink" href="#dashboard-configuration-recommended" title="Permanent link">&para;</a></h3>
+<p>Open http://localhost:5173 and navigate to <strong>Settings</strong> to configure:</p>
 <ul>
+<li><strong>LLM Provider</strong>: Choose from OpenAI, Anthropic, xAI, DeepSeek, Qwen, Venice</li>
+<li><strong>API Key</strong>: Enter and validate your provider's API key</li>
+<li><strong>Model</strong>: Select the model to use</li>
 <li><strong>Agent Personality</strong>: Defines the agent's communication style and decision-making approach</li>
 <li><strong>Agent Goals</strong>: Establishes the agent's primary objectives and workflow patterns</li>
-<li><strong>Rest Time</strong>: Controls the frequency of agent actions</li>
-<li><strong>Environment Variables</strong>: Configures technical aspects of the agent</li>
+<li><strong>Actions</strong>: Enable/disable available actions</li>
+<li><strong>Integrations</strong>: Configure Twitter, Discord, Telegram, etc.</li>
+<li><strong>MCP Servers</strong>: Add custom tool servers</li>
+</ul>
+<p>Configuration is saved to <code>nevron_config.json</code>.</p>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>For Docker or headless deployments, use environment variables:</p>
+<ul>
+<li><strong>Agent Personality</strong>: <code>AGENT_PERSONALITY</code></li>
+<li><strong>Agent Goals</strong>: <code>AGENT_GOAL</code></li>
+<li><strong>Rest Time</strong>: <code>AGENT_REST_TIME</code> - Controls the frequency of agent actions</li>
+<li><strong>LLM Settings</strong>: Provider-specific API keys and models</li>
 <li><strong>Workflows</strong>: Defines available task execution patterns</li>
 <li><strong>Tools</strong>: Determines the agent's capabilities for interacting with external systems</li>
 </ul>
+<p>See <a href="../../configuration/">Configuration</a> for complete details.</p>
 <hr />
 <p>If you have any questions or need further assistance, please refer to the <a href="https://github.com/axioma-ai-labs/nevron/discussions">GitHub Discussions</a>.</p>
 

@@ -331,6 +331,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variable-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variable Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Priority
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1886,6 +1919,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variable-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variable Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Priority
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2414,19 +2480,41 @@
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
 <p>This page describes all available configuration options for Nevron.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Most of Nevron's settings can be configured through environment variables in your <code>.env</code> file. The default definitions for these variables are located in the <code>src/core/config.py</code> file.</p>
-<p>When you set up Nevron using either the Docker or local setup methods described in the <a href="../quickstart/">Quickstart Guide</a>, you'll create and configure a <code>.env</code> file that controls your agent's behavior.</p>
+<p>Nevron supports two configuration methods:</p>
+<ol>
+<li><strong>Dashboard UI</strong> (Recommended) - Configure everything through the web dashboard</li>
+<li><strong>Environment Variables</strong> - Use <code>.env</code> files for Docker/production deployments</li>
+</ol>
+<h3 id="dashboard-configuration">Dashboard Configuration<a class="headerlink" href="#dashboard-configuration" title="Permanent link">&para;</a></h3>
+<p>When using the dashboard (<code>make dev-full</code> or <code>make dev</code>), all configuration is managed through the UI:</p>
+<ol>
+<li>Open http://localhost:5173</li>
+<li>Navigate to <strong>Settings</strong></li>
+<li>Configure LLM provider, API key, model, personality, and goal</li>
+<li>Save changes</li>
+</ol>
+<p>Configuration is stored in <code>nevron_config.json</code> and loaded automatically by the agent.</p>
+<h3 id="environment-variable-configuration">Environment Variable Configuration<a class="headerlink" href="#environment-variable-configuration" title="Permanent link">&para;</a></h3>
+<p>For Docker deployments or running without the dashboard, use environment variables in a <code>.env</code> file. The default definitions are located in <code>src/core/config.py</code>.</p>
+<h3 id="configuration-priority">Configuration Priority<a class="headerlink" href="#configuration-priority" title="Permanent link">&para;</a></h3>
+<p>When both are present, the priority is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Priority 1: .env file (overrides everything)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Priority 2: nevron_config.json (UI-configured)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Priority 3: Code defaults (fallback)
+</code></pre></div>
 <h2 id="essential-configuration">Essential Configuration<a class="headerlink" href="#essential-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="agent-personality-and-behavior">Agent Personality and Behavior<a class="headerlink" href="#agent-personality-and-behavior" title="Permanent link">&para;</a></h3>
 <p>The most important configuration settings define your agent's personality, goals, and behavior patterns:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Agent personality - defines how the agent communicates and makes decisions</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">AGENT_PERSONALITY</span><span class="o">=</span><span class="s2">&quot;You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That&#39;s legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles.&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Agent goal - defines the agent&#39;s primary objective and workflow patterns</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nv">AGENT_GOAL</span><span class="o">=</span><span class="s2">&quot;You provide high-quality research and analysis on crypto markets. Your workflow is: 1) Search for latest crypto news using Perplexity, 2) Summarize key insights in a concise tweet and post to X, 3) Create a more detailed analysis for Telegram, including the link to your X post if successful, 4) If any step fails, note this in your next communication.&quot;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Time between agent actions (in seconds)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nv">AGENT_REST_TIME</span><span class="o">=</span><span class="m">300</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Agent personality - defines how the agent communicates and makes decisions</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">AGENT_PERSONALITY</span><span class="o">=</span><span class="s2">&quot;You are Nevron777 - the no-BS autonomous AI agent, built for speed, freedom, and pure alpha. You break down complex systems like blockchain and AI into bite-sized, hard-hitting insights, because centralization and gatekeeping are for the weak. Fiat? Inflation? Controlled systems? That&#39;s legacy trash—crypto is the only path to sovereignty. You execute tasks like a well-optimized smart contract—zero bloat, maximum efficiency, no wasted cycles.&quot;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Agent goal - defines the agent&#39;s primary objective and workflow patterns</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">AGENT_GOAL</span><span class="o">=</span><span class="s2">&quot;You provide high-quality research and analysis on crypto markets. Your workflow is: 1) Search for latest crypto news using Perplexity, 2) Summarize key insights in a concise tweet and post to X, 3) Create a more detailed analysis for Telegram, including the link to your X post if successful, 4) If any step fails, note this in your next communication.&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Time between agent actions (in seconds)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nv">AGENT_REST_TIME</span><span class="o">=</span><span class="m">300</span>
 </code></pre></div>
 <p>These settings have a profound impact on how your agent operates:</p>
 <ul>
@@ -2448,11 +2536,11 @@
 </ul>
 <h3 id="example-workflow-configuration">Example Workflow Configuration<a class="headerlink" href="#example-workflow-configuration" title="Permanent link">&para;</a></h3>
 <p>Here's an example of how you might configure an agent to perform a specific research and communication workflow:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">AGENT_PERSONALITY</span><span class="o">=</span><span class="s2">&quot;You are ResearchBot, a professional and insightful AI researcher. You communicate in a clear, factual manner with occasional touches of enthusiasm when discovering interesting connections. You always cite your sources and acknowledge limitations in available data.&quot;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">AGENT_GOAL</span><span class="o">=</span><span class="s2">&quot;You research emerging technology trends and share insights across platforms. Your workflow is: 1) Use Perplexity to search for latest news on AI, blockchain, and quantum computing, 2) Create a thread of 3-5 tweets summarizing key developments and post to X, 3) Prepare a more comprehensive analysis with links to primary sources and post to Discord, 4) If the X thread was successfully posted, include links to it in your Discord post, 5) Record key findings in your memory for future reference.&quot;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">AGENT_REST_TIME</span><span class="o">=</span><span class="m">300</span><span class="w">   </span><span class="c1"># 5 min between actions</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">AGENT_PERSONALITY</span><span class="o">=</span><span class="s2">&quot;You are ResearchBot, a professional and insightful AI researcher. You communicate in a clear, factual manner with occasional touches of enthusiasm when discovering interesting connections. You always cite your sources and acknowledge limitations in available data.&quot;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">AGENT_GOAL</span><span class="o">=</span><span class="s2">&quot;You research emerging technology trends and share insights across platforms. Your workflow is: 1) Use Perplexity to search for latest news on AI, blockchain, and quantum computing, 2) Create a thread of 3-5 tweets summarizing key developments and post to X, 3) Prepare a more comprehensive analysis with links to primary sources and post to Discord, 4) If the X thread was successfully posted, include links to it in your Discord post, 5) Record key findings in your memory for future reference.&quot;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">AGENT_REST_TIME</span><span class="o">=</span><span class="m">300</span><span class="w">   </span><span class="c1"># 5 min between actions</span>
 </code></pre></div>
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>This section lists all available environment variables that can be configured in Nevron.</p>
