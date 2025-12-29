@@ -53,16 +53,22 @@ def memory_module_chroma(mock_embedding_generator, mock_chroma_backend):
         return MemoryModule(backend_type=MemoryBackendType.CHROMA)
 
 
-def test_memory_module_init_qdrant(mock_qdrant_backend):
+def test_memory_module_init_qdrant(mock_embedding_generator, mock_qdrant_backend):
     """Test MemoryModule initialization with QdrantBackend."""
-    with patch("src.memory.memory_module.QdrantBackend", return_value=mock_qdrant_backend):
+    with (
+        patch("src.memory.memory_module.QdrantBackend", return_value=mock_qdrant_backend),
+        patch("src.memory.memory_module.EmbeddingGenerator", return_value=mock_embedding_generator),
+    ):
         module = MemoryModule(backend_type=MemoryBackendType.QDRANT)
         assert isinstance(module.backend, QdrantBackend)
 
 
-def test_memory_module_init_chroma(mock_chroma_backend):
+def test_memory_module_init_chroma(mock_embedding_generator, mock_chroma_backend):
     """Test MemoryModule initialization with ChromaBackend."""
-    with patch("src.memory.memory_module.ChromaBackend", return_value=mock_chroma_backend):
+    with (
+        patch("src.memory.memory_module.ChromaBackend", return_value=mock_chroma_backend),
+        patch("src.memory.memory_module.EmbeddingGenerator", return_value=mock_embedding_generator),
+    ):
         module = MemoryModule(backend_type=MemoryBackendType.CHROMA)
         assert isinstance(module.backend, ChromaBackend)
 
