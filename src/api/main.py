@@ -127,12 +127,13 @@ def create_app() -> FastAPI:
             "api": "healthy",
         }
 
-        # Try to check runtime
+        # Try to check runtime via shared state
         try:
-            from src.api.dependencies import get_runtime
+            from src.api.dependencies import get_shared_state
 
-            runtime = get_runtime()
-            components["runtime"] = runtime.state.value
+            state_manager = get_shared_state()
+            state = state_manager.get_state()
+            components["runtime"] = state.status if state else "unavailable"
         except Exception:
             components["runtime"] = "unavailable"
 
