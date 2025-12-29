@@ -73,9 +73,13 @@ def test_memory_module_init_chroma(mock_embedding_generator, mock_chroma_backend
         assert isinstance(module.backend, ChromaBackend)
 
 
-def test_memory_module_init_invalid_backend():
+def test_memory_module_init_invalid_backend(mock_embedding_generator):
     """Test MemoryModule initialization with an invalid backend."""
-    with pytest.raises(ValueError, match="Unsupported backend type"):
+    with (
+        patch("src.memory.memory_module.EmbeddingGenerator", return_value=mock_embedding_generator),
+        patch("src.memory.memory_module.LLM"),
+        pytest.raises(ValueError, match="Unsupported backend type"),
+    ):
         MemoryModule(backend_type="invalid_backend")
 
 
