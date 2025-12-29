@@ -10,9 +10,12 @@ from src.tools.twitter import TwitterTool
 
 
 async def analyze_signal(
-    memory: MemoryModule = get_memory_module(), link: Optional[str] = None
+    memory: Optional[MemoryModule] = None, link: Optional[str] = None
 ) -> Optional[str]:
     """Fetch a signal, analyze it with an LLM, and post the result on Twitter."""
+    if memory is None:
+        memory = get_memory_module()
+
     try:
         logger.info("Fetching signal...")
         if link:

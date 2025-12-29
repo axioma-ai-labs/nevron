@@ -10,9 +10,11 @@ from src.tools.twitter import TwitterTool
 
 
 async def analyze_news_workflow(
-    news: str, memory: MemoryModule = get_memory_module(), link: Optional[str] = None
+    news: str, memory: Optional[MemoryModule] = None, link: Optional[str] = None
 ) -> Optional[str]:
     """Workflow for analyzing news and posting to Twitter."""
+    if memory is None:
+        memory = get_memory_module()
 
     try:
         logger.info("Analyzing news...")
