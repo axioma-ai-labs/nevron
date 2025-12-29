@@ -2,6 +2,7 @@
 
 from src.api.routers.agent import router as agent_router
 from src.api.routers.config import router as config_router
+from src.api.routers.cycles import router as cycles_router
 from src.api.routers.learning import router as learning_router
 from src.api.routers.mcp import router as mcp_router
 from src.api.routers.memory import router as memory_router
@@ -17,4 +18,5 @@ __all__ = [
     "metacognition_router",
     "mcp_router",
     "config_router",
+    "cycles_router",
 ]

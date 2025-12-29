@@ -8,6 +8,7 @@
 
 	const pageTitles: Record<string, string> = {
 		'/': 'Control',
+		'/activity': 'Activity',
 		'/settings': 'Settings',
 		'/explore': 'Explore'
 	};
@@ -15,6 +16,7 @@
 	// Get page title based on path prefix matching
 	function getPageTitle(pathname: string): string {
 		if (pathname === '/') return 'Control';
+		if (pathname.startsWith('/activity')) return 'Activity';
 		if (pathname.startsWith('/settings')) return 'Settings';
 		if (pathname.startsWith('/explore')) return 'Explore';
 		return 'Nevron';

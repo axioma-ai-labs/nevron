@@ -13,6 +13,7 @@ from src.api.config import api_settings
 from src.api.routers import (
     agent_router,
     config_router,
+    cycles_router,
     learning_router,
     mcp_router,
     memory_router,
@@ -108,6 +109,11 @@ def create_app() -> FastAPI:
         config_router,
         prefix=f"{api_settings.API_V1_PREFIX}/config",
         tags=["Config"],
+    )
+    app.include_router(
+        cycles_router,
+        prefix=f"{api_settings.API_V1_PREFIX}/cycles",
+        tags=["Cycles"],
     )
 
     # Health check endpoint

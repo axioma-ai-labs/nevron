@@ -22,20 +22,20 @@
 	let activeTab = $state('memory');
 
 	// Memory state
-	let memoryStats: MemoryStatistics | null = $state(null);
-	let episodes: Episode[] = $state([]);
-	let facts: Fact[] = $state([]);
-	let concepts: Concept[] = $state([]);
-	let skills: Skill[] = $state([]);
+	let memoryStats = $state<MemoryStatistics | null>(null);
+	let episodes = $state<Episode[]>([]);
+	let facts = $state<Fact[]>([]);
+	let concepts = $state<Concept[]>([]);
+	let skills = $state<Skill[]>([]);
 	let memorySubTab = $state('episodes');
 	let memorySearchQuery = $state('');
 	let consolidating = $state(false);
 
 	// Learning state
-	let learningStats: LearningStatistics | null = $state(null);
-	let history: LearningOutcome[] = $state([]);
-	let critiques: Critique[] = $state([]);
-	let suggestions: ImprovementSuggestion[] = $state([]);
+	let learningStats = $state<LearningStatistics | null>(null);
+	let history = $state<LearningOutcome[]>([]);
+	let critiques = $state<Critique[]>([]);
+	let suggestions = $state<ImprovementSuggestion[]>([]);
 	let learningSubTab = $state('history');
 	let analyzing = $state(false);
 

@@ -10,14 +10,17 @@ from src.api.config import api_settings
 from src.api.dependencies import verify_api_key
 from src.api.schemas import APIResponse
 from src.core.ui_config import (
-    UIConfig,
     UIConfigResponse,
+    IntegrationsConfig,
+    AgentBehaviorConfig,
+    MCPServerUIConfig,
     config_exists,
-    get_available_models,
     get_config_response,
+    get_all_available_actions,
     load_ui_config,
     save_ui_config,
     AVAILABLE_MODELS,
+    ACTION_INTEGRATION_MAP,
 )
 
 
@@ -32,13 +35,42 @@ router = APIRouter()
 class UIConfigUpdate(BaseModel):
     """Request model for updating UI config."""
 
+    # LLM Settings
     llm_provider: Optional[str] = None
     llm_api_key: Optional[str] = None
     llm_model: Optional[str] = None
+
+    # Agent Identity
+    agent_name: Optional[str] = None
     agent_personality: Optional[str] = None
     agent_goal: Optional[str] = None
+
+    # Agent Behavior
+    agent_behavior: Optional[Dict[str, Any]] = None
+
+    # Actions
+    enabled_actions: Optional[List[str]] = None
+
+    # Integrations (partial updates supported)
+    integrations: Optional[Dict[str, Any]] = None
+
+    # MCP Settings
     mcp_enabled: Optional[bool] = None
-    mcp_servers: Optional[Dict[str, Any]] = None
+    mcp_servers: Optional[List[Dict[str, Any]]] = None
+
+
+class ActionsListResponse(BaseModel):
+    """Response for available actions list."""
+    actions: List[Dict[str, Any]]
+    action_integration_map: Dict[str, str]
+
+
+class IntegrationStatusResponse(BaseModel):
+    """Response for integration status check."""
+    integration: str
+    configured: bool
+    required_fields: List[str]
+    missing_fields: List[str]
 
 
 class ConfigExistsResponse(BaseModel):
@@ -109,26 +141,51 @@ async def update_ui_config(
 
     Updates the nevron_config.json file with new settings.
     Only provided fields are updated; others remain unchanged.
+    Supports partial updates for nested objects like integrations.
     """
     try:
         # Load existing config
         config = load_ui_config()
 
-        # Update only provided fields
+        # Update LLM settings
         if update.llm_provider is not None:
             config.llm_provider = update.llm_provider
         if update.llm_api_key is not None:
             config.llm_api_key = update.llm_api_key
         if update.llm_model is not None:
             config.llm_model = update.llm_model
+
+        # Update agent identity
+        if update.agent_name is not None:
+            config.agent_name = update.agent_name
         if update.agent_personality is not None:
             config.agent_personality = update.agent_personality
         if update.agent_goal is not None:
             config.agent_goal = update.agent_goal
+
+        # Update agent behavior (partial update)
+        if update.agent_behavior is not None:
+            current_behavior = config.agent_behavior.model_dump()
+            current_behavior.update(update.agent_behavior)
+            config.agent_behavior = AgentBehaviorConfig(**current_behavior)
+
+        # Update enabled actions
+        if update.enabled_actions is not None:
+            config.enabled_actions = update.enabled_actions
+
+        # Update integrations (partial update per integration)
+        if update.integrations is not None:
+            current_integrations = config.integrations.model_dump()
+            for integration_name, integration_data in update.integrations.items():
+                if integration_name in current_integrations and isinstance(integration_data, dict):
+                    current_integrations[integration_name].update(integration_data)
+            config.integrations = IntegrationsConfig(**current_integrations)
+
+        # Update MCP settings
         if update.mcp_enabled is not None:
             config.mcp_enabled = update.mcp_enabled
         if update.mcp_servers is not None:
-            config.mcp_servers = update.mcp_servers
+            config.mcp_servers = [MCPServerUIConfig(**s) for s in update.mcp_servers]
 
         # Save updated config
         if not save_ui_config(config):
@@ -205,6 +262,101 @@ async def get_available_models_list(
         )
 
 
+@router.get("/ui/actions", response_model=APIResponse[ActionsListResponse])
+async def get_available_actions(
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[ActionsListResponse]:
+    """Get all available actions that can be enabled for the agent.
+
+    Returns a list of actions with their names, values, and categories,
+    plus a mapping of which actions require which integrations.
+    """
+    try:
+        actions = get_all_available_actions()
+        return APIResponse(
+            success=True,
+            data=ActionsListResponse(
+                actions=actions,
+                action_integration_map=ACTION_INTEGRATION_MAP,
+            ),
+            message="Available actions retrieved",
+        )
+    except Exception as e:
+        logger.error(f"Failed to get available actions: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get available actions: {str(e)}",
+        )
+
+
+@router.get("/ui/integrations/status", response_model=APIResponse[List[IntegrationStatusResponse]])
+async def get_integrations_status(
+    _auth: bool = Depends(verify_api_key),
+) -> APIResponse[List[IntegrationStatusResponse]]:
+    """Get the configuration status of all integrations.
+
+    Returns which integrations are configured and which fields are missing.
+    """
+    try:
+        config = load_ui_config()
+        integrations = config.integrations
+
+        # Define required fields per integration
+        integration_required_fields = {
+            "twitter": ["api_key", "api_secret_key", "access_token", "access_token_secret"],
+            "telegram": ["bot_token", "chat_id"],
+            "discord": ["bot_token", "channel_id"],
+            "slack": ["bot_token"],
+            "whatsapp": ["id_instance", "api_token"],
+            "github": ["token"],
+            "google_drive": [],  # OAuth handled separately
+            "tavily": ["api_key"],
+            "perplexity": ["api_key"],
+            "shopify": ["api_key", "password", "store_name"],
+            "youtube": ["api_key"],
+            "spotify": ["client_id", "client_secret"],
+            "lens": ["api_key"],
+        }
+
+        result = []
+        for integration_name, required_fields in integration_required_fields.items():
+            integration_data = getattr(integrations, integration_name, None)
+            if integration_data is None:
+                result.append(IntegrationStatusResponse(
+                    integration=integration_name,
+                    configured=False,
+                    required_fields=required_fields,
+                    missing_fields=required_fields,
+                ))
+                continue
+
+            # Check which required fields are missing
+            missing = []
+            for field in required_fields:
+                value = getattr(integration_data, field, "")
+                if not value:
+                    missing.append(field)
+
+            result.append(IntegrationStatusResponse(
+                integration=integration_name,
+                configured=len(missing) == 0,
+                required_fields=required_fields,
+                missing_fields=missing,
+            ))
+
+        return APIResponse(
+            success=True,
+            data=result,
+            message="Integration status retrieved",
+        )
+    except Exception as e:
+        logger.error(f"Failed to get integrations status: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get integrations status: {str(e)}",
+        )
+
+
 @router.post("/ui/validate", response_model=APIResponse[ValidateKeyResponse])
 async def validate_api_key(
     request: ValidateKeyRequest,
@@ -271,7 +423,7 @@ async def _validate_openai_key(api_key: str, model: str) -> tuple[bool, str]:
 
         client = openai.OpenAI(api_key=api_key)
         # Make a minimal request
-        response = client.chat.completions.create(
+        _response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=5,
@@ -291,7 +443,7 @@ async def _validate_anthropic_key(api_key: str, model: str) -> tuple[bool, str]:
         import anthropic
 
         client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
+        _response = client.messages.create(
             model=model,
             max_tokens=5,
             messages=[{"role": "user", "content": "Hi"}],
@@ -311,7 +463,7 @@ async def _validate_xai_key(api_key: str, model: str) -> tuple[bool, str]:
         import openai
 
         client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
-        response = client.chat.completions.create(
+        _response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=5,
@@ -329,7 +481,7 @@ async def _validate_deepseek_key(api_key: str, model: str) -> tuple[bool, str]:
         import openai
 
         client = openai.OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
-        response = client.chat.completions.create(
+        _response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=5,
@@ -350,7 +502,7 @@ async def _validate_qwen_key(api_key: str, model: str) -> tuple[bool, str]:
             api_key=api_key,
             base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         )
-        response = client.chat.completions.create(
+        _response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=5,
@@ -368,7 +520,7 @@ async def _validate_venice_key(api_key: str, model: str) -> tuple[bool, str]:
         import openai
 
         client = openai.OpenAI(api_key=api_key, base_url="https://api.venice.ai/api/v1")
-        response = client.chat.completions.create(
+        _response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=5,

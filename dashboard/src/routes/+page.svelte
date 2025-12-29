@@ -15,10 +15,10 @@
 		type LearningStatistics
 	} from '$lib/api/client';
 
-	let agentStatus: AgentStatus | null = $state(null);
-	let runtimeStats: FullRuntimeStatistics | null = $state(null);
-	let memoryStats: MemoryStatistics | null = $state(null);
-	let learningStats: LearningStatistics | null = $state(null);
+	let agentStatus = $state<AgentStatus | null>(null);
+	let runtimeStats = $state<FullRuntimeStatistics | null>(null);
+	let memoryStats = $state<MemoryStatistics | null>(null);
+	let learningStats = $state<LearningStatistics | null>(null);
 	let loading = $state(true);
 	let actionLoading = $state(false);
 	let error = $state<string | null>(null);

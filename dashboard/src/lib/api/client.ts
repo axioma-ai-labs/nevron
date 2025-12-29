@@ -264,25 +264,136 @@ export interface HealthCheck {
 	components: Record<string, string>;
 }
 
+// Agent Behavior Config
+export interface AgentBehaviorConfig {
+	rest_time: number;
+	max_consecutive_failures: number;
+	verbosity: string;
+}
+
+// Integration Credentials (masked in responses)
+export interface IntegrationsConfig {
+	twitter: Record<string, string>;
+	telegram: Record<string, string>;
+	discord: Record<string, string>;
+	slack: Record<string, string>;
+	whatsapp: Record<string, string>;
+	github: Record<string, string>;
+	google_drive: Record<string, unknown>;
+	tavily: Record<string, string>;
+	perplexity: Record<string, string>;
+	shopify: Record<string, string>;
+	youtube: Record<string, string>;
+	spotify: Record<string, string>;
+	lens: Record<string, string>;
+}
+
+// MCP Server Config
+export interface MCPServerConfig {
+	name: string;
+	transport: string;
+	command?: string;
+	args: string[];
+	env: Record<string, string>;
+	url?: string;
+	enabled: boolean;
+}
+
 // UI Config Types
 export interface UIConfigResponse {
 	llm_provider: string;
 	llm_api_key_masked: string;
 	llm_model: string;
+	agent_name: string;
 	agent_personality: string;
 	agent_goal: string;
+	agent_behavior: AgentBehaviorConfig;
+	enabled_actions: string[];
+	integrations: IntegrationsConfig;
 	mcp_enabled: boolean;
-	mcp_servers: Record<string, unknown>;
+	mcp_servers: MCPServerConfig[];
 }
 
 export interface UIConfigUpdate {
 	llm_provider?: string;
 	llm_api_key?: string;
 	llm_model?: string;
+	agent_name?: string;
 	agent_personality?: string;
 	agent_goal?: string;
+	agent_behavior?: Partial<AgentBehaviorConfig>;
+	enabled_actions?: string[];
+	integrations?: Record<string, Record<string, string>>;
 	mcp_enabled?: boolean;
-	mcp_servers?: Record<string, unknown>;
+	mcp_servers?: MCPServerConfig[];
+}
+
+// Actions
+export interface ActionInfo {
+	name: string;
+	value: string;
+	category: string;
+}
+
+export interface ActionsListResponse {
+	actions: ActionInfo[];
+	action_integration_map: Record<string, string>;
+}
+
+// Integration Status
+export interface IntegrationStatus {
+	integration: string;
+	configured: boolean;
+	required_fields: string[];
+	missing_fields: string[];
+}
+
+// Cycle Types
+export interface CycleLog {
+	cycle_id: string;
+	timestamp: string;
+	planning_input_state: string;
+	planning_input_recent_actions: string[];
+	planning_output_action: string;
+	planning_output_reasoning: string | null;
+	planning_duration_ms: number;
+	action_name: string;
+	action_params: Record<string, unknown>;
+	execution_result: Record<string, unknown>;
+	execution_success: boolean;
+	execution_error: string | null;
+	execution_duration_ms: number;
+	reward: number;
+	critique: string | null;
+	lesson_learned: string | null;
+	memories_stored: string[];
+	llm_provider: string;
+	llm_model: string;
+	llm_tokens_used: number;
+	total_duration_ms: number;
+	agent_state_after: string;
+}
+
+export interface CycleListResponse {
+	cycles: CycleLog[];
+	total: number;
+	page: number;
+	page_size: number;
+	has_more: boolean;
+}
+
+export interface CycleStats {
+	total_cycles: number;
+	successful_cycles: number;
+	failed_cycles: number;
+	success_rate: number;
+	avg_duration_ms: number;
+	total_rewards: number;
+	avg_reward: number;
+	action_counts: Record<string, number>;
+	top_actions: string[];
+	cycles_per_hour: number;
+	last_cycle_time: string | null;
 }
 
 export interface ConfigExistsResponse {
@@ -499,5 +610,39 @@ export const configAPI = {
 			method: 'POST',
 			body: JSON.stringify({ provider, api_key: apiKey, model })
 		}),
-	getAvailableModels: () => request<ModelsListResponse>('/config/ui/models')
+	getAvailableModels: () => request<ModelsListResponse>('/config/ui/models'),
+	getAvailableActions: () => request<ActionsListResponse>('/config/ui/actions'),
+	getIntegrationsStatus: () => request<IntegrationStatus[]>('/config/ui/integrations/status')
+};
+
+// Cycles API
+export const cyclesAPI = {
+	getCycles: (
+		page = 1,
+		pageSize = 50,
+		action?: string,
+		success?: boolean,
+		startTime?: string,
+		endTime?: string
+	) => {
+		let url = `/cycles?page=${page}&page_size=${pageSize}`;
+		if (action) url += `&action=${encodeURIComponent(action)}`;
+		if (success !== undefined) url += `&success=${success}`;
+		if (startTime) url += `&start_time=${encodeURIComponent(startTime)}`;
+		if (endTime) url += `&end_time=${encodeURIComponent(endTime)}`;
+		return request<CycleListResponse>(url);
+	},
+	getCycle: (cycleId: string) => request<CycleLog>(`/cycles/${cycleId}`),
+	getStats: (startTime?: string, endTime?: string) => {
+		let url = '/cycles/stats';
+		const params = [];
+		if (startTime) params.push(`start_time=${encodeURIComponent(startTime)}`);
+		if (endTime) params.push(`end_time=${encodeURIComponent(endTime)}`);
+		if (params.length > 0) url += '?' + params.join('&');
+		return request<CycleStats>(url);
+	},
+	cleanup: (keepCount = 1000) =>
+		request<{ deleted: number; kept: number }>(`/cycles/cleanup?keep_count=${keepCount}`, {
+			method: 'DELETE'
+		})
 };

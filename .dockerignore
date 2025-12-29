@@ -51,3 +51,4 @@ docs/
 # Development/Testing
 tests/
 .env.dev
+nevron_config.json

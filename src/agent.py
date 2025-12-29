@@ -1,6 +1,7 @@
 """Agent runtime implementation."""
 
 import asyncio
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -8,6 +9,7 @@ from loguru import logger
 
 from src.context.context import ContextManager
 from src.core.config import settings
+from src.core.cycle_logger import CycleLog, create_cycle_log, get_cycle_logger
 from src.core.defs import AgentAction, AgentState
 from src.execution.execution_module import ExecutionModule
 from src.feedback.feedback_module import FeedbackModule
@@ -67,6 +69,9 @@ class Agent:
         # ===== MCP Configuration =====
         self._mcp_enabled = settings.MCP_ENABLED
         self._mcp_initialized = False
+
+        # ===== Cycle Logger =====
+        self._cycle_logger = get_cycle_logger()
 
     # --------------------------------------------------------------
     # MCP INITIALIZATION
@@ -166,19 +171,46 @@ class Agent:
 
         try:
             while True:
+                cycle_start_time = time.time()
+                cycle_log: Optional[CycleLog] = None
+
                 try:
+                    # Get recent actions for context
+                    recent_actions_ctx = self.context_manager.get_context().get_recent_actions(n=5)
+                    recent_action_names = [a.action.value for a in recent_actions_ctx]
+
                     # 1. Choose an action using LLM-based planning
                     logger.info(f"Current state: {self.state.value}")
+                    planning_start = time.time()
                     action_name = await self.planning_module.get_action(self.state)
+                    planning_duration = int((time.time() - planning_start) * 1000)
                     logger.info(f"Action chosen: {action_name.value}")
 
+                    # Create cycle log
+                    cycle_log = create_cycle_log(
+                        state=self.state.value,
+                        recent_actions=recent_action_names,
+                        action=action_name.value,
+                    )
+                    cycle_log.planning_duration_ms = planning_duration
+
                     # 2. Execute action using execution module
+                    exec_start = time.time()
                     success, outcome = await self.execution_module.execute_action(action_name)
+                    exec_duration = int((time.time() - exec_start) * 1000)
                     logger.info(f"Execution result: success={success}, outcome={outcome}")
+
+                    # Update cycle log with execution info
+                    cycle_log.execution_success = success
+                    cycle_log.execution_duration_ms = exec_duration
+                    cycle_log.execution_result = {"outcome": outcome}
+                    if not success:
+                        cycle_log.execution_error = str(outcome) if outcome else "Unknown error"
 
                     # 3. Collect feedback
                     reward = self._collect_feedback(action_name.value, outcome)
                     logger.info(f"Reward: {reward}")
+                    cycle_log.reward = reward
 
                     # 4. Update context and state
                     self.context_manager.add_action(
@@ -188,8 +220,13 @@ class Agent:
                         reward=reward,
                     )
                     self._update_state(action_name)
+                    cycle_log.agent_state_after = self.state.value
 
-                    # 5. Sleep or yield
+                    # 5. Finalize and log cycle
+                    cycle_log.total_duration_ms = int((time.time() - cycle_start_time) * 1000)
+                    self._cycle_logger.log_cycle(cycle_log)
+
+                    # 6. Sleep or yield
                     logger.info("Let's rest a bit...")
                     await asyncio.sleep(settings.AGENT_REST_TIME)
 
@@ -198,6 +235,12 @@ class Agent:
                     break
                 except Exception as e:
                     logger.error(f"Error in runtime loop: {e}")
+                    # Log failed cycle if we have one
+                    if cycle_log:
+                        cycle_log.execution_success = False
+                        cycle_log.execution_error = str(e)
+                        cycle_log.total_duration_ms = int((time.time() - cycle_start_time) * 1000)
+                        self._cycle_logger.log_cycle(cycle_log)
                     break
         finally:
             # Cleanup MCP connections

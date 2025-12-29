@@ -2,9 +2,12 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { websocketStore, connectionStatus } from '$lib/stores/websocket';
 	import { healthAPI, type HealthCheck } from '$lib/api/client';
+	import type { Snippet } from 'svelte';
 
-	let health: HealthCheck | null = null;
-	let healthError = false;
+	let { title }: { title?: Snippet } = $props();
+
+	let health: HealthCheck | null = $state(null);
+	let healthError = $state(false);
 	let refreshInterval: ReturnType<typeof setInterval>;
 
 	onMount(() => {
@@ -55,7 +58,11 @@
 	<!-- Page Title -->
 	<div class="flex items-center gap-4">
 		<h2 class="text-xl font-semibold text-apple-text-primary tracking-tight">
-			<slot name="title">Dashboard</slot>
+			{#if title}
+				{@render title()}
+			{:else}
+				Dashboard
+			{/if}
 		</h2>
 	</div>
 
