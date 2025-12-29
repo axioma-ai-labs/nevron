@@ -410,14 +410,21 @@ export interface ValidateKeyResponse {
 	message: string;
 }
 
-// Available models per provider (for offline use)
+// Available models per provider (for offline use, updated December 2025)
 export const AVAILABLE_MODELS: Record<string, string[]> = {
-	openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
-	anthropic: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'],
-	xai: ['grok-2-latest', 'grok-beta'],
-	deepseek: ['deepseek-chat', 'deepseek-reasoner'],
-	qwen: ['qwen-max', 'qwen-plus', 'qwen-turbo'],
-	venice: ['venice-2-13b']
+	openai: ['gpt-4o', 'gpt-4o-mini', 'o1', 'o1-mini', 'o3-mini', 'gpt-4-turbo'],
+	anthropic: [
+		'claude-opus-4-5-20251024',
+		'claude-sonnet-4-5-20250929',
+		'claude-haiku-4-5-20251015',
+		'claude-3-5-sonnet-20241022',
+		'claude-3-5-haiku-20241022',
+		'claude-3-opus-20240229'
+	],
+	xai: ['grok-4.1', 'grok-4.1-fast', 'grok-4', 'grok-2-latest'],
+	deepseek: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3'],
+	qwen: ['qwen2.5-max', 'qwen-max', 'qwen-plus', 'qwen-turbo', 'qwq-32b'],
+	venice: ['llama-3.3-70b', 'llama-3.1-405b', 'deepseek-r1-llama-70b']
 };
 
 // API request helper

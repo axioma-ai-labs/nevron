@@ -75,13 +75,25 @@ def get_embedding_client(provider: EmbeddingProviderType = EmbeddingProviderType
         AsyncOpenAI: Configured OpenAI client
 
     Raises:
-        ValueError: If provider is unsupported
+        ValueError: If provider is unsupported or API key is missing
     """
     if provider == EmbeddingProviderType.OPENAI:
-        return openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        api_key = settings.OPENAI_API_KEY
+        if not api_key:
+            raise ValueError(
+                "OPENAI_API_KEY is required for OpenAI embeddings. "
+                "Please set it in your .env file or environment variables."
+            )
+        return openai.AsyncOpenAI(api_key=api_key)
     elif provider == EmbeddingProviderType.LLAMA_API:
+        api_key = settings.LLAMA_API_KEY
+        if not api_key:
+            raise ValueError(
+                "LLAMA_API_KEY is required for Llama API embeddings. "
+                "Please set it in your .env file or environment variables."
+            )
         return openai.AsyncOpenAI(
-            api_key=settings.LLAMA_API_KEY, base_url=settings.LLAMA_API_BASE_URL
+            api_key=api_key, base_url=settings.LLAMA_API_BASE_URL
         )
     else:
         raise ValueError(f"Unsupported provider for embedding client: {provider}")

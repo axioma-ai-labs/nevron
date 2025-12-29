@@ -94,7 +94,8 @@ class ContextManager:
             try:
                 with open(self.context_path, "r") as f:
                     data = json.load(f)
-                    return AgentContext.model_validate_json(data)
+                    # Use model_validate for dict input (not model_validate_json which expects a string)
+                    return AgentContext.model_validate(data)
             except Exception as e:
                 logger.error(f"Failed to load context: {e}")
                 return AgentContext()
