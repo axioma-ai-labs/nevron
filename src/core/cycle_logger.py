@@ -110,6 +110,7 @@ class CycleLogger:
 
     _instance: Optional["CycleLogger"] = None
     _lock = Lock()
+    _initialized: bool = False
 
     def __new__(cls, db_path: Optional[Path] = None):
         """Singleton pattern for cycle logger."""
@@ -274,8 +275,8 @@ class CycleLogger:
             List of CycleLog instances
         """
         try:
-            conditions = []
-            params = []
+            conditions: List[str] = []
+            params: List[Any] = []
 
             if action_filter:
                 conditions.append("action_name = ?")
