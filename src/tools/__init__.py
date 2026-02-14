@@ -1,6 +1,7 @@
 """Tools initialization and exports."""
 
 from src.tools.discord import DiscordTool
+from src.tools.gather import GatherTool
 from src.tools.get_signal import CoinstatsTool
 from src.tools.github import GitHubTool
 from src.tools.google_drive import GoogleDriveTool
@@ -20,6 +21,7 @@ __all__ = [
     "CoinstatsTool",
     "GoogleDriveTool",
     "DiscordTool",
+    "GatherTool",
     "GitHubTool",
     "LensProtocolTool",
     "PerplexityTool",

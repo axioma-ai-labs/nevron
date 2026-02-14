@@ -291,6 +291,12 @@ class Settings(BaseSettings):
     LENS_API_KEY: str = ""
     LENS_PROFILE_ID: str = ""
 
+    # --- Gather settings ---
+    #: Path to Ed25519 private key PEM file for Gather authentication
+    GATHER_PRIVATE_KEY_PATH: str = ""
+    #: Path to Ed25519 public key PEM file for Gather authentication
+    GATHER_PUBLIC_KEY_PATH: str = ""
+
     #: --- Github settings ---
     GITHUB_TOKEN: str = ""
 
@@ -561,6 +567,12 @@ def _create_settings() -> Settings:
         overrides["LENS_API_KEY"] = v
     if v := _get_integration_value("lens", "profile_id"):
         overrides["LENS_PROFILE_ID"] = v
+
+    # Gather
+    if v := _get_integration_value("gather", "private_key_path"):
+        overrides["GATHER_PRIVATE_KEY_PATH"] = v
+    if v := _get_integration_value("gather", "public_key_path"):
+        overrides["GATHER_PUBLIC_KEY_PATH"] = v
 
     # Apply overrides by creating new settings with merged values
     if overrides:
