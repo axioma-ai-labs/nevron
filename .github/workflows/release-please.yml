@@ -16,7 +16,7 @@ env:
 jobs:
   # Determine if this is a merge from dev or a hotfix
   check-source:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') || 
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true && 
@@ -44,7 +44,7 @@ jobs:
   release-please:
     needs: check-source
     if: needs.check-source.outputs.should_continue == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_name: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
@@ -59,14 +59,11 @@ jobs:
 
   Container-Release:
     needs: [check-source, release-please]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: needs.check-source.outputs.should_continue == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -105,5 +102,5 @@ jobs:
           file: ./Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
