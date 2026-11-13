@@ -9,7 +9,7 @@ class APISettings(BaseSettings):
     """Settings for the Nevron Dashboard API."""
 
     # Server settings
-    API_HOST: str = "0.0.0.0"
+    API_HOST: str = "127.0.0.1"
     API_PORT: int = 8000
     API_DEBUG: bool = False
 
@@ -29,9 +29,12 @@ class APISettings(BaseSettings):
     # API versioning
     API_V1_PREFIX: str = "/api/v1"
 
-    # Authentication (optional)
+    # Authentication: NEVRON_API_KEY is required unless auth is explicitly disabled
     API_KEY: Optional[str] = None
     API_KEY_HEADER: str = "X-API-Key"
+    # Local development only. Never set this on a reachable host.
+    API_AUTH_DISABLED: bool = False
+    WS_TICKET_TTL: float = 30.0
 
     # WebSocket settings
     WS_HEARTBEAT_INTERVAL: float = 30.0

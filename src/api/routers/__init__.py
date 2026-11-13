@@ -1,6 +1,7 @@
 """API routers for the Nevron Dashboard."""
 
 from src.api.routers.agent import router as agent_router
+from src.api.routers.auth import router as auth_router
 from src.api.routers.config import router as config_router
 from src.api.routers.cycles import router as cycles_router
 from src.api.routers.learning import router as learning_router
@@ -12,6 +13,7 @@ from src.api.routers.runtime import router as runtime_router
 
 __all__ = [
     "agent_router",
+    "auth_router",
     "runtime_router",
     "memory_router",
     "learning_router",

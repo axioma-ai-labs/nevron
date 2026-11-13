@@ -7,9 +7,7 @@ via the command queue.
 
 from typing import Optional
 
-from fastapi import Header, HTTPException, status
-
-from src.api.config import api_settings
+from src.api.auth import verify_api_key  # noqa: F401  (re-export for routers)
 from src.core.agent_commands import CommandQueue, get_command_queue
 from src.core.agent_state import SharedStateManager, get_state_manager
 from src.learning.learning_module import AdaptiveLearningModule, get_learning_module
@@ -66,23 +64,6 @@ def get_monitor() -> MetacognitiveMonitor:
     if _monitor is None:
         _monitor = MetacognitiveMonitor(enable_human_handoff=False)
     return _monitor
-
-
-async def verify_api_key(
-    x_api_key: Optional[str] = Header(None, alias=api_settings.API_KEY_HEADER),
-) -> bool:
-    """Verify API key if authentication is enabled."""
-    if api_settings.API_KEY is None:
-        # No authentication required
-        return True
-
-    if x_api_key is None or x_api_key != api_settings.API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API key",
-            headers={"WWW-Authenticate": "ApiKey"},
-        )
-    return True
 
 
 def reset_singletons() -> None:

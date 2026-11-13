@@ -2,6 +2,7 @@
 	import '../app.css';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import Header from '$lib/components/Header.svelte';
+	import ApiKeyPrompt from '$lib/components/ApiKeyPrompt.svelte';
 	import { page } from '$app/stores';
 
 	let { children } = $props();
@@ -24,6 +25,8 @@
 
 	let pageTitle = $derived(getPageTitle($page.url.pathname));
 </script>
+
+<ApiKeyPrompt />
 
 <div class="flex h-screen overflow-hidden bg-apple-bg-primary">
 	<!-- Sidebar -->

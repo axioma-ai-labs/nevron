@@ -53,6 +53,10 @@ This starts:
 
 Configuration is saved to `nevron_config.json` and loaded automatically.
 
+The dashboard API requires `NEVRON_API_KEY`. `make dev` / `make dev-full` bind to `127.0.0.1` and,
+when `NEVRON_API_KEY` is not set, run with auth disabled for local development. See
+[Dashboard docs](docs/dashboard.md#api-configuration).
+
 ## Architecture
 
 Nevron uses a decoupled architecture where the API and Agent run as independent processes:

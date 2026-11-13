@@ -24,6 +24,18 @@ Configuration is stored in `nevron_config.json` and loaded automatically by the 
 
 For Docker deployments or running without the dashboard, use environment variables in a `.env` file. The default definitions are located in `src/core/config.py`.
 
+### Dashboard API Settings
+
+The dashboard API reads `NEVRON_`-prefixed environment variables (`src/api/config.py`):
+
+| Variable | Default | Notes |
+|---|---|---|
+| `NEVRON_API_KEY` | unset | Required. The API refuses to start without it. |
+| `NEVRON_API_AUTH_DISABLED` | `false` | Local development only. |
+| `NEVRON_API_HOST` | `127.0.0.1` | Bind address. |
+| `NEVRON_API_PORT` | `8000` | |
+| `NEVRON_CORS_ORIGINS` | localhost dev ports | Also the allowed WebSocket origins. |
+
 ### Configuration Priority
 
 When both are present, the priority is:

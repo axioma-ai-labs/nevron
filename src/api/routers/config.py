@@ -751,7 +751,7 @@ async def get_api_config(
             port=api_settings.API_PORT,
             debug=api_settings.API_DEBUG,
             cors_origins=api_settings.CORS_ORIGINS,
-            api_key_enabled=api_settings.API_KEY is not None,
+            api_key_enabled=not api_settings.API_AUTH_DISABLED,
             rate_limit_enabled=api_settings.RATE_LIMIT_ENABLED,
         )
 
@@ -815,7 +815,7 @@ async def get_full_config(
                 port=api_settings.API_PORT,
                 debug=api_settings.API_DEBUG,
                 cors_origins=api_settings.CORS_ORIGINS,
-                api_key_enabled=api_settings.API_KEY is not None,
+                api_key_enabled=not api_settings.API_AUTH_DISABLED,
                 rate_limit_enabled=api_settings.RATE_LIMIT_ENABLED,
             ),
         )

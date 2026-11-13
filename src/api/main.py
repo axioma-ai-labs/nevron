@@ -5,13 +5,15 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
+from src.api.auth import check_auth_config, verify_api_key, websocket_authorized
 from src.api.config import api_settings
 from src.api.routers import (
     agent_router,
+    auth_router,
     config_router,
     cycles_router,
     learning_router,
@@ -34,6 +36,7 @@ __version__ = "0.1.0"
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown events."""
     global _start_time
+    check_auth_config()
     _start_time = time.time()
     logger.info("Nevron Dashboard API starting...")
 
@@ -74,46 +77,61 @@ def create_app() -> FastAPI:
         allow_headers=api_settings.CORS_ALLOW_HEADERS,
     )
 
-    # Include routers
+    # Include routers. Every /api/v1 router requires the API key.
+    protected = [Depends(verify_api_key)]
+    app.include_router(
+        auth_router,
+        prefix=f"{api_settings.API_V1_PREFIX}/auth",
+        tags=["Auth"],
+        dependencies=protected,
+    )
     app.include_router(
         agent_router,
         prefix=f"{api_settings.API_V1_PREFIX}/agent",
         tags=["Agent"],
+        dependencies=protected,
     )
     app.include_router(
         runtime_router,
         prefix=f"{api_settings.API_V1_PREFIX}/runtime",
         tags=["Runtime"],
+        dependencies=protected,
     )
     app.include_router(
         memory_router,
         prefix=f"{api_settings.API_V1_PREFIX}/memory",
         tags=["Memory"],
+        dependencies=protected,
     )
     app.include_router(
         learning_router,
         prefix=f"{api_settings.API_V1_PREFIX}/learning",
         tags=["Learning"],
+        dependencies=protected,
     )
     app.include_router(
         metacognition_router,
         prefix=f"{api_settings.API_V1_PREFIX}/metacognition",
         tags=["Metacognition"],
+        dependencies=protected,
     )
     app.include_router(
         mcp_router,
         prefix=f"{api_settings.API_V1_PREFIX}/mcp",
         tags=["MCP"],
+        dependencies=protected,
     )
     app.include_router(
         config_router,
         prefix=f"{api_settings.API_V1_PREFIX}/config",
         tags=["Config"],
+        dependencies=protected,
     )
     app.include_router(
         cycles_router,
         prefix=f"{api_settings.API_V1_PREFIX}/cycles",
         tags=["Cycles"],
+        dependencies=protected,
     )
 
     # Health check endpoint
@@ -176,6 +194,14 @@ def create_app() -> FastAPI:
         from src.api.websocket.manager import get_connection_manager
 
         manager = get_connection_manager()
+
+        # Auth runs before accept(); closing first makes the handshake fail.
+        if not websocket_authorized(websocket):
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            return
+        if manager.connection_count >= api_settings.WS_MAX_CONNECTIONS:
+            await websocket.close(code=status.WS_1013_TRY_AGAIN_LATER)
+            return
 
         await manager.connect(websocket, client_id)
         try:

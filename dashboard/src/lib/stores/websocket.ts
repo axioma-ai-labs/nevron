@@ -3,6 +3,7 @@
  */
 import { writable, derived, type Readable } from 'svelte/store';
 import { browser } from '$app/environment';
+import { authAPI } from '$lib/api/client';
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
@@ -27,6 +28,7 @@ function createWebSocketStore() {
 	let clientId: string | null = null;
 	let reconnectAttempts = 0;
 	let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+	let fetchingTicket = false;
 
 	const initialState: WebSocketState = {
 		status: 'disconnected',
@@ -42,18 +44,34 @@ function createWebSocketStore() {
 		return `dashboard-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 	}
 
-	function connect() {
+	async function connect() {
 		if (!browser) return;
-		if (ws?.readyState === WebSocket.OPEN) return;
+		if (fetchingTicket) return;
+		if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) return;
 
 		clientId = generateClientId();
 		// In development, connect to FastAPI on port 8000
 		// In production (Docker), use same host (nginx proxy)
 		const wsHost = import.meta.env.DEV ? 'localhost:8000' : window.location.host;
-		const wsUrl = `ws://${wsHost}/ws/${clientId}`;
+		const wsProto = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
 		update((state) => ({ ...state, status: 'connecting', error: null }));
 
+		// Auth: exchange the API key for a single-use ticket. With auth disabled the
+		// server still issues one, so this path is the same either way.
+		let ticket: string;
+		fetchingTicket = true;
+		try {
+			ticket = (await authAPI.getWsTicket()).data.ticket;
+		} catch {
+			update((state) => ({ ...state, status: 'error', error: 'Not authorized' }));
+			scheduleReconnect();
+			return;
+		} finally {
+			fetchingTicket = false;
+		}
+
+		const wsUrl = `${wsProto}://${wsHost}/ws/${clientId}?ticket=${encodeURIComponent(ticket)}`;
 		ws = new WebSocket(wsUrl);
 
 		ws.onopen = () => {

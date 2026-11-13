@@ -114,10 +114,13 @@ AGENT_REST_TIME=300
 ### 3. Run
 
 ```bash
+export NEVRON_API_KEY=$(openssl rand -hex 32)
 docker compose up -d
 ```
 
-Access the dashboard at http://localhost:3000 (API at http://localhost:8000).
+Compose refuses to start without `NEVRON_API_KEY`, and publishes every port on `127.0.0.1` only.
+Access the dashboard at http://localhost:3000 (API at http://localhost:8000) and enter the key
+when asked.
 
 -----
 

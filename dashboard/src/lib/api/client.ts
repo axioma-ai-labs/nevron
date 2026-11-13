@@ -1,11 +1,41 @@
 /**
  * API client for Nevron Dashboard
  */
+import { writable } from 'svelte/store';
 
 // In development, point to FastAPI backend on port 8000
 // In production (Docker), use relative path (nginx proxy)
 const API_HOST = import.meta.env.DEV ? 'http://localhost:8000' : '';
 const API_BASE = `${API_HOST}/api/v1`;
+
+// API key auth. The key is kept for this browser tab only (sessionStorage).
+const API_KEY_STORAGE = 'nevron_api_key';
+const API_KEY_HEADER = 'X-API-Key';
+
+export const authRequired = writable(false);
+
+export function getApiKey(): string | null {
+	try {
+		return sessionStorage.getItem(API_KEY_STORAGE);
+	} catch {
+		return null;
+	}
+}
+
+export function setApiKey(key: string | null): void {
+	try {
+		if (key) sessionStorage.setItem(API_KEY_STORAGE, key);
+		else sessionStorage.removeItem(API_KEY_STORAGE);
+	} catch {
+		// storage unavailable: the key lasts only until the next prompt
+	}
+	authRequired.set(false);
+}
+
+function authHeaders(): Record<string, string> {
+	const key = getApiKey();
+	return key ? { [API_KEY_HEADER]: key } : {};
+}
 
 // Types
 export interface APIResponse<T> {
@@ -445,9 +475,14 @@ async function request<T>(
 		...options,
 		headers: {
 			'Content-Type': 'application/json',
+			...authHeaders(),
 			...options.headers
 		}
 	});
+
+	if (response.status === 401) {
+		authRequired.set(true);
+	}
 
 	if (!response.ok) {
 		throw new Error(`API error: ${response.status} ${response.statusText}`);
@@ -600,6 +635,12 @@ export const mcpAPI = {
 			method: 'POST',
 			body: JSON.stringify({ arguments: args })
 		})
+};
+
+// Auth API
+export const authAPI = {
+	// Single-use ticket for the WebSocket handshake (browsers can't send headers there)
+	getWsTicket: () => request<{ ticket: string; expires_in: number }>('/auth/ws-ticket', { method: 'POST' })
 };
 
 // Health API

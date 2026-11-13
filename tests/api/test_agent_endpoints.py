@@ -457,38 +457,33 @@ class TestAgentCyclesEndpoint:
 class TestAPIAuthentication:
     """Tests for API authentication."""
 
-    def test_endpoints_work_without_api_key_when_not_configured(self, client):
-        """Test that endpoints work when no API key is configured."""
-        # By default, API_KEY is None so auth is disabled
+    def test_endpoints_work_without_api_key_when_auth_disabled(self, client):
+        """Endpoints are open only when auth is explicitly disabled (conftest default)."""
         response = client.get("/api/v1/agent/status")
         assert response.status_code == 200
 
-    def test_endpoints_require_api_key_when_configured(self, app, state_manager):
+    def test_endpoints_require_api_key_when_configured(self, app, state_manager, monkeypatch):
         """Test that endpoints require API key when configured."""
         from src.api.config import api_settings
 
-        # Temporarily set API key
-        original_key = api_settings.API_KEY
-        try:
-            api_settings.API_KEY = "test-secret-key"
+        monkeypatch.setattr(api_settings, "API_KEY", "test-secret-key")
+        monkeypatch.setattr(api_settings, "API_AUTH_DISABLED", False)
 
-            with TestClient(app) as client:
-                # Without API key
-                response = client.get("/api/v1/agent/status")
-                assert response.status_code == 401
+        with TestClient(app) as client:
+            # Without API key
+            response = client.get("/api/v1/agent/status")
+            assert response.status_code == 401
 
-                # With correct API key
-                response = client.get(
-                    "/api/v1/agent/status",
-                    headers={"X-API-Key": "test-secret-key"},
-                )
-                assert response.status_code == 200
+            # With correct API key
+            response = client.get(
+                "/api/v1/agent/status",
+                headers={"X-API-Key": "test-secret-key"},
+            )
+            assert response.status_code == 200
 
-                # With wrong API key
-                response = client.get(
-                    "/api/v1/agent/status",
-                    headers={"X-API-Key": "wrong-key"},
-                )
-                assert response.status_code == 401
-        finally:
-            api_settings.API_KEY = original_key
+            # With wrong API key
+            response = client.get(
+                "/api/v1/agent/status",
+                headers={"X-API-Key": "wrong-key"},
+            )
+            assert response.status_code == 401

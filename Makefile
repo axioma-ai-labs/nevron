@@ -100,9 +100,14 @@ docs:
 # Dashboard Commands
 # =============================================================================
 
+# Local dev binds the API to loopback. Without NEVRON_API_KEY in the environment it
+# runs with auth explicitly disabled; set NEVRON_API_KEY to develop with auth on.
+API_DEV_ENV := $(if $(strip $(NEVRON_API_KEY)),,NEVRON_API_AUTH_DISABLED=true)
+API_DEV_CMD := $(API_DEV_ENV) poetry run uvicorn src.api.main:app --reload --host 127.0.0.1 --port 8000
+
 .PHONY: api
 api:
-	poetry run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+	$(API_DEV_CMD)
 
 .PHONY: dashboard-deps
 dashboard-deps:
@@ -124,7 +129,7 @@ dev:
 	@echo "Note: Agent is NOT running. Use 'make dev-full' to include agent."
 	@echo "Press Ctrl+C to stop both services"
 	@trap 'kill 0' INT; \
-		poetry run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000 & \
+		$(API_DEV_CMD) & \
 		cd dashboard && npm run dev & \
 		wait
 
@@ -137,7 +142,7 @@ dev-full:
 	@echo "Press Ctrl+C to stop all services"
 	@trap 'kill 0' INT; \
 		poetry run python -m src.agent_runner & \
-		sleep 2 && poetry run uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000 & \
+		sleep 2 && $(API_DEV_CMD) & \
 		cd dashboard && npm run dev & \
 		wait
 

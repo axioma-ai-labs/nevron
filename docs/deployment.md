@@ -95,6 +95,15 @@ Edit the `.env` file to configure:
    # etc.
    ```
 
+3. **Dashboard API key** (required): compose will not start the API without it
+   ```bash
+   NEVRON_API_KEY=a-long-random-string   # e.g. openssl rand -hex 32
+   ```
+
+All ports in `docker-compose.yml` are published on `127.0.0.1`. To reach the dashboard from another
+machine, put it behind a TLS reverse proxy or an SSH tunnel instead of publishing the ports on
+`0.0.0.0`.
+
 For a complete list of configuration options, refer to the [Configuration](configuration.md) documentation.
 
 #### 4. Start the Services
@@ -150,6 +159,8 @@ When deploying to production, consider the following:
    - Use secure storage for API keys and sensitive data
    - Consider using Docker secrets for sensitive information
    - Implement proper network security rules
+   - Always set `NEVRON_API_KEY`; never set `NEVRON_API_AUTH_DISABLED` on a reachable host
+   - Keep the API, Qdrant (6333/6334) and Ollama (11434) off public interfaces
 
 2. **Performance**
    - Configure appropriate resource limits for containers

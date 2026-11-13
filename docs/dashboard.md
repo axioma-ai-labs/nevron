@@ -211,17 +211,30 @@ The configuration is stored in `nevron_config.json` in the project root.
 
 ### API Configuration
 
-Environment variables for the API (in `.env`):
+API settings are environment variables with the `NEVRON_` prefix:
 
 ```bash
-# API Settings
-API_HOST=0.0.0.0
-API_PORT=8000
-API_KEY=your-optional-api-key
+# Required: every /api/v1 route and the WebSocket need this key
+NEVRON_API_KEY=a-long-random-string
 
-# CORS (for dashboard)
-CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
+# Bind address and port (defaults: 127.0.0.1 and 8000)
+NEVRON_API_HOST=127.0.0.1
+NEVRON_API_PORT=8000
+
+# CORS and allowed WebSocket origins (for the dashboard)
+NEVRON_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
 ```
+
+Generate a key with `openssl rand -hex 32`. If `NEVRON_API_KEY` is missing the API refuses to start.
+
+`make api`, `make dev` and `make dev-full` bind to `127.0.0.1`. When `NEVRON_API_KEY` is not set in
+your shell they run with `NEVRON_API_AUTH_DISABLED=true`, for local development only. Never set
+`NEVRON_API_AUTH_DISABLED` on a host other machines can reach.
+
+The dashboard asks for the key on the first `401` and keeps it for the browser tab. REST clients
+send it in the `X-API-Key` header. WebSocket clients either send the same header, or (browsers)
+`POST /api/v1/auth/ws-ticket` with the key and connect to `/ws/{client_id}?ticket=<ticket>`. A ticket
+is single-use and expires after 30 seconds.
 
 ### Dashboard Configuration
 

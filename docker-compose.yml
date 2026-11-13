@@ -49,12 +49,11 @@ services:
     container_name: nevron-api
     hostname: nevron-api
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       - qdrant
     environment:
-      - API_HOST=0.0.0.0
-      - API_PORT=8000
+      - NEVRON_API_KEY=${NEVRON_API_KEY:?Set NEVRON_API_KEY for the dashboard API}
       - QDRANT_HOST=nevron-qdrant
       - QDRANT_PORT=6333
     volumes:
@@ -83,7 +82,7 @@ services:
     container_name: nevron-dashboard
     hostname: nevron-dashboard
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - api
     environment:
@@ -106,8 +105,8 @@ services:
     container_name: nevron-qdrant
     hostname: nevron-qdrant
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
     volumes:
       - type: bind
         source: ${volumes_basedir:-./volumes}/qdrant/data
@@ -126,7 +125,7 @@ services:
     container_name: nevron-ollama
     hostname: nevron-ollama
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - type: bind
         source: ${volumes_basedir:-./volumes}/ollama/models
